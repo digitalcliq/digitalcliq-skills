@@ -1,0 +1,56 @@
+{
+  "_metadata": {
+    "description": "Configurable thresholds for the paid media waste audit engine",
+    "notes": "These are starting defaults based on automotive industry norms. Adjust per-client as needed."
+  },
+  "zero_conversion_spend": {
+    "search_threshold_usd": 150,
+    "display_pmax_threshold_usd": 300,
+    "social_threshold_usd": 250,
+    "lookback_days": 30,
+    "description": "Flag keywords/ads/campaigns with spend above threshold and zero conversions (form fills + calls + VDP leads) over the period."
+  },
+  "low_vdp_to_lead": {
+    "min_vdp_views": 50,
+    "luxury_threshold_pct": 1.2,
+    "mainstream_threshold_pct": 1.5,
+    "domestic_threshold_pct": 1.8,
+    "description": "Flag campaigns driving VDP traffic with lead conversion below threshold. Higher threshold for domestic (lower consideration cycle)."
+  },
+  "high_spend_low_return": {
+    "spend_percentile_top": 20,
+    "performance_percentile_bottom": 30,
+    "min_spend_usd": 500,
+    "description": "Flag campaigns in top 20% of spend but bottom 30% of attributable results."
+  },
+  "search_term_bleed": {
+    "top_n_irrelevant": 25,
+    "min_impressions": 10,
+    "irrelevant_patterns": [
+      "salary", "jobs", "careers", "hire", "employment",
+      "recall", "lawsuit", "lemon",
+      "free", "giveaway",
+      "junkyard", "salvage", "wreck",
+      "how to", "diy", "repair manual",
+      "toy", "game", "hot wheels", "matchbox",
+      "rental", "rent a car",
+      "uber", "lyft", "turo"
+    ],
+    "description": "Flag top non-automotive or irrelevant search terms consuming budget."
+  },
+  "geo_waste": {
+    "default_market_radius_miles": 35,
+    "min_spend_outside_market_usd": 100,
+    "description": "Flag spend outside primary market radius with no conversions. Radius adjustable per client."
+  },
+  "device_hour_waste": {
+    "spend_to_conversion_ratio_threshold": 3.0,
+    "min_spend_usd": 200,
+    "description": "Flag hours or devices with disproportionate spend-to-conversion ratios (3x+ the average ratio)."
+  },
+  "overall_waste_estimate": {
+    "target_waste_pct_low": 20,
+    "target_waste_pct_high": 30,
+    "description": "Industry benchmarks suggest 20-30% of paid media spend is typically wasted. Used for context framing, not as a target."
+  }
+}

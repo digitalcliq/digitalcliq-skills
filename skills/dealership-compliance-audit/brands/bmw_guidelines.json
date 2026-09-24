@@ -1,0 +1,362 @@
+{
+  "brand": "BMW",
+  "program": "BMW Brand Guidelines for Retail (March 2026)",
+  "source": "BMW_Guidelines_Retail_2026.pdf",
+  "last_updated": "2026-03-09",
+  "checks": [
+    {
+      "id": "BMW-LOGO-001",
+      "category": "Logo & Identity",
+      "title": "BMW Roundel Usage",
+      "description": "Primary logo is the white + blue roundel, used against black, picture, or color backgrounds. Fallback logo (gray roundel) may only be used in exceptional cases against white. No modification, distortion, or unauthorized color changes. BMW has only one logo: white and blue.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-LOGO-002",
+      "category": "Logo & Identity",
+      "title": "Dealer Name with BMW Branding",
+      "description": "Dealer name must follow BMW naming conventions. BMW brand name must appear in conjunction with dealer name per guidelines. Dealership logo cannot be more prominent than the BMW roundel.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-LOGO-003",
+      "category": "Logo & Identity",
+      "title": "Brand Claim / Tagline Required",
+      "description": "The brand claim 'The Ultimate Driving Machine' with registered trademark symbol must be included with the BMW logo on most creative assets (size and legibility permitting). The logo lock-up with tagline should be used in most cases; only remove if it doesn't fit. 'Ultimate' should not be bolded when used with the logo or as body copy.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-LOGO-004",
+      "category": "Logo & Identity",
+      "title": "Sub-Brand Logo Placement",
+      "description": "Sub-brand logos (e.g., M) must be placed to the right of the BMW roundel. The pairing of core brand (BMW) and sub-brand is always mandatory, and BMW must be dominant. BMW M logo pairing is accompanied by the BMW M claim.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-LOGO-005",
+      "category": "Logo & Identity",
+      "title": "Logo Background Control",
+      "description": "The background behind the BMW roundel must be controlled for color and brightness. Roundel should be on a clean, non-distracting background. Add gradients as needed when used over pictures. BMW blue must NOT be used as a full-surface insert behind the logo for contrast reasons.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-LOGO-006",
+      "category": "Logo & Identity",
+      "title": "Logo Modification Prohibited",
+      "description": "Do not touch, modify, distort, or play with the BMW logo. The logo must not be recreated, recolored, or altered in any way. Any special cases require prior BMW approval.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-LOGO-007",
+      "category": "Logo & Identity",
+      "title": "Logo Spacing Requirements",
+      "description": "BMW roundel requires minimum clear space of 6 units on all sides (measured in the grid system where the roundel occupies a 12x12 unit area). No other elements may encroach on this safety zone.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-LOGO-008",
+      "category": "Logo & Identity",
+      "title": "Logo Placement Position",
+      "description": "The logo with brand claim may only be placed in the bottom left or bottom right corner of the format. Legal disclaimers are placed at the bottom within the margin space (1/12 of shorter format dimension).",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "BMW-CERT-001",
+      "category": "Certified Pre-Owned",
+      "title": "BMW Certified Program Branding",
+      "description": "Only vehicles certified through BMW's official program may use BMW Certified branding. The program is now branded as 'BMW Certified' (not 'BMW Certified Pre-Owned'). Must use the correct BMW Certified logo: primary logo (white roundel + BMW CERTIFIED text on dark) or fallback logo (gray roundel + gray BMW CERTIFIED text on white).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-001",
+      "category": "Typography",
+      "title": "BMW Approved Font",
+      "description": "BMW TypeNextPro Medium is the primary font and weight. Available weights: BMWTypeNextPro Light, Regular, Medium (primary), Bold. Other typefaces (Helvetica, Arial, sans-serif) may be used for body copy, intermediate headlines, or price labelling only.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-002",
+      "category": "Typography",
+      "title": "Headline and Body Copy Case Rules",
+      "description": "All headlines and subheads must be written in UPPER CASE. Body copy must be written in Sentence case. Offer copy is written in Sentence case. CTA button copy uses Title Case (first letter of each word capitalized, e.g., View Offer, Learn More, Explore Now).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-003",
+      "category": "Typography",
+      "title": "Headline Period / Full Stop Rules",
+      "description": "All headlines, subheads, and copy should end with a full stop (period), UNLESS it is a vehicle iconization used alone as a headline (e.g., 'BMW iX' or 'BMW 3' with no additional text). When the vehicle name is part of a phrase or sentence, the period is required (e.g., 'VISIT AND TEST-DRIVE THE BMW 3 SERIES.').",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-004",
+      "category": "Typography",
+      "title": "Headline Length Limit",
+      "description": "Headlines and subheads should not exceed two lines each.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-005",
+      "category": "Typography",
+      "title": "Number Spelling Convention",
+      "description": "Numbers 1 through 12 should be written out in words (e.g., 'three' not '3'). Numbers 13 and above may use numerals.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-006",
+      "category": "Typography",
+      "title": "Clickable Elements Must Be Bold",
+      "description": "In digital media, all clickable elements are always set in bold (BMW Type Next Bold).",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-007",
+      "category": "Typography",
+      "title": "Copy Must Not Cover Vehicle",
+      "description": "Text and copy overlays should not be covering or obscuring the vehicle in any imagery.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-TYPO-008",
+      "category": "Typography",
+      "title": "Font Color Rules",
+      "description": "Font color follows the logo color. On colored/dark backgrounds with the communication logo, text color is white. On white backgrounds, text color is 70% black (matching the logo line color). Body copy on white backgrounds can range from 70% to 100% black. BMW Grey for text copy is #221F1F.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-COLOR-001",
+      "category": "Color",
+      "title": "BMW Brand Colors",
+      "description": "BMW M Colors: White #FFFFFF, BMW Blue #0066B1 (Pantone 2935C), BMW Dark Blue #003D78 (Pantone 294C), BMW Red #E22718 (Pantone 7626C), Cool Gray 9 #6F6F6F, Cool Gray 2 #D6D6D6. BMW brand blue (#1C69D3) is the primary blue for digital CTA elements. Dealer website BMW sections should use the approved BMW color palette.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-COLOR-002",
+      "category": "Color",
+      "title": "Web Colors (ADA Compliant)",
+      "description": "BMW-approved web colors: White #FFFFFF (no background behind logo), Grey1 #F6F6F6, Grey2 #CACACA, Grey3 #727171, BMW Grey Text Copy #221F1F. Blues: CTA Default #1C69D3, CTA Hover #2658BB, CTA Disabled #5895E9. Red Error State #D83336. White must NOT be used as a background directly behind the roundel (fallback logo excepted).",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-COLOR-003",
+      "category": "Color",
+      "title": "CTA Button Standards",
+      "description": "Primary CTA on light background: White BMW Type Next Bold text on blue (#1C69D3) button. Primary CTA on dark background: Black BMW Type Next Bold text on white button. CTA copy uses Title Case (e.g., View Offer, Learn More, Explore Now).",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-WEB-001",
+      "category": "Website",
+      "title": "BMW Website Integration Standards",
+      "description": "Dealer website BMW sections must meet BMW digital brand standards. Navigation, page layout, and vehicle presentation pages should follow BMW dealer web guidelines. BMW roundel required in upper left corner on every page. 50% or more of dealer-developed creative content must highlight BMW products, features, and current offers.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-WEB-002",
+      "category": "Website",
+      "title": "BMW Model Names and Designations",
+      "description": "BMW model names must be used correctly. In headlines: BMW 3 SERIES, BMW X3 30 xDRIVE, xDRIVE, BMW M PERFORMANCE PARTS. In body copy: BMW 3 Series, BMW X3 30 xDrive, xDrive, BMW M Performance Parts. 'myBMW' retains lowercase 'm' in all contexts. Sub-model designations (330i, M340i, etc.) must be accurate.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-WEB-003",
+      "category": "Website",
+      "title": "Third-Party Content Separation",
+      "description": "Non-BMW third-party vendor content, ads, or widgets should be clearly separated from BMW-branded content areas. No advertising alongside other manufacturers. No other brand or line make permitted.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-WEB-004",
+      "category": "Website",
+      "title": "Vehicle Naming Convention",
+      "description": "Vehicle names must always be prefixed with 'BMW' (e.g., 'BMW X5', 'BMW 3'). Do NOT use 'The' in front of the vehicle name (e.g., 'BMW iX3' NOT 'The BMW iX3'). The only exception is 'The new BMW [model]' format for vehicle launches. Cannot use 'The' as a standalone prefix (e.g., 'THE iX' is wrong, 'BMW iX' is correct).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-WEB-005",
+      "category": "Website",
+      "title": "'New' and 'All New' Usage Restrictions",
+      "description": "'New' in headlines is only permitted for vehicle launch campaigns up to 6 months after market launch (format: 'THE NEW BMW [model]'). 'New' may be used anytime to distinguish new vs. pre-owned on website VLPs or in social media body copy. 'All New' is NEVER allowed. 'First Ever' is restricted to first worldwide vehicle launch, up to 6 months after market launch, and only following central/corporate marketing guidance.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-WEB-006",
+      "category": "Website",
+      "title": "WCAG Level AA Compliance",
+      "description": "All web assets for BMW must comply with WCAG Level AA. Requirements include: 1.1.1 Non-text Content (Level A) \u2014 all images must have text alternatives (alt text); 1.4.3 Contrast Minimum (Level AA) \u2014 text must have contrast ratio of at least 4.5:1 (large text 3:1); 2.4.6 Headings and Labels (Level AA) \u2014 headings must describe topic or purpose with clear hierarchy.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-WEB-007",
+      "category": "Website",
+      "title": "BMW Nomenclature Styling",
+      "description": "BMW technology and feature names have specific styling rules. In headlines (UPPER CASE): BMW CONNECTED DRIVE, BMW CHARGE FORWARD, BMW CHARGING NETWORK. In body copy (CamelCase): BMW ConnectedDrive, BMW ChargeForward, BMW ChargingNetwork. These terms in capital letters can be separated with spaces for readability.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-PHOTO-001",
+      "category": "Photography",
+      "title": "Vehicle Photography Standards",
+      "description": "Vehicle photos must accurately represent the vehicle. No unauthorized composite images, misleading angles, or non-BMW vehicles in BMW-branded sections. No damaged vehicle images (exception: exemplary images on parts/service pages). Supers and text in video must not touch or cover the vehicle.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-PHOTO-002",
+      "category": "Photography",
+      "title": "BMW Approved Imagery",
+      "description": "Hero images and lifestyle photography should use BMW-approved assets or follow BMW photography guidelines. No competing brand vehicles visible in BMW sections. No ancillary graphics, cartoons, or animations.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-PRICE-001",
+      "category": "Pricing",
+      "title": "MSRP Presentation",
+      "description": "MSRP must be clearly labeled as 'Manufacturer's Suggested Retail Price' or 'MSRP'. Cannot present MSRP as dealer's own price. Must include destination charge in MSRP. Pricing (lease, APR, credits, MSRP) may NOT appear in headlines except for FMAs, banner ads, Paid Search, and Paid Social.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-PRICE-002",
+      "category": "Pricing",
+      "title": "MAP Policy Compliance",
+      "description": "Dealer advertising must comply with BMW's Minimum Advertised Price policy. Pricing below MAP may not be publicly advertised. No price advertising other than MSRP for new vehicles. No distressed messaging (heavily discounted/below-invoice language).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-PRICE-003",
+      "category": "Pricing",
+      "title": "Lease/Finance Offers Attribution",
+      "description": "Lease and finance offers through BMW Financial Services must be properly attributed. Rates and terms must match current BMW Financial Services programs. Lease terms: 36 months only, 10,000 miles/year. Center contribution + customer down payment must be disclosed and not exceed 10% of MSRP (15% combined including destination).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-PMA-001",
+      "category": "Primary Market Area",
+      "title": "PMA Compliance",
+      "description": "Advertising must target the dealer's Primary Market Area (PMA) defined by census tracts. Digital advertising geo-targeting should align with assigned PMA. Deliberate targeting outside PMA is a violation.",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "BMW-PROHIB-001",
+      "category": "Prohibited Content",
+      "title": "BMW Prohibited Advertising Content",
+      "description": "Cannot depict illegal activity, reckless driving, or unsafe vehicle operation. No political, religious, or controversial content. No ancillary graphics, cartoons, or animations. No excessive font sizes. No unsubstantiated claims (#1 Dealer, Preferred Dealer, etc.).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-PROHIB-002",
+      "category": "Prohibited Content",
+      "title": "Competitor Disparagement",
+      "description": "Cannot disparage competing brands or their vehicles. No advertising alongside other manufacturers. No other brand or line make permitted, including website addresses. Dealer group affiliation may be referenced only once in BMW font, no group logos.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-COPY-001",
+      "category": "Ad Copy",
+      "title": "Prohibited Language and Terms",
+      "description": "Language to avoid: speed/fast language ('pedal to the metal', 'burn rubber', 'eat dust' \u2014 focus on power and performance instead); alcohol mentions or insinuations; anything with 'smoke'; 'cheap', 'discount', 'deal', 'affordable'; claims of 'green', 'free', or 'safe'. December creative: avoid Santa Claus, Christmas trees, nutcrackers, or 'Christmas' written anywhere ('Happy holidays' is OK).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-COPY-002",
+      "category": "Ad Copy",
+      "title": "Vehicle vs Car Terminology",
+      "description": "Use 'vehicle' instead of 'car' in all BMW communications. Reserve the word 'luxury' or 'luxurious' for GKL (global key line) creative only. Ensure all voice-over copy is as economical as possible.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-EV-001",
+      "category": "Electric Vehicles",
+      "title": "BMW EV Messaging Guidelines (2026 Update)",
+      "description": "CRITICAL CHANGE: The BMW 'i' sub-brand logo is NO LONGER to be used in any communications. Do NOT use '100% electric' or 'all-electric' in headlines. If needed, 'fully electric' or 'all-electric' may ONLY be called out in body copy (not headlines). BMW i models (iX, i4, i5, i7, iX1, iX3) follow standard BMW naming conventions without the separate i logo. Charging and range claims must include proper disclaimers.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-COOP-001",
+      "category": "Co-Op Compliance",
+      "title": "BMW Co-Op Advertising Requirements",
+      "description": "Advertising submitted for BMW co-op reimbursement must meet all brand requirements including proper disclaimers, branding, and pre-approval. Submit creative for prior review before placement through CenterNet > Marketing Portal. Administered by Papirfly (formerly BrandMaster).",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "BMW-DISC-001",
+      "category": "Disclaimers",
+      "title": "BMW Required Disclaimers",
+      "description": "BMW-required disclaimers must appear on all advertising. 'BMW is a registered trademark.' Lease/finance disclaimers must include BMW Financial Services attribution and all required terms. Legal disclaimer is placed at the bottom within the margin space, and must not touch upon other elements. Each market is responsible for adding their local legal disclaimer sourcing all required technical details.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-SOCIAL-001",
+      "category": "Social Media",
+      "title": "BMW Social Media Guidelines",
+      "description": "Use the logo without the brand claim in small formats. If the logo is in the profile picture, it does not need to be included on every frame of the social asset \u2014 it is OK to use in the end card only. Default layout rules are applicable to social assets. Social media content management must follow BMW social regulations. Digital advertising must use radius targeting per assigned Comparison Group.",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "BMW-M-001",
+      "category": "BMW M",
+      "title": "BMW M Layout Guidelines",
+      "description": "All layout rules for BMW also apply to BMW M, with exceptions: the BMW M logo pairing is accompanied by the BMW M claim, and headlines and the claim appear in BMW Type Next Bold (not Medium).",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "BMW-VIDEO-001",
+      "category": "Video",
+      "title": "Video Endings and Logo Animation",
+      "description": "Roundel must be shown on moving footage that does not distract from the roundel (clean background). When animated, roundel fades on first, followed by brand claim. Supers in video must not touch or cover the vehicle. Static logo may be used in some cases.",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "BMW-OUTDATE-001",
+      "category": "Content Currency",
+      "title": "Outdated Content Prohibited",
+      "description": "No old 3D roundel (must use current 2D roundel). No expired slides or specials. No out-of-date content on website. All content must be current. The BMW 'i' sub-brand logo is deprecated as of March 2026 and counts as outdated content.",
+      "severity": "warning",
+      "website_applicable": true
+    }
+  ],
+  "vault_quick_reference": "Resources/automotive-guidelines/bmw-quick-reference.md",
+  "notes": "Vault quick-reference at the path above is the canonical fresh-rebuilt version with page citations to the source PDF. When a check here conflicts with the vault version, prefer the vault and flag this file for refresh."
+}

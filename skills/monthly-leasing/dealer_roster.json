@@ -1,0 +1,111 @@
+{
+  "brands": {
+    "nissan": {
+      "display_name": "Nissan",
+      "make": "Nissan",
+      "models": [
+        "Altima", "Sentra", "Versa", "Ariya", "LEAF", "Kicks",
+        "Rogue", "Pathfinder", "Murano", "Armada", "Frontier", "Titan", "Z", "GT-R"
+      ],
+      "dealers": [
+        {"name": "Nissan of Irvine", "url": "https://www.nissanofirvine.com/", "county": "Orange", "state": "CA"},
+        {"name": "Nissan of Tustin", "url": "https://www.nissanoftustin.com/", "county": "Orange", "state": "CA"},
+        {"name": "Nissan of Costa Mesa", "url": "https://www.nissanofcostamesa.com/", "county": "Orange", "state": "CA"},
+        {"name": "Surf City Nissan", "url": "https://www.surfcitynissan.com/", "county": "Orange", "state": "CA"},
+        {"name": "Nissan Garden Grove", "url": "https://www.nissangardengrove.com/", "county": "Orange", "state": "CA"},
+        {"name": "Buena Park Nissan", "url": "https://www.buenaparknissan.com/", "county": "Orange", "state": "CA"},
+        {"name": "Nissan of Orange", "url": "https://www.nissanorange.com/", "county": "Orange", "state": "CA"}
+      ]
+    },
+    "bmw": {
+      "display_name": "BMW",
+      "make": "BMW",
+      "models": [
+        "2 Series", "3 Series", "4 Series", "5 Series", "7 Series", "8 Series",
+        "X1", "X2", "X3", "X4", "X5", "X6", "X7",
+        "Z4", "i4", "i5", "i7", "iX",
+        "M2", "M3", "M4", "M5", "M8", "X3 M", "X5 M", "XM"
+      ],
+      "dealers": [
+        {"name": "BMW of Buena Park", "url": "https://www.bmwbuenapark.com/", "county": "Orange", "state": "CA"},
+        {"name": "Crevier BMW", "url": "https://www.crevierbmw.com/", "county": "Orange", "state": "CA"},
+        {"name": "Irvine BMW", "url": "https://www.irvinebmw.com/", "county": "Orange", "state": "CA"},
+        {"name": "Sterling BMW", "url": "https://www.sterlingbmw.com/", "county": "Orange", "state": "CA"}
+      ]
+    },
+    "cdjr": {
+      "display_name": "CDJR",
+      "make": "CDJR",
+      "models": [
+        "Pacifica", "300", "Hornet", "Durango", "Charger", "Challenger",
+        "Wrangler", "Grand Cherokee", "Cherokee", "Compass", "Renegade",
+        "Gladiator", "Wagoneer", "Grand Wagoneer",
+        "1500", "2500", "3500", "ProMaster"
+      ],
+      "dealers": [
+        {"name": "McPeek Dodge Anaheim CDJR", "url": "https://www.mcpeeksdodgeanaheim.com/", "county": "Orange", "state": "CA"},
+        {"name": "J Star Anaheim Hills CDJR", "url": "https://www.jstarcdjrofanaheimhills.com/", "county": "Orange", "state": "CA"},
+        {"name": "Huntington Beach CDJR", "url": "https://www.hbchryslerdodgejeepram.com/", "county": "Orange", "state": "CA"},
+        {"name": "Knight Claremont CDJR", "url": "https://www.claremontcdjr.com/", "county": "San Bernardino", "state": "CA"},
+        {"name": "Orange Coast CDJR", "url": "https://www.ocauto.com/", "county": "Orange", "state": "CA"},
+        {"name": "Aaron CDJR of Norco", "url": "https://www.aaroncdjr.com/", "county": "Riverside", "state": "CA"},
+        {"name": "Puente Hills CDJR", "url": "https://www.puentehillscdjr.com/", "county": "Los Angeles", "state": "CA"}
+      ]
+    },
+    "chevrolet": {
+      "display_name": "Chevrolet",
+      "make": "Chevrolet",
+      "models": [
+        "Malibu", "Camaro", "Corvette", "Blazer", "Equinox", "Trax",
+        "Traverse", "Tahoe", "Suburban", "Colorado", "Silverado", "Silverado 1500",
+        "Bolt EV", "Bolt EUV", "Trailblazer", "Blazer EV", "Equinox EV", "Silverado EV"
+      ],
+      "dealers": [
+        {"name": "Selman Chevrolet", "url": "https://www.selmanchevy.com/", "county": "Orange", "state": "CA"},
+        {"name": "Guaranty Chevrolet", "url": "https://www.occhevy.com/", "county": "Orange", "state": "CA"},
+        {"name": "Simpson Chevrolet of Irvine", "url": "https://www.simpsonchevroletirvine.com/", "county": "Orange", "state": "CA"},
+        {"name": "Simpson Chevrolet of Garden Grove", "url": "https://www.simpsonchevroletgardengrove.com/", "county": "Orange", "state": "CA"},
+        {"name": "DeLillo Chevrolet", "url": "https://www.delillo.com/", "county": "Orange", "state": "CA"}
+      ]
+    },
+    "lexus": {
+      "display_name": "Lexus",
+      "make": "Lexus",
+      "models": [
+        "ES", "IS", "LS", "LC", "RC", "UX", "NX", "RX", "GX", "LX", "TX", "RZ", "LBX"
+      ],
+      "dealers": [
+        {"name": "Newport Lexus", "url": "https://www.newportlexus.com/", "county": "Orange", "state": "CA"},
+        {"name": "South County Lexus", "url": "https://www.southcountylexus.com/", "county": "Orange", "state": "CA"}
+      ]
+    },
+    "ford": {
+      "display_name": "Ford",
+      "make": "Ford",
+      "models": [
+        "Mustang", "Bronco", "Bronco Sport", "Escape", "Edge", "Explorer",
+        "Expedition", "Ranger", "F-150", "F-150 Lightning", "Maverick",
+        "Mustang Mach-E", "Transit", "Super Duty"
+      ],
+      "dealers": [
+        {"name": "Villa Ford of Orange", "url": "https://www.villaford.com/", "county": "Orange", "state": "CA"},
+        {"name": "Ken Grody Ford", "url": "https://www.kengrodyfordorangecounty.com/", "county": "Orange", "state": "CA"},
+        {"name": "AutoNation Ford Tustin", "url": "https://www.autonationfordtustin.com/", "county": "Orange", "state": "CA"},
+        {"name": "Fairway Ford Placentia", "url": "https://www.fairwayfordplacentia.com/", "county": "Orange", "state": "CA"},
+        {"name": "Huntington Beach Ford", "url": "https://www.huntingtonbeachford.com/", "county": "Orange", "state": "CA"},
+        {"name": "Tuttle-Click Ford Irvine", "url": "https://www.tuttleclickford.com/", "county": "Orange", "state": "CA"},
+        {"name": "Tuttle-Click Ford Capistrano", "url": "https://www.capistranoford.com/", "county": "Orange", "state": "CA"}
+      ]
+    }
+  },
+  "brand_aliases": {
+    "all": ["nissan", "bmw", "cdjr", "chevrolet", "lexus", "ford"],
+    "all-oc-dealers": ["nissan", "bmw", "cdjr", "chevrolet", "lexus", "ford"],
+    "chevy": ["chevrolet"],
+    "dodge": ["cdjr"],
+    "jeep": ["cdjr"],
+    "ram": ["cdjr"],
+    "chrysler": ["cdjr"],
+    "stellantis": ["cdjr"]
+  }
+}

@@ -1,0 +1,123 @@
+[
+  {
+    "page_url": "https://www.crevierbmw.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-002",
+    "title": "No 'Do Not Sell or Share' Link on Homepage",
+    "quote": "No 'Do Not Sell or Share My Personal Information' link found on homepage",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.135(a), CPRA",
+    "recommendation": "Add a clear and conspicuous 'Do Not Sell or Share My Personal Information' link to the homepage. Dealership websites using tracking pixels, Google Analytics, or remarketing tags are likely 'sharing' PI under CPRA."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-003",
+    "title": "No 'Limit Sensitive Information' Link on Homepage",
+    "quote": "No 'Limit the Use of My Sensitive Personal Information' link (or combined alternative) found on homepage",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.135(a), CPRA",
+    "recommendation": "Add a 'Limit the Use of My Sensitive Personal Information' link to the homepage. Dealerships collect sensitive PI (financial data, driver's license info) through credit applications and trade-in forms. A single combined opt-out/limit link is acceptable."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/privacy-policies/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-005",
+    "title": "Privacy Policy Missing 11 Required Content Sections",
+    "quote": "Missing: right to know, right to delete, right to opt-out, right to correct, right to limit sensitive PI, categories of PI collected, third-party disclosures, sources of PI, purposes of collection, retention periods, sell/share disclosure",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.130(a)(5), CCPA/CPRA",
+    "recommendation": "Add these required sections to the privacy policy: right to know, right to delete, right to opt-out, right to correct, right to limit sensitive PI, categories of PI collected, third-party disclosures, sources of PI, purposes of collection, retention periods, sell/share disclosure."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/privacy-policies/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-006",
+    "title": "Fewer Than Two Consumer Request Submission Methods",
+    "quote": "Only 0 method(s) found: none",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.130(a)(1), CCPA/CPRA",
+    "recommendation": "Provide at least two methods for consumer privacy requests (e.g., toll-free phone number + email or web form)."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/privacy-policies/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-008",
+    "title": "No Global Privacy Control (GPC) Disclosure in Privacy Policy",
+    "quote": "Privacy policy does not mention Global Privacy Control or browser opt-out signals",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.135(e), CPRA; 11 CCR \u00a77025",
+    "recommendation": "Add a section disclosing whether and how the business responds to Global Privacy Control (GPC) browser signals."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/new-bmw-finance-payments-lease-offers-sale-buy-price-santa-ana-ca/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-003",
+    "title": "Multiple lease payments with single disclosure block",
+    "quote": "Prices: $429/mo, $479/mo, $499/mo \u2014 but only one disclosure referencing '$429/mo. for 39 months w/$2,405 down... MSRP $44,100'",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code \u00a711713.1(e); Reg M 12 CFR \u00a7213.7",
+    "recommendation": "Each advertised lease payment must have its own corresponding disclosure with specific terms (MSRP, down payment, due at signing, residual, mileage allowance, expiration). Add separate disclosures for the $479/mo and $499/mo offers identifying the specific vehicle, MSRP, down payment, due at signing, total lease payments, and residual for each."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/new-bmw-finance-payments-lease-offers-sale-buy-price-santa-ana-ca/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-004",
+    "title": "Disclosure appears behind click-to-expand element",
+    "quote": "disclosure\\n\\nMSRP of $44,100 excludes document & license fee...",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code \u00a711713.16(i)",
+    "recommendation": "Required lease and finance disclosures should be visible without requiring user interaction (clicking to expand). Display the full disclosure text in a readable format near the corresponding offer rather than behind a collapsed 'disclosure' toggle."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/new-bmw-finance-payments-lease-offers-sale-buy-price-santa-ana-ca/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-005",
+    "title": "Lease due-at-signing amount not prominently displayed alongside monthly payment",
+    "quote": "$429/mo displayed as offer price; '$2,834 due at signing' only appears within collapsed disclosure text",
+    "severity": "advisory",
+    "source": "legal_check",
+    "statute": "Reg M 12 CFR \u00a7213.7(d)(2)(ii)",
+    "recommendation": "Display the total due at signing ($2,834) with equal prominence alongside the monthly payment ($429/mo). The due-at-signing amount should be visible in the same area as the monthly payment, not buried in the disclosure footnote. Best practice is to show both figures at the same font size near the offer."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/new-bmw-finance-payments-lease-offers-sale-buy-price-santa-ana-ca/",
+    "finding_type": "brand_violation",
+    "rule_id": "BMW-PRICE-003",
+    "title": "Incomplete lease disclosures for multiple BMW Financial Services offers",
+    "quote": "Page advertises $429/mo, $479/mo, and $499/mo lease offers but only one disclosure block with BMW Financial Services attribution for the $429/mo vehicle",
+    "severity": "warning",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Each BMW Financial Services lease offer must include proper attribution and complete terms per BMW AVP requirements. Add BMW Financial Services-attributed disclosures for each advertised payment amount, ensuring rates and terms match current BMW Financial Services programs."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/",
+    "finding_type": "brand_violation",
+    "rule_id": "BMW-PRICE-001",
+    "title": "Vehicle prices displayed without MSRP labeling on homepage",
+    "quote": "Featured Vehicles section shows prices (e.g., '$163,945', '$158,295') without labeling them as 'MSRP' or 'Manufacturer's Suggested Retail Price'",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Label all vehicle prices displayed on the homepage Featured Vehicles section as 'MSRP' to comply with BMW pricing presentation standards. This also protects against consumers interpreting the displayed price as the dealer's selling price."
+  },
+  {
+    "page_url": "https://www.crevierbmw.com/new-bmw-finance-payments-lease-offers-sale-buy-price-santa-ana-ca/",
+    "finding_type": "brand_violation",
+    "rule_id": "BMW-DISC-001",
+    "title": "Missing BMW trademark attribution on specials page",
+    "quote": "General disclaimer states 'Offer available through BMW Financial Services' but page lacks BMW registered trademark notice",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Add the required BMW trademark attribution (e.g., 'BMW is a registered trademark') to the specials page, as required by BMW AVP guidelines for all advertising materials featuring BMW branding and offers."
+  }
+]

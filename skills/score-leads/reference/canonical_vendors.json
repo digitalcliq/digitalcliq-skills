@@ -1,0 +1,296 @@
+{
+ "_meta": {
+  "title": "Canonical Vendor Roll-Up Map — Lead Scoring",
+  "maintained_by": "DigitalCLIQ",
+  "purpose": "Collapses fragmented CRM source names (New/Used splits, sub-products, marketplace variants) into one canonical vendor per row. Used by ingest.py when a format is flagged for roll-up (e.g. Tekion). First match wins, so ORDER matters: specific/chat/list rules come before broad website/oem catch-alls. Canonical names are chosen so they classify correctly in the benchmark layer (e.g. 'Walk-in / Location' -> walk_in, 'Chat / Virtual Retail' -> chat).",
+  "how_to_extend": "Add a rule as {\"name\": <canonical>, \"match\": [<lowercase substrings>]}. Place it above any broader rule that would swallow it. Match is tested against the lowercased 'group + source name'."
+ },
+ "rules": [
+  {
+   "name": "700 Credit - Quick Qualify",
+   "match": [
+    "quick qualify",
+    "700 credit",
+    "complete credit"
+   ]
+  },
+  {
+   "name": "CarGurus",
+   "match": [
+    "cargurus",
+    "car gurus"
+   ]
+  },
+  {
+   "name": "AutoTrader.com",
+   "match": [
+    "autotrader",
+    "auto trader"
+   ]
+  },
+  {
+   "name": "CARFAX",
+   "match": [
+    "carfax"
+   ]
+  },
+  {
+   "name": "Cars.com",
+   "match": [
+    "cars.com",
+    "cars.com phone"
+   ]
+  },
+  {
+   "name": "Trader Interactive",
+   "match": [
+    "trader interactive"
+   ]
+  },
+  {
+   "name": "TrueCar",
+   "match": [
+    "truecar",
+    "true car"
+   ]
+  },
+  {
+   "name": "Edmunds",
+   "match": [
+    "edmunds"
+   ]
+  },
+  {
+   "name": "First Watch - Back In Market (Conquest)",
+   "match": [
+    "first watch",
+    "back in market"
+   ]
+  },
+  {
+   "name": "Stellantis / OEM Campaign",
+   "match": [
+    "stellantis",
+    "mozeus",
+    "search optics",
+    "hot list",
+    "tekion campaign"
+   ]
+  },
+  {
+   "name": "Capital One",
+   "match": [
+    "capital one"
+   ]
+  },
+  {
+   "name": "Chase Auto",
+   "match": [
+    "chase"
+   ]
+  },
+  {
+   "name": "Gubagoo",
+   "match": [
+    "gubagoo",
+    "gobagoo"
+   ]
+  },
+  {
+   "name": "CarNow - Chat",
+   "match": [
+    "carnow"
+   ]
+  },
+  {
+   "name": "Podium",
+   "match": [
+    "podium"
+   ]
+  },
+  {
+   "name": "Website Chat",
+   "match": [
+    "- chat",
+    " chat",
+    "virtual retail",
+    "live person",
+    "activengage"
+   ]
+  },
+  {
+   "name": "Previous Customer (Repeat)",
+   "match": [
+    "previous customer",
+    "repeat"
+   ]
+  },
+  {
+   "name": "Service Dept",
+   "match": [
+    "service dept",
+    "service drive",
+    "service referral",
+    "service"
+   ]
+  },
+  {
+   "name": "Referral",
+   "match": [
+    "referral"
+   ]
+  },
+  {
+   "name": "Walk-in / Location",
+   "match": [
+    "walk-in",
+    "walk in",
+    "walkin",
+    "showroom",
+    "show room",
+    "drove by",
+    "drive by",
+    "drives by",
+    "lives in area",
+    "works in area",
+    "floor up",
+    "location"
+   ]
+  },
+  {
+   "name": "KBB Instant Cash Offer",
+   "match": [
+    "kbb",
+    "instant cash"
+   ]
+  },
+  {
+   "name": "Costco Auto Program",
+   "match": [
+    "costco"
+   ]
+  },
+  {
+   "name": "Auto Club / AAA",
+   "match": [
+    "auto club",
+    "aaa"
+   ]
+  },
+  {
+   "name": "Work Truck Solutions",
+   "match": [
+    "worktrucksolutions",
+    "work truck"
+   ]
+  },
+  {
+   "name": "Social Media",
+   "match": [
+    "facebook",
+    "tiktok",
+    "social media",
+    "instagram"
+   ]
+  },
+  {
+   "name": "Billboard / Radio",
+   "match": [
+    "billboard",
+    "radio"
+   ]
+  },
+  {
+   "name": "Mia (AI BDC)",
+   "match": [
+    "mia"
+   ]
+  },
+  {
+   "name": "BDC",
+   "match": [
+    "bdc"
+   ]
+  },
+  {
+   "name": "SEO/SEM (Google)",
+   "match": [
+    "google",
+    "ai search",
+    "apple maps",
+    "seo/sem",
+    "bing"
+   ]
+  },
+  {
+   "name": "OEM / Brand Site",
+   "match": [
+    "oem website",
+    "eshop",
+    "e-shop",
+    "bmwusa",
+    "bmw oem",
+    "brand site",
+    "brand sites",
+    "jeep",
+    "dodge.com",
+    "ramtrucks",
+    "buynow",
+    "lead driver",
+    "chrysler digital",
+    "inmarketsolution",
+    "maco",
+    "oem"
+   ]
+  },
+  {
+   "name": "Dealer Website",
+   "match": [
+    "pixel motion",
+    "dealer website",
+    "dealers website",
+    "dealer inspire",
+    "apollo",
+    "nabthat",
+    "dealeron",
+    "byo",
+    "e-pricer",
+    "epricer",
+    "check availability",
+    "get a quote",
+    "get e-price",
+    "eprice",
+    "save and compare",
+    "ncc",
+    "website",
+    "dealers websi",
+    "mcpeekcdjr",
+    "mcpeeks.com",
+    "sterlingbmw",
+    "newcenturybmw",
+    "nissanofirvine",
+    "dealer site",
+    "dealers site"
+   ]
+  },
+  {
+   "name": "Email / Campaign",
+   "match": [
+    "email blast",
+    "campaign",
+    "lease maturity"
+   ]
+  },
+  {
+   "name": "Trade Tools",
+   "match": [
+    "tradepending",
+    "trade-in",
+    "trade in",
+    "accu-trade",
+    "accutrade"
+   ]
+  }
+ ],
+ "fallback": "Other / Ungrouped"
+}

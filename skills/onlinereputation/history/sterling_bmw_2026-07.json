@@ -1,0 +1,23 @@
+{
+  "dealer_name": "Sterling BMW",
+  "month": "2026-07",
+  "snapshot_date": "2026-07-09",
+  "platforms": {
+    "google": {
+      "rating": 4.5,
+      "review_count": 1607
+    },
+    "yelp": {
+      "rating": 3.6,
+      "review_count": 1029
+    },
+    "dealerrater": {
+      "rating": 4.0,
+      "review_count": 358
+    },
+    "carfax": {
+      "rating": 4.7,
+      "review_count": 551
+    }
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "client": "Nissan of Irvine",
+  "period": "2026-03",
+  "brand_tier": "mainstream_import",
+  "audit_date": "2026-04-12 09:02",
+  "executive_summary": {
+    "total_spend": 3510.45,
+    "total_leads": 911.49,
+    "total_clicks": 1703.0,
+    "total_impressions": 15544.0,
+    "total_vdp_views": 0.0,
+    "cpl": 3.85,
+    "ctr_pct": 10.96,
+    "estimated_waste_usd": 0.0,
+    "estimated_waste_pct": 0.0,
+    "finding_count": 1,
+    "high_severity_count": 0,
+    "medium_severity_count": 0,
+    "brand_tier": "mainstream_import",
+    "tier_label": "Mainstream Import (Toyota, Honda, Nissan, Hyundai, Kia, Mazda, Subaru, VW, Mitsubishi)",
+    "benchmark_cpl_ceiling": 55,
+    "benchmark_cac_ceiling": 800,
+    "cpl_vs_benchmark": "within",
+    "top_opportunities": []
+  },
+  "findings": [
+    {
+      "rule": "search_term_bleed",
+      "severity": "low",
+      "flagged_terms": [
+        {
+          "term": "toyota dealers near me",
+          "spend": 0.0,
+          "impressions": 17.0,
+          "clicks": 0.0,
+          "matched_pattern": "toy"
+        },
+        {
+          "term": "toyota dealership",
+          "spend": 0.0,
+          "impressions": 43.0,
+          "clicks": 0.0,
+          "matched_pattern": "toy"
+        },
+        {
+          "term": "toyota dealership near me",
+          "spend": 0.0,
+          "impressions": 36.0,
+          "clicks": 0.0,
+          "matched_pattern": "toy"
+        },
+        {
+          "term": "toyota near me",
+          "spend": 0.0,
+          "impressions": 14.0,
+          "clicks": 0.0,
+          "matched_pattern": "toy"
+        }
+      ],
+      "total_irrelevant_spend": 0.0,
+      "count": 4,
+      "observation": "Found 4 potentially irrelevant search terms consuming $0.00 in spend.",
+      "waste_amount": 0.0
+    }
+  ],
+  "funnel_allocation": {
+    "stages": {
+      "brand_conquest": {
+        "spend": 3510.45,
+        "spend_pct": 100.0,
+        "recommended_min_pct": 15,
+        "recommended_max_pct": 30,
+        "impressions": 15544.0,
+        "clicks": 1703.0,
+        "leads": 863.49,
+        "vdp_views": 0.0,
+        "campaign_count": 44,
+        "misallocated_count": 0,
+        "within_range": false,
+        "notes": "Protect brand terms. Low CPC, high conversion."
+      },
+      "inventory_vdp": {
+        "spend": 0,
+        "spend_pct": 0.0,
+        "recommended_min_pct": 35,
+        "recommended_max_pct": 55,
+        "impressions": 0,
+        "clicks": 0,
+        "leads": 48.0,
+        "vdp_views": 0.0,
+        "campaign_count": 3,
+        "misallocated_count": 0,
+        "within_range": false,
+        "notes": "Highest intent. Drive VDP traffic and leads."
+      },
+      "consideration": {
+        "spend": 0,
+        "spend_pct": 0.0,
+        "recommended_min_pct": 10,
+        "recommended_max_pct": 25,
+        "impressions": 0,
+        "clicks": 0,
+        "leads": 0,
+        "vdp_views": 0,
+        "campaign_count": 1,
+        "misallocated_count": 0,
+        "within_range": false,
+        "notes": "Top-of-funnel. Longer attribution window."
+      },
+      "service_fixedops": {
+        "spend": 0,
+        "spend_pct": 0.0,
+        "recommended_min_pct": 5,
+        "recommended_max_pct": 15,
+        "impressions": 0,
+        "clicks": 0,
+        "leads": 0,
+        "vdp_views": 0,
+        "campaign_count": 1,
+        "misallocated_count": 0,
+        "within_range": false,
+        "notes": "Fixed ops drives retention and LTV."
+      }
+    },
+    "total_spend": 3510.45
+  },
+  "source_performance": [
+    {
+      "source": "google_ads",
+      "spend": 3510.45,
+      "impressions": 15544.0,
+      "clicks": 1703.0,
+      "ctr_pct": 10.96,
+      "leads_total": 482.49,
+      "form_fills": 0,
+      "phone_calls": 0,
+      "vdp_views": 0,
+      "cpl": 7.28,
+      "row_count": 1830
+    },
+    {
+      "source": "ga4",
+      "spend": 0,
+      "impressions": 0,
+      "clicks": 0,
+      "ctr_pct": null,
+      "leads_total": 429.0,
+      "form_fills": 12.0,
+      "phone_calls": 0.0,
+      "vdp_views": 0.0,
+      "cpl": null,
+      "row_count": 1289
+    }
+  ],
+  "suggestions": [
+    {
+      "observation": "Found 4 potentially irrelevant search terms consuming $0.00 in spend.",
+      "worth_discussing": "Review the flagged search terms and add negatives where appropriate. Consider tightening match types on broad match campaigns.",
+      "context_needed": "Is the current agency or ad manager actively managing negative keyword lists? How frequently are search term reports reviewed?",
+      "potential_risk": "Over-aggressive negative keywords could block legitimate long-tail queries. Review individually before bulk-adding.",
+      "priority": "medium"
+    },
+    {
+      "observation": "Funnel stage 'brand_conquest' is at 100.0% of spend (industry typical: 15-30%).",
+      "worth_discussing": "This stage appears over-allocated relative to industry norms. Worth reviewing whether the current mix matches the dealership's priorities.",
+      "context_needed": "Allocation norms are averages \u2014 a dealer in a conquest-heavy market may intentionally over-index on brand/conquest.",
+      "potential_risk": "Shifting budget between funnel stages takes time to show results. Don't expect immediate ROI changes.",
+      "priority": "low"
+    },
+    {
+      "observation": "Funnel stage 'inventory_vdp' is at 0.0% of spend (industry typical: 35-55%).",
+      "worth_discussing": "This stage appears under-allocated relative to industry norms. Worth reviewing whether the current mix matches the dealership's priorities.",
+      "context_needed": "Allocation norms are averages \u2014 a dealer in a conquest-heavy market may intentionally over-index on brand/conquest.",
+      "potential_risk": "Shifting budget between funnel stages takes time to show results. Don't expect immediate ROI changes.",
+      "priority": "low"
+    },
+    {
+      "observation": "Funnel stage 'consideration' is at 0.0% of spend (industry typical: 10-25%).",
+      "worth_discussing": "This stage appears under-allocated relative to industry norms. Worth reviewing whether the current mix matches the dealership's priorities.",
+      "context_needed": "Allocation norms are averages \u2014 a dealer in a conquest-heavy market may intentionally over-index on brand/conquest.",
+      "potential_risk": "Shifting budget between funnel stages takes time to show results. Don't expect immediate ROI changes.",
+      "priority": "low"
+    },
+    {
+      "observation": "Funnel stage 'service_fixedops' is at 0.0% of spend (industry typical: 5-15%).",
+      "worth_discussing": "This stage appears under-allocated relative to industry norms. Worth reviewing whether the current mix matches the dealership's priorities.",
+      "context_needed": "Allocation norms are averages \u2014 a dealer in a conquest-heavy market may intentionally over-index on brand/conquest.",
+      "potential_risk": "Shifting budget between funnel stages takes time to show results. Don't expect immediate ROI changes.",
+      "priority": "low"
+    }
+  ],
+  "benchmarks_used": {
+    "tier": "mainstream_import",
+    "tier_label": "Mainstream Import (Toyota, Honda, Nissan, Hyundai, Kia, Mazda, Subaru, VW, Mitsubishi)",
+    "source": [
+      "NADA Data Annual Financial Profile (2024 edition)",
+      "Cox Automotive Dealership Staffing Study 2024",
+      "J.D. Power U.S. Service Retention Study 2024",
+      "NADA Average Dealership Profile 2024"
+    ],
+    "last_updated": "2025-06-01"
+  },
+  "suggestion_disclaimer": "These are starting points for discussion, not recommendations to execute. Every lead source has nuance that requires human judgment and dealership context.",
+  "row_count": 3119
+}

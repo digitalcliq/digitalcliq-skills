@@ -1,0 +1,46 @@
+Lead ID,Activity Date,Activity Type,Direction,Salesperson,Is Auto-Generated
+L0001,2026-04-18 09:14:30,Email,Outbound,System,Y
+L0001,2026-04-18 09:21:00,Call,Outbound,Maria Lopez,N
+L0001,2026-04-18 09:55:00,Text,Outbound,Maria Lopez,N
+L0001,2026-04-21 18:00:00,Text,Outbound,Maria Lopez,N
+L0002,2026-04-19 14:20:30,Email,Outbound,System,Y
+L0002,2026-04-19 14:48:00,Call,Outbound,Maria Lopez,N
+L0002,2026-04-19 15:10:00,Text,Outbound,Maria Lopez,N
+L0003,2026-04-20 08:46:00,Email,Outbound,System,Y
+L0003,2026-04-20 09:05:00,Call,Outbound,Maria Lopez,N
+L0004,2026-04-21 11:11:30,Email,Outbound,System,Y
+L0004,2026-04-21 11:25:00,Call,Outbound,Maria Lopez,N
+L0005,2026-04-22 16:30:30,Email,Outbound,System,Y
+L0005,2026-04-22 16:58:00,Call,Outbound,Maria Lopez,N
+L0006,2026-04-23 10:00:30,Email,Outbound,System,Y
+L0006,2026-04-23 10:15:00,Call,Outbound,Maria Lopez,N
+L0007,2026-04-24 13:00:30,Email,Outbound,System,Y
+L0007,2026-04-24 13:18:00,Call,Outbound,Maria Lopez,N
+L0008,2026-04-25 09:00:30,Email,Outbound,System,Y
+L0008,2026-04-25 09:20:00,Call,Outbound,Maria Lopez,N
+L0014,2026-05-01 10:00:30,Email,Outbound,System,Y
+L0014,2026-05-01 10:14:00,Call,Outbound,Maria Lopez,N
+L0019,2026-05-06 10:30:30,Email,Outbound,System,Y
+L0019,2026-05-06 10:45:00,Call,Outbound,Maria Lopez,N
+T0001,2026-04-18 10:01:00,Email,Outbound,System,Y
+T0001,2026-04-18 12:30:00,Call,Outbound,Tim Chen,N
+T0002,2026-04-19 11:01:00,Email,Outbound,System,Y
+T0002,2026-04-19 14:00:00,Call,Outbound,Tim Chen,N
+T0004,2026-04-21 14:01:00,Email,Outbound,System,Y
+T0004,2026-04-21 15:30:00,Call,Outbound,Tim Chen,N
+T0007,2026-04-24 14:01:00,Email,Outbound,System,Y
+T0007,2026-04-24 16:00:00,Call,Outbound,Tim Chen,N
+T0009,2026-04-26 11:01:00,Email,Outbound,System,Y
+T0009,2026-04-26 13:00:00,Call,Outbound,Tim Chen,N
+T0013,2026-04-30 14:01:00,Email,Outbound,System,Y
+T0013,2026-04-30 16:30:00,Call,Outbound,Tim Chen,N
+T0017,2026-05-04 14:01:00,Email,Outbound,System,Y
+T0017,2026-05-04 16:30:00,Call,Outbound,Tim Chen,N
+T0020,2026-05-07 09:01:00,Email,Outbound,System,Y
+T0020,2026-05-07 12:30:00,Call,Outbound,Tim Chen,N
+T0024,2026-05-11 14:01:00,Email,Outbound,System,Y
+T0024,2026-05-11 16:00:00,Call,Outbound,Tim Chen,N
+J0001,2026-04-19 08:01:00,Email,Outbound,System,Y
+J0001,2026-04-21 10:00:00,Call,Outbound,Jordan Park,N
+J0003,2026-04-30 10:01:00,Email,Outbound,System,Y
+J0003,2026-04-30 10:55:00,Call,Outbound,Jordan Park,N

@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.bak
+*.bak-*
+.bak-*
+.path-backup*
+.env*
+*token*.json
+*credential*.json
+*.pem

@@ -1,0 +1,23 @@
+{
+  "dealer_name": "J Star Chrysler Dodge Jeep Ram of Anaheim Hills",
+  "month": "2026-04",
+  "snapshot_date": "2026-04-20",
+  "platforms": {
+    "google": {
+      "rating": 4.2,
+      "review_count": 876
+    },
+    "yelp": {
+      "rating": 3.6,
+      "review_count": 572
+    },
+    "dealerrater": {
+      "rating": 0,
+      "review_count": 0
+    },
+    "carfax": {
+      "rating": 4.4,
+      "review_count": 128
+    }
+  }
+}

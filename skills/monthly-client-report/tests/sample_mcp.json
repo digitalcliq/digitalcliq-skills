@@ -1,0 +1,131 @@
+{
+  "metadata": {
+    "client_name": "McPeek Chrysler Dodge Jeep Ram of Anaheim",
+    "client_code": "MCP",
+    "month_label": "May 2026",
+    "city": "Anaheim",
+    "state": "California",
+    "brand": "CDJR"
+  },
+  "exec_summary": "Traffic held strong in May, up 8% month over month, with paid search doing the heavy lifting and organic clawing back ground on RAM towing terms. The lead-to-close gap narrowed but internet leads still close below the CDJR benchmark, so the next move is tightening speed-to-lead. Reviews ticked up on Google after the service-team push.",
+  "traffic": {
+    "available": true,
+    "kpis": [
+      {"label": "Total Sessions", "value": "14,230", "sub": "+8.2% MoM", "status": "positive"},
+      {"label": "Engaged Sessions", "value": "9,640", "sub": "67.7%", "status": "neutral"},
+      {"label": "Key Events", "value": "412", "sub": "+12% MoM", "status": "positive"},
+      {"label": "Avg Engagement", "value": "1m 41s", "sub": "steady", "status": "neutral"}
+    ],
+    "channels": [
+      {"Channel": "Paid Search", "Sessions": "5,210", "Share": "36.6%", "Eng Rate": "61%", "Key Events": "188"},
+      {"Channel": "Organic Search", "Sessions": "3,980", "Share": "28.0%", "Eng Rate": "71%", "Key Events": "121"},
+      {"Channel": "Direct", "Sessions": "2,140", "Share": "15.0%", "Eng Rate": "66%", "Key Events": "54"},
+      {"Channel": "Organic Social", "Sessions": "1,180", "Share": "8.3%", "Eng Rate": "58%", "Key Events": "21"},
+      {"Channel": "Referral", "Sessions": "920", "Share": "6.5%", "Eng Rate": "64%", "Key Events": "18"}
+    ],
+    "social_referral": "Facebook 740 sessions, Instagram 310, YouTube 130. Social engagement rate trails site average by 9 pts.",
+    "insights": [
+      {"text": "<b>Paid is the engine:</b> 37% of sessions and 46% of key events came from Paid Search. Healthy, but concentration risk if budget pauses.", "type": "info"},
+      {"text": "<b>Organic momentum:</b> Organic Search up to 28% share on the back of RAM towing content. Lowest cost-per-event channel on the site.", "type": "success"}
+    ]
+  },
+  "paid": {
+    "available": true,
+    "kpis": [
+      {"label": "Spend", "value": "$9,800", "sub": "Google Ads", "status": "neutral"},
+      {"label": "Clicks", "value": "5,210", "sub": "$1.88 CPC", "status": "neutral"},
+      {"label": "Conversions", "value": "188", "sub": "$52 CPA", "status": "positive"},
+      {"label": "Conv. Rate", "value": "3.6%", "sub": "+0.4 pt", "status": "positive"}
+    ],
+    "sources": [
+      {"Campaign": "RAM 1500 Sales", "Spend": "$4,100", "Conv": "92", "CPA": "$45", "Note": "Top performer"},
+      {"Campaign": "Jeep Lease", "Spend": "$3,200", "Conv": "58", "CPA": "$55", "Note": "Steady"},
+      {"Campaign": "Service / Fixed Ops", "Spend": "$1,500", "Conv": "26", "CPA": "$58", "Note": "Scale up"},
+      {"Campaign": "Used Inventory", "Spend": "$1,000", "Conv": "12", "CPA": "$83", "Note": "Watch CPA"}
+    ],
+    "insights": [
+      {"text": "<b>Reallocate:</b> Used Inventory CPA is 60% above the account average. Shift $500 to Service, which is converting at $58 with room to scale.", "type": "alert"}
+    ]
+  },
+  "seo": {
+    "available": true,
+    "kpis": [
+      {"label": "Organic Keywords", "value": "1,240", "sub": "+38 MoM", "status": "positive"},
+      {"label": "Organic Traffic", "value": "3,980", "sub": "est. monthly", "status": "neutral"},
+      {"label": "Site Health", "value": "91%", "sub": "SEMRUSH audit", "status": "positive"}
+    ],
+    "movers": [
+      {"Keyword": "ram 1500 towing capacity", "Position": "6", "Change": "+9", "Volume": "6,600", "Type": "rise"},
+      {"Keyword": "jeep lease deals anaheim", "Position": "4", "Change": "+3", "Volume": "880", "Type": "rise"},
+      {"Keyword": "dodge dealer near me", "Position": "8", "Change": "-2", "Volume": "1,300", "Type": "fall"},
+      {"Keyword": "ram promaster for sale", "Position": "11", "Change": "NEW", "Volume": "590", "Type": "new"}
+    ],
+    "insights": [
+      {"text": "<b>Content is landing:</b> The RAM towing blog jumped to page 1 (#6) on a 6,600/mo term that had zero prior coverage. Add internal links to push it into the top 3.", "type": "success"}
+    ]
+  },
+  "leads": {
+    "available": true,
+    "summary": "May CRM shows 318 internet leads across all sources, 41 sold, for a 12.9% blended close rate. The store grades a B against the CDJR mainstream benchmark.",
+    "kpis": [
+      {"label": "Total Leads", "value": "318", "sub": "all sources", "status": "neutral"},
+      {"label": "Sold", "value": "41", "sub": "", "status": "neutral"},
+      {"label": "Close Rate", "value": "12.9%", "sub": "blended", "status": "warning"},
+      {"label": "Appt Show", "value": "58%", "sub": "+4 pt", "status": "positive"}
+    ],
+    "nada": {
+      "store_close_rate": "12.9%",
+      "benchmark": "15.0%",
+      "verdict": "Below the mainstream internet-lead expectation. Closing the 2-pt gap on this volume is ~7 extra units/mo.",
+      "status": "warning"
+    },
+    "sources": [
+      {"Source": "Cars.com", "Leads": "92", "Sold": "14", "Close %": "15.2%", "Grade": "A"},
+      {"Source": "Website", "Leads": "78", "Sold": "12", "Close %": "15.4%", "Grade": "A"},
+      {"Source": "AutoTrader", "Leads": "64", "Sold": "7", "Close %": "10.9%", "Grade": "B"},
+      {"Source": "Facebook", "Leads": "44", "Sold": "3", "Close %": "6.8%", "Grade": "C"},
+      {"Source": "CarGurus", "Leads": "40", "Sold": "5", "Close %": "12.5%", "Grade": "B"}
+    ],
+    "insights": [
+      {"text": "<b>Speed-to-lead is the lever:</b> Facebook leads close at 6.8%, less than half the marketplace rate. Most are first-touched after 30 min. Tighten to under 5 min.", "type": "alert"}
+    ]
+  },
+  "reputation": {
+    "available": true,
+    "platforms": [
+      {"name": "Google", "rating": "4.3", "reviews": "1,840", "delta": "+0.1"},
+      {"name": "Yelp", "rating": "3.6", "reviews": "210", "delta": "0.0"}
+    ],
+    "themes_positive": ["service advisor responsiveness", "no-pressure sales floor", "quick RAM delivery"],
+    "themes_negative": ["wait times in service", "finance follow-up"],
+    "insights": [
+      {"text": "<b>Google trending up:</b> +0.1 to 4.3 after the service-team review push. Yelp is the soft spot at 3.6 and drags brand-search trust.", "type": "info"}
+    ]
+  },
+  "regional": {
+    "available": true,
+    "state": "California",
+    "headline": "California new-vehicle registrations rose modestly in Q2 2026, with trucks and SUVs outpacing the segment.",
+    "stats": [
+      {"stat": "CA new-vehicle registrations (YoY)", "value": "+3.1%", "source": "CNCDA, Q2 2026"},
+      {"stat": "Avg transaction price (truck)", "value": "$58,400", "source": "Cox Automotive"},
+      {"stat": "CA incentive spend (avg)", "value": "$3,250/unit", "source": "Edmunds"}
+    ],
+    "narrative": [
+      "Truck demand in Southern California stayed resilient despite rate pressure, which favors McPeek's RAM-heavy mix.",
+      "Incentive spend climbing statewide gives room to lean into lease messaging without eroding front gross."
+    ]
+  },
+  "wins": {
+    "items": [
+      "Built and deployed McPeek's live marketing dashboard so the GM can see leads, traffic, and PPC in one place.",
+      "Launched the $250 lease campaign on Lamar billboards plus a matching website Monthly Specials page.",
+      "Shipped 3 SEO + AI-search blog posts on RAM towing, ProMaster for business, and lease education; the towing piece already hit page 1.",
+      "Stood up the new Monthly Specials page and wired it to the campaign creative."
+    ],
+    "challenges": [
+      "Close the Facebook speed-to-lead gap (under 5-min first touch).",
+      "Yelp reputation recovery plan for the service department."
+    ]
+  }
+}

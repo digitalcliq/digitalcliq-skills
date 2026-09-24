@@ -1,0 +1,23 @@
+{
+  "dealer_name": "New Century BMW",
+  "month": "2026-06",
+  "snapshot_date": "2026-06-24",
+  "platforms": {
+    "google": {
+      "rating": 4.8,
+      "review_count": 5778
+    },
+    "yelp": {
+      "rating": 4.0,
+      "review_count": 1330
+    },
+    "dealerrater": {
+      "rating": 4.7,
+      "review_count": 493
+    },
+    "carfax": {
+      "rating": 4.6,
+      "review_count": 763
+    }
+  }
+}

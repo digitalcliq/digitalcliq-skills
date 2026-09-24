@@ -1,0 +1,178 @@
+[
+  {
+    "page_url": "https://www.sterlingbmw.com/inventory/2026-bmw-x3-30-xdrive-awd-4d-sport-utility-5ux53gp03t9160111/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRICE-001",
+    "title": "Advertised Price May Not Reflect Total Selling Price",
+    "quote": "Vehicles may include dealer add ons such as paint sealant or aftermarket theft devices. Please contact the dealer to confirm or review vehicle addendums in person.",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(e)",
+    "recommendation": "If dealer-installed accessories exist on any vehicle, the advertised price must include them as part of the total selling price. Remove the disclaimer suggesting additional undisclosed charges, or itemize all add-ons with prices on each VDP."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/inventory/2026-bmw-x3-30-xdrive-awd-4d-sport-utility-5ux53gp03t9160111/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRICE-003",
+    "title": "Dealer-Installed Accessories Not Itemized on VDP",
+    "quote": "Vehicles may include dealer add ons such as paint sealant or aftermarket theft devices.",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(e)",
+    "recommendation": "Any dealer-installed accessories must be individually itemized with separate prices on each VDP. If vehicles have paint sealant, theft deterrent, or other dealer add-ons, list each item and its price on the vehicle detail page."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/inventory/2026-bmw-x3-30-xdrive-awd-4d-sport-utility-5ux53gp03t9160111/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRICE-002",
+    "title": "Market Adjusted Pricing Creates Price Uncertainty",
+    "quote": "Certain high demand models can have market adjusted pricing based on production levels and current availability. Please call into the dealership to confirm.",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(e)",
+    "recommendation": "If a vehicle has a market adjustment, the adjusted price must be the advertised price. Cannot show MSRP and then add a market adjustment at the dealership. Either remove market adjustment language or display the actual selling price including any adjustment."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/bmw-lease-specials-orange-county/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-004",
+    "title": "Non-Exempt Dealer Fees Excluded from Lease Due-at-Signing",
+    "quote": "Tax, title, license, registration and dealer fees are additional fees due at signing.",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(e)",
+    "recommendation": "Under CA law, only tax, registration, electronic filing fee, and smog transfer fees may be excluded from the advertised price. 'Dealer fees' (doc fees, etc.) are NOT exempt and must be included in the total due-at-signing amount. Remove 'dealer fees' from the excluded charges list and include them in the capitalized cost or due-at-signing total."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-004",
+    "title": "Non-Exempt Dealer Fees Excluded from Homepage Lease Offers",
+    "quote": "Tax, title, license, registration and dealer fees are additional fees due at signing.",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(e)",
+    "recommendation": "Same issue as specials page \u2014 dealer fees must be included in the advertised due-at-signing amount, not listed as additional. Update all lease disclaimers site-wide."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/bmw-lease-specials-orange-county/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-001",
+    "title": "Lease Disclosures Hidden Behind Click-to-Expand",
+    "quote": "View Disclaimer / Hide Disclaimer \u2014 full Reg M disclosures require clicking to expand",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.16(i), 13 CCR \u00a7260",
+    "recommendation": "California requires disclosures to be 'clear and conspicuous.' While click-to-expand is common in digital advertising, full Reg M lease disclosures should be visible without requiring user interaction, or at minimum the key terms (total due at signing, mileage limit, purchase option) should be visible alongside the monthly payment."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-001",
+    "title": "Homepage Lease Disclosures Behind Click-to-Expand",
+    "quote": "View Disclaimer / Hide Disclaimer \u2014 full lease terms require user click to view",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.16(i), 13 CCR \u00a7260",
+    "recommendation": "Ensure key lease terms are visible near the advertised payment without requiring user interaction. At minimum, total due at signing and mileage limit should be visible alongside the monthly payment amount."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/bmw-lease-specials-orange-county/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-002",
+    "title": "Loyalty Credit Baked Into Lease Payment Without Prominent Non-Qualifying Disclosure",
+    "quote": "Lease Credit of $1,000 included in capitalized cost reduction. Loyalty Offers available to qualified customers who have leased or financed a BMW model through BMW Financial Services NA, LLC in the last 12 months.",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(e)",
+    "recommendation": "The advertised lease payments ($499, $569, $869) include a $1,000 Loyalty/Lease Credit that requires prior BMW Financial Services history. Non-qualifying customers would have higher payments. Prominently disclose that the advertised payment requires loyalty qualification, or show the non-loyalty payment alongside."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/inventory/2026-bmw-x3-30-xdrive-awd-4d-sport-utility-5ux53gp03t9160111/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-FUEL-001",
+    "title": "EPA Mileage Reference Year Mismatch",
+    "quote": "Based on 2023 EPA mileage ratings \u2014 displayed on a 2026 model year vehicle",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "16 CFR Part 259",
+    "recommendation": "VDP disclaimer references '2023 EPA mileage ratings' for a 2026 model year vehicle. Update to reference the correct model year EPA estimates. If 2026 EPA data is not yet available, state 'EPA estimates not yet available' rather than citing outdated figures."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-REGM-003",
+    "title": "Site Banner Lease Ad May Understate Total Due at Signing",
+    "quote": "Lease a 2026 BMW X5 for $869 a month plus tax for 39 months with only $6,419 due at signing!",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "Regulation M \u00a7213.7(d)(2)(ii)",
+    "recommendation": "The banner states '$6,419 due at signing' but the full disclaimer adds 'dealer fees are additional fees due at signing.' The total due at signing should include ALL non-tax/registration fees. Either include dealer fees in the $6,419 figure or remove dealer fees from the 'additional' list."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/inventory/2026-bmw-x3-30-xdrive-awd-4d-sport-utility-5ux53gp03t9160111/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PIC-001",
+    "title": "Photo Disclaimer Suggests Images May Not Match Advertised Vehicle",
+    "quote": "Models pictured may be shown with metallic paint and/or additional accessories.",
+    "severity": "advisory",
+    "source": "legal_check",
+    "statute": "VC \u00a711713(s)",
+    "recommendation": "Ensure vehicle photos on VDPs depict the actual vehicle being advertised with its actual equipment. If stock/generic photos are used, clearly label them as representative images, not the actual vehicle."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/new-vehicles/",
+    "finding_type": "brand_violation",
+    "rule_id": "BMW-WEB-003",
+    "title": "Competing Brand Names in BMW New Vehicle Search",
+    "quote": "Vehicle search modal includes non-BMW makes: Aston Martin, Audi, Honda, Mercedes-Benz, Porsche, Tesla",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "The site-wide search overlay includes non-BMW makes in the 'All Makes' dropdown, even when browsing the new BMW inventory section. Filter the search to show only BMW makes in BMW-branded sections, or limit non-BMW options to the used/pre-owned search."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/",
+    "finding_type": "brand_violation",
+    "rule_id": "BMW-DISC-001",
+    "title": "BMW Trademark Attribution Not Prominently Visible",
+    "quote": "No visible BMW trademark attribution statement on reviewed pages",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Add BMW trademark attribution (e.g., 'BMW and the BMW logo are registered trademarks') to the website footer or disclaimer area per BMW AVP requirements."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/inventory/2026-bmw-x3-30-xdrive-awd-4d-sport-utility-5ux53gp03t9160111/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-REGZ-001",
+    "title": "VDP Payment Estimate Mentions Specific Credit Terms",
+    "quote": "Monthly payments are only estimates derived from the vehicle price with a 36 month term, 6.9% interest and 15% down payment.",
+    "severity": "advisory",
+    "source": "legal_check",
+    "statute": "12 CFR \u00a7226.24 (Regulation Z)",
+    "recommendation": "The VDP disclaimer mentions specific credit terms (36 months, 6.9% interest, 15% down) to describe how payment estimates are calculated. While this is used as methodology disclosure rather than an advertised offer, consider removing specific terms from the disclaimer or ensuring full Reg Z compliance if payments are displayed."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/bmw-lease-specials-orange-county/",
+    "finding_type": "brand_violation",
+    "rule_id": "BMW-PRICE-003",
+    "title": "Lease Term Verification Needed",
+    "quote": "All lease offers show 39-month terms \u2014 verify this matches current BMW Financial Services program terms",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Confirm that 39-month lease terms are current BMW Financial Services approved program terms. BMW traditionally used 36-month lease terms; if 39 months is the current program this is compliant, but verify with BMW FS."
+  },
+  {
+    "page_url": "https://www.sterlingbmw.com/used-vehicles/certified-pre-owned-vehicles/",
+    "finding_type": "brand_violation",
+    "rule_id": "BMW-CPO-001",
+    "title": "CPO Listing Uses 'Certified Used' Instead of 'BMW Certified Pre-Owned'",
+    "quote": "Certified Used 2023 \u2014 heading text on CPO vehicle listing cards",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "BMW CPO program branding specifies 'BMW Certified Pre-Owned' terminology. The listing cards use 'Certified Used' which, while legally acceptable, may not align with BMW's preferred CPO branding standards. Consider updating to 'BMW Certified Pre-Owned' for brand consistency."
+  }
+]

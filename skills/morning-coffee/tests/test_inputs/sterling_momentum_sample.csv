@@ -1,0 +1,6 @@
+lead_provider,total_leads,total_invalid_leads,total_first_provider,total_dups,total_sales
+Internet,120,4,115,8,10
+Inbound,45,2,42,3,5
+Showroom,30,1,28,2,4
+Lease Retention,15,0,14,1,3
+OEM,25,1,23,2,2

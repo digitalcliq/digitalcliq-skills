@@ -1,0 +1,12 @@
+{
+  "dealer_name": "McPeek's Chrysler Dodge Jeep Ram of Anaheim",
+  "month": "2026-08",
+  "snapshot_date": "2026-08-19",
+  "note": "Backfilled 2026-09-14 from the vault record of the 2026-08-19 run (Projects/MCP/context-log-2026-08.md); the plugin history folder was re-synced on 2026-08-16 and the August snapshot written by that run did not survive.",
+  "platforms": {
+    "google": {"rating": 4.4, "review_count": 2939},
+    "yelp": {"rating": 3.3, "review_count": 737},
+    "dealerrater": {"rating": 4.6, "review_count": 404},
+    "carfax": {"rating": 4.5, "review_count": 815}
+  }
+}

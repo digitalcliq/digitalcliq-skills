@@ -1,0 +1,4 @@
+PASTE THE APPROVED FEE-DISCLAIMER TEMPLATE LANGUAGE HERE (exact wording).
+Until replaced, check C04 falls back to verifying the CA statutory elements are
+present (government fees, taxes, finance charges, dealer document processing
+charge, electronic filing charge, emission testing charge).

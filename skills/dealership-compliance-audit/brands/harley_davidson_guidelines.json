@@ -1,0 +1,171 @@
+{
+  "brand": "Harley-Davidson",
+  "program": "Harley-Davidson U.S. Motorcycle Minimum Advertised Price Policy (MAP)",
+  "source": "Harley Davidson Motorcycle MAP Policy.pdf",
+  "effective_date": "2026-05-11",
+  "last_updated": "2026-06-05",
+  "vault_quick_reference": "Resources/automotive-guidelines/harley-davidson-quick-reference.md",
+  "notes": "This is a MAP enforcement policy, not a full visual identity guide. For HD visual brand rules (logo, typography, color), a separate brand book is required and is not currently in the vault. The checks below cover MAP compliance only; flag any visual / identity questions to the human auditor.",
+  "checks": [
+    {
+      "id": "HD-MAP-001",
+      "category": "Pricing & MAP",
+      "title": "MAP equals MSRP for stock model in base color",
+      "description": "Advertised price for a new MY2025 or MY2026 Harley-Davidson must equal or exceed MAP. MAP equals MSRP for the stock model in base color, with four named exceptions effective November 3: 2025 Street Glide $26,999, 2025 Heritage Classic $21,999, 2025 Low Rider ST $23,999, 2025 Breakout $22,999. MAP excludes tax, title, license, registration, destination, accessories, and additional dealer charges.",
+      "severity": "critical",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-MAP-002",
+      "category": "Pricing & MAP",
+      "title": "Coverage scope MY2025 and MY2026 only",
+      "description": "MAP covers only new, untitled MY2025 and MY2026 Harley-Davidson motorcycles. MY2024 is no longer covered as of October 1, 2025. Used bikes, rentals, parts, accessories, and MotorClothes are not covered (P&A has a separate MAP policy). Do not represent MY2024 pricing as MAP-driven promotional pricing.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-MAP-003",
+      "category": "Pricing & MAP",
+      "title": "No discount language below MAP",
+      "description": "Cannot advertise discounts, rebates, credits, or any price reduction that drops the net advertised price below MAP. Banned phrasing includes '20% off List Price', 'Clearance Sale', 'Huge Markdowns', 'Below MAP pricing', 'Lowest price in [region]', 'Make us an offer', 'Beat any deal'. Any combination of discount language with a displayed price requires the net advertised price to remain at or above MAP.",
+      "severity": "critical",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-MAP-004",
+      "category": "Pricing & MAP",
+      "title": "Banned price-inquiry phrases",
+      "description": "Explicitly banned phrases that may not appear alongside a displayed price: 'E-Price', 'Internet Price', 'Call for Best Price', 'Special Internet Pricing'. These phrases imply a lower price is available off-MAP and trigger MAP violation regardless of what number is actually displayed.",
+      "severity": "critical",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-MAP-005",
+      "category": "Pricing & MAP",
+      "title": "Call for Price allowed only with no listed price",
+      "description": "'Call for Price' is permitted only when NO price is displayed for the listing. If a price is shown alongside 'Call for Price' (or similar), it becomes a MAP violation because it implies the listed price is negotiable downward.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-MAP-006",
+      "category": "Pricing & MAP",
+      "title": "Non-base configurations roll into advertised price",
+      "description": "If the advertised bike has non-base paint or factory-installed options, the MSRP of those options should be rolled into the advertised price and disclaimer updated to match. Net advertised price still cannot drop below the base MAP for that model.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-VAS-001",
+      "category": "Value-Added Offers",
+      "title": "Value-add stated dollar value capped at $200",
+      "description": "Value-added offers (free labor on accessory install, free MotorClothes, free service, gift cards, etc.) are allowed without violating MAP. If a dollar value is stated, it is capped at $200 per item. Alternatively, omit the dollar value entirely (e.g., 'Free 5,000-mile service' without quantifying).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-VAS-002",
+      "category": "Value-Added Offers",
+      "title": "Gift card restrictions",
+      "description": "Gift cards must be restricted to P&A (parts & accessories), General Merchandise, or services. Cannot be redeemable toward the new motorcycle purchase. The ad must disclose that the gift card cannot be used toward the bike.",
+      "severity": "critical",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-VAS-003",
+      "category": "Value-Added Offers",
+      "title": "Allowed value-add categories",
+      "description": "Permitted value-adds (when structured with the $200 cap and proper disclosure): free labor on accessory install, free MotorClothes or P&A, trade-in values, free service / maintenance, free or low-interest financing, no money down, delayed payments.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-VAS-004",
+      "category": "Value-Added Offers",
+      "title": "Customer referral bonus language",
+      "description": "Customer referral bonuses are allowed but the ad must use the word 'referral' or similar phrasing such as 'bring a friend' or 'tell a friend'. Cannot be structured as a generic price reduction.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-DISC-001",
+      "category": "Disclaimers",
+      "title": "Exclusion disclaimer required",
+      "description": "Advertised price disclaimer must state that the price excludes tax, title, license, registration, destination, dealer charges, and any optional equipment. Required on any ad where a specific price appears.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-DISC-002",
+      "category": "Disclaimers",
+      "title": "Gift card non-redemption disclaimer",
+      "description": "If a gift card is advertised as a value-add bonus, the ad must clearly disclose that the gift card cannot be redeemed toward the purchase of the motorcycle.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-ENF-001",
+      "category": "Enforcement & Process",
+      "title": "MAP portal pre-approval on H-Dnet",
+      "description": "All HD pricing ads must be submitted to the MAP portal on H-Dnet for pre-approval before publication. Skip this step at your own risk; portal approval is documentation if a complaint is filed later.",
+      "severity": "warning",
+      "website_applicable": false
+    },
+    {
+      "id": "HD-ENF-002",
+      "category": "Enforcement & Process",
+      "title": "Per-violation fine $750 per vehicle retailed, capped $75K",
+      "description": "One documented MAP violation triggers a $750-per-vehicle-retailed fine for 3 months following the violation, capped at $75,000 per violation. There is no warning tier. Severe or repeated violations risk dealer agreement consequences.",
+      "severity": "critical",
+      "website_applicable": false
+    },
+    {
+      "id": "HD-ENF-003",
+      "category": "Enforcement & Process",
+      "title": "Documentation retention required",
+      "description": "Dealer must retain screenshots or PDFs of every published ad plus the MAP portal approval confirmation. Required for defense if a complaint is filed.",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "HD-SCOPE-001",
+      "category": "Covered Media",
+      "title": "Designated media scope",
+      "description": "MAP applies to any place a dealer publicly communicates pricing for a covered bike: dealer website, paid search ads, social posts, third-party listing sites (Cycle Trader, Facebook Marketplace), print, OOH, radio, TV, email marketing, in-store signage with displayed pricing. Auction-style 'Make Offer' listings on third-party platforms still count if the dealer placed the listing.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-SCOPE-002",
+      "category": "Covered Media",
+      "title": "No-price advertising not triggered",
+      "description": "MAP is not triggered if the ad does not advertise a specific price. Brand-awareness, lifestyle, and event advertising that omits pricing entirely sits outside MAP enforcement. Beware: dealer website inventory pages with displayed prices are still 'advertising' under MAP even when the homepage is purely brand creative.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-INV-001",
+      "category": "Inventory Presentation",
+      "title": "Sub-MAP auctions or 'Make Offer' on third-party platforms",
+      "description": "Auction-style or 'Make Offer' listings on third-party platforms (Cycle Trader, Facebook Marketplace, eBay Motors) are MAP violations if the dealer placed the listing. The auction format does not exempt a dealer from MAP enforcement.",
+      "severity": "critical",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-INV-002",
+      "category": "Inventory Presentation",
+      "title": "Stacked rebate net-pricing check",
+      "description": "If multiple rebates, credits, or incentives are advertised on a single bike, the audit must verify the combined net advertised price does not fall below MAP. Stacked rebates that net sub-MAP are a violation regardless of how each individual rebate is framed.",
+      "severity": "critical",
+      "website_applicable": true
+    },
+    {
+      "id": "HD-COVERAGE-001",
+      "category": "Model Year Coverage",
+      "title": "MY2024 must not be represented as MAP-covered",
+      "description": "MY2024 is out of scope since October 1, 2025. Dealer should not represent MY2024 pricing as MAP-driven promotional pricing in current advertising. MY2024 may be listed and priced as a used or pre-owned bike per standard practice.",
+      "severity": "warning",
+      "website_applicable": true
+    }
+  ]
+}

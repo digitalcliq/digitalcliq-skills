@@ -1,0 +1,162 @@
+{
+  "brand": "Stellantis (Chrysler, Dodge, Jeep, Ram)",
+  "program": "Stellantis Website Guidelines / Dealer Advertising Program",
+  "source": "Stellantis Website Guidelines Final 2026",
+  "last_updated": "2026-03-05",
+  "checks": [
+    {
+      "id": "STEL-NAV-001",
+      "category": "Navigation",
+      "title": "Website Navigation Colors",
+      "description": "Primary navigation must use black and white only. No colored navigation bars. Brand-specific accent colors are restricted to designated content areas only.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-NAV-002",
+      "category": "Navigation",
+      "title": "Brand Tab Navigation",
+      "description": "Multi-brand dealers must use brand-specific tabs/sections. Each brand (Chrysler, Dodge, Jeep, Ram) must have its own clearly separated navigation path.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-LOGO-001",
+      "category": "Logo & Identity",
+      "title": "Brand Logo Placement",
+      "description": "Each Stellantis brand logo must appear in its respective section. Chrysler wing, Dodge red stripe, Jeep grille, and Ram head must follow current brand standards.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-LOGO-002",
+      "category": "Logo & Identity",
+      "title": "No Mixed Brand Logos",
+      "description": "Brand logos must not be combined or displayed together in a way that creates confusion. Each brand section must feel like a standalone brand experience.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-VLP-001",
+      "category": "Vehicle Listing Page",
+      "title": "VLP Requirements",
+      "description": "Vehicle Listing Pages (VLP) must show: vehicle image, year/make/model/trim, MSRP clearly labeled, stock number, and key features. Stellantis requires specific VLP layout standards.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-VDP-001",
+      "category": "Vehicle Detail Page",
+      "title": "VDP Requirements",
+      "description": "Vehicle Detail Pages (VDP) must include: multiple vehicle photos, full specifications, MSRP labeled as such, VIN, stock number, and standard/optional equipment list.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-VDP-002",
+      "category": "Vehicle Detail Page",
+      "title": "MSRP Labeling on VDP",
+      "description": "MSRP must be clearly labeled as 'Manufacturer\\'s Suggested Retail Price' or 'MSRP'. Internet/dealer price must be visually distinct from MSRP. Must include destination charge.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-COLOR-001",
+      "category": "Color",
+      "title": "Brand-Specific Color Palette",
+      "description": "Each brand has its own color palette: Chrysler (silver/blue), Dodge (red/black), Jeep (green/khaki), Ram (black/silver). Brand sections must use their respective palettes.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-POPUP-001",
+      "category": "User Experience",
+      "title": "Maximum One Pop-Up",
+      "description": "Stellantis allows a maximum of one pop-up or overlay on the dealer website. Multiple pop-ups, especially on initial page load, violate guidelines.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-DAP-001",
+      "category": "Digital Advertising",
+      "title": "DAP Content Requirements",
+      "description": "Dealer Advertising Program (DAP) content must follow Stellantis digital advertising standards. All offers must include required disclaimers and proper brand attribution.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-DAP-002",
+      "category": "Digital Advertising",
+      "title": "Stellantis Digital Call Tracking",
+      "description": "Dealers using Stellantis digital programs must implement approved call tracking solutions. Third-party tracking that conflicts with Stellantis systems is not permitted.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-PHOTO-001",
+      "category": "Photography",
+      "title": "Vehicle Photography Standards",
+      "description": "Vehicle photos must accurately represent the vehicle. Must use Stellantis-approved studio shots or actual dealer inventory photos. ChromeData/Evox images acceptable for stock representation.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-CPO-001",
+      "category": "Certified Pre-Owned",
+      "title": "Stellantis CPO Branding",
+      "description": "Only vehicles certified through Stellantis official CPO programs may use certified branding. Each brand (Chrysler, Dodge, Jeep, Ram) has its own CPO program standards.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-WEB-001",
+      "category": "Website",
+      "title": "Certified Website Provider",
+      "description": "Dealer website must be hosted by a Stellantis-certified website provider. Non-certified providers may not have access to required data feeds and integrations.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-WEB-002",
+      "category": "Website",
+      "title": "Model Name Accuracy",
+      "description": "Stellantis model names must be used correctly. Current nameplates: Chrysler (Pacifica, 300), Dodge (Hornet, Durango, Charger), Jeep (Wrangler, Grand Cherokee, Compass, etc.), Ram (1500, 2500, 3500, ProMaster).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-DISC-001",
+      "category": "Disclaimers",
+      "title": "Stellantis Required Disclaimers",
+      "description": "All advertising must include Stellantis-required disclaimers including trademark attribution, safety disclaimers for capability claims (Jeep off-road, Ram towing), and offer terms.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-DISC-002",
+      "category": "Disclaimers",
+      "title": "Jeep Trail Rated / Capability Claims",
+      "description": "Jeep Trail Rated badge and off-road capability claims require specific disclaimers. Professional driver / closed course disclaimers needed for action imagery.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-DISC-003",
+      "category": "Disclaimers",
+      "title": "Ram Towing / Payload Claims",
+      "description": "Ram towing and payload capacity claims must include proper disclaimers noting that actual capabilities depend on configuration. Must reference specific trim/configuration.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "STEL-EV-001",
+      "category": "Electric Vehicles",
+      "title": "Stellantis EV Branding",
+      "description": "Stellantis EV models (Jeep 4xe, Ram REV, Dodge Charger Daytona, Chrysler Airflow) have specific branding requirements. Range and charging claims must include EPA disclaimers.",
+      "severity": "warning",
+      "website_applicable": true
+    }
+  ],
+  "vault_quick_reference": "Resources/automotive-guidelines/cdjr-quick-reference.md",
+  "notes": "Vault quick-reference at the path above is the canonical fresh-rebuilt version with page citations to the source PDF. When a check here conflicts with the vault version, prefer the vault and flag this file for refresh."
+}

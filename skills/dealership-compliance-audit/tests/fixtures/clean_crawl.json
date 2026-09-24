@@ -1,0 +1,48 @@
+{
+  "url": "https://www.example-bmw.com",
+  "brand": "bmw",
+  "client": "Example BMW",
+  "crawl_date": "2026-06-23",
+  "pages": {
+    "homepage": {
+      "url": "https://www.example-bmw.com",
+      "title": "Example BMW | New & Used BMW Dealer",
+      "text_excerpt": "Welcome to Example BMW. Great selection and amazing service. Shop our new BMW lineup.",
+      "disclaimers": [],
+      "prices_found": []
+    },
+    "specials": {
+      "url": "https://www.example-bmw.com/specials",
+      "title": "BMW Specials",
+      "text_excerpt": "2026 BMW 330i Lease for $499 per month for 36 months. Summer Event ends June 30, 2026. $4,999 due at signing.",
+      "lease_payments": ["$499 per month"],
+      "lease_terms": ["36 months"],
+      "has_lease_offers": true,
+      "disclaimers": [
+        "Lease for $499/mo for 36 months. $4,999 due at signing. 10,000 miles per year, $0.25 per excess mile. Capitalized cost $42,000, residual value applies. Total of payments $22,963, plus tax and license. On approved credit. Offer ends June 30, 2026. Not all customers will qualify."
+      ],
+      "disclaimer_buttons_clicked": 3
+    },
+    "vdp": {
+      "url": "https://www.example-bmw.com/inventory/2026-bmw-330i",
+      "title": "2026 BMW 330i",
+      "text_excerpt": "2026 BMW 330i. MSRP $44,000. EPA-estimated 36 MPG highway and 26 MPG city. VIN WBA1234567890ABCD.",
+      "prices_found": ["$44,000"],
+      "disclaimers": ["Price excludes tax, title, license and dealer documentary fee."]
+    },
+    "used": {
+      "url": "https://www.example-bmw.com/used",
+      "title": "Used Inventory",
+      "page_text_excerpt": "Certified Pre-Owned BMW vehicles. Each vehicle includes a Carfax vehicle history report. No accidents per Carfax on this unit.",
+      "has_cpo_section": true,
+      "has_carfax": true,
+      "disclaimers": []
+    },
+    "finance": {
+      "url": "https://www.example-bmw.com/finance",
+      "title": "BMW Financing",
+      "text_excerpt": "Finance your BMW at 3.9% APR for 60 months on approved credit. Apply online today.",
+      "disclaimers": []
+    }
+  }
+}

@@ -1,0 +1,37 @@
+GA4 TRAFFIC vs SPEND - New Century BMW, Jul 1-26 2026 (GA4 property 487046736, pulled live 07/26)
+Site totals: 14,205 sessions | 9,822 engaged (69.1%) | 6,462 key events | 30.7% session key event rate. Key events = GA4 form/call/engagement signals, NOT CRM leads (CRM logged 818 leads).
+
+THE 57% QUESTION: NabThat + Constellation = 56.5% of July spend ($50,613). Together they account for ~52% of tracked sessions, but the split is lopsided: NabThat (31.3% of spend) delivers 51.9% of ALL sessions; Constellation (25.2% of spend) shows 7 tagged sessions (0.05%).
+
+PAID DOLLARS vs TRACKED TRAFFIC
+Vendor	July Cost	% of Spend	GA4 Source / Medium	Sessions	% of Sessions	Key Events	% of Key Events	$ / Session	$ / Key Event	Read
+PPC (NabThat)	28000	31.3%	google / cpc	7368	51.9%	3824	59.2%	3.8	7.32	Over-delivers vs spend share; carries the site. Engagement 76.9% (site avg 69.1%)
+Paid Media Multicultural (Constellation)	22613	25.2%	programmatic/display (4) + ig/social (2) + media-am.com (1)	7	0.1%	2	0.0%	3230.43	11306.5	INVISIBLE IN GA4. Demand campaign-level reporting + UTM tagging on every placement, or reallocate
+Edmunds (3rd-party listing)	3300	3.7%	edmunds / referral	716	5.0%	629	9.7%	4.61	5.25	Paradox: 629 key events at 58% KER but only 1 CRM sale. Reconcile before Sep sunset
+DigitalCLIQ	3000	3.4%	digitalcliq / email	276	1.9%	0	0	10.87	-	100% engagement, 4m57s avg session, but 0 key events - check key-event firing on these landing pages
+Conquest Emails	1100	1.2%	no tagged source found	0	0	0	0	-	-	Untraceable in GA4 - require UTMs on the next send
+School Sponsors	500	0.6%	n/a (offline)	-	-	-	-	-	-	No digital footprint expected
+
+FREE / EARNED TRAFFIC FOR CONTEXT ($0 media)
+Bucket	July Cost		GA4 Source / Medium	Sessions	% of Sessions	Key Events	% of Key Events			Read
+Organic search	0		google+bing+yahoo+ddg / organic	1527	10.8%	613	9.5%			Free lead machine - SEO is carrying 9.5% of key events
+Direct	0		(direct) / (none)	3065	21.6%	873	13.5%			Brand strength / returning shoppers
+BMW OEM referral	0		bmwusa.com / referral	157	1.1%	201	3.1%			High intent: 44% key event rate
+Marketplace referrals	0		cars.com 51 / cargurus 43 / carfax 19 / autotrader 15	128	0.9%	62	1.0%			Secondary value from listing vendors beyond CRM leads - still thin
+AI assistants	0		chatgpt (38) + perplexity (1)	39	0.3%	13	0.2%			New and growing surface - worth watching for AEO
+
+FULL CHANNEL MIX (GA4 default channel groups)
+Channel	Sessions	% of Sessions	Engaged Sessions	Engagement Rate	Key Events	Key Event Rate				
+Paid Search	7368	51.9%	5662	76.8%	3824	37.9%				
+Direct	3065	21.6%	1625	53.0%	873	15.5%				
+Organic Search	1655	11.7%	1207	72.9%	640	19.9%				
+Referral	1110	7.8%	859	77.4%	932	48.8%				
+Email	443	3.1%	373	84.2%	32	3.2%				
+Unassigned	242	1.7%	31	12.8%	89	16.1%				
+Cross-network	63	0.4%	61	96.8%	47	33.3%				
+Organic Social	54	0.4%	23	42.6%	9	16.7%				
+AI Assistant	35	0.2%	24	68.6%	13	17.1%				
+Organic Shopping	8	0.1%	7	87.5%	1	12.5%				
+TOTAL	14205	100.0%	9822	69.1%	6462	30.7%				
+
+Notes: sessions/key events from GA4 Traffic Acquisition (session source/medium), Jul 1-26 2026, pulled via analytics.google.com on 07/26. GA4 API via Zapier was blocked (task quota exhausted). google/vehiclelisting (126 sessions) is free Google vehicle listings, not NabThat spend. Percent columns are share of the 14,205-session / 6,462-key-event site totals.
