@@ -1,0 +1,108 @@
+{
+  "_about": "Provenance + currency baseline for every legal framework this audit enforces. The monthly legal-watch agent (see LEGAL_WATCH.md) re-verifies each entry, diffs against this file, and flags material changes. Edit `last_verified` and `status` only from a sourced research pass, never by guess.",
+  "jurisdiction_focus": "California (almost all DigitalCLIQ dealer clients). Federal rules are secondary context.",
+  "last_full_review": "2026-09-14",
+  "frameworks": [
+    {
+      "id": "CARS-CA",
+      "name": "California CARS Act",
+      "authority": "SB 766; Cal. Civ. Code §1784.20 et seq. (Title 1.5B)",
+      "status": "enacted; operative 2026-10-01",
+      "effective_date": "2026-10-01",
+      "controls_for_ca": true,
+      "last_verified": "2026-09-14",
+      "watch": "Subsection pin-cites verified against chaptered text (leginfo) 2026-06-28: cancellation §1784.43(a)(1), add-on disclosure §1784.41(b), total-payable §1784.41(c)(1), extended-term warning §1784.41(d), anti-waiver §1784.21, gov-affiliation §1784.40(j), preapproval §1784.40(e), valueless add-ons §1784.42(a)(5). Deep list indices (e.g. the EV-oil-change enumeration) are high-confidence but worth a final eyeball; section anchors are solid. DMV consumer summary reviewed 2026-09-10: it lists 'remedy if advertised price isn't honored' (now CA-CARS-023, §1784.40(i)) and states fleet exemption as 'five or more units', which conflicts with §1784.31(f)(2) 'more than one vehicle in a single transaction'. Statute applied; re-check the fleet threshold on the next verification pass. CA-CARS-013 pin-cite corrected to (j). 2026-09-14: CNCDA Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31) folded into rules/ca_hard_rules.json (CA-CARS-025 to -040, pin-cite fixes on 004/007/008/009/020) and checks/registry.py. CNCDA says the Guide is updated continuously through October 2026: re-pull from CNCDA Comply before 2026-10-01 and diff against the vault digest (Resources/automotive-guidelines/cncda-cars-act-guidance.md). Fleet threshold: CNCDA Guide Part 1 states the statute's 'more than one vehicle in a single transaction' test, confirming the statute over the DMV summary. No delaying or amending legislation pending per CNCDA FAQ Q69.",
+      "sources": [
+        "https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=202520260SB766",
+        "https://www.dmv.ca.gov/portal/vehicle-registration/new-registration/registering-a-vehicle-purchased-from-a-dealer/california-combating-auto-retail-scams-act/",
+        "Resources/automotive-guidelines/CNCDA-CARS-Act-Compliance-Guide-v1.2-2026-08-07.pdf (vault)",
+        "Resources/automotive-guidelines/CNCDA-CARS-Act-Webinar-FAQ-2026-08-31.pdf (vault)",
+        "https://www.cncda.org/news/publication-category/key-updates/"
+      ]
+    },
+    {
+      "id": "CARS-FED",
+      "name": "Federal FTC CARS Rule",
+      "authority": "16 CFR Part 463",
+      "status": "VACATED (NADA v. FTC, 5th Cir., 2025-01-27) and formally WITHDRAWN from CFR (Fed. Reg. 2026-02-12). Not enforceable.",
+      "effective_date": null,
+      "controls_for_ca": false,
+      "last_verified": "2026-06-28",
+      "watch": "Watch for any FTC re-proposal (would require a new ANPR).",
+      "sources": [
+        "https://www.ca5.uscourts.gov/opinions/pub/24/24-60013-CV0.pdf",
+        "https://www.federalregister.gov/documents/2026/02/12/2026-02866"
+      ]
+    },
+    {
+      "id": "CA-ADV",
+      "name": "California vehicle advertising law",
+      "authority": "Veh. Code §11713, §11713.1, §11713.16; 13 CCR §260",
+      "status": "in force; §11713.1 & §11713.16 amended by SB 766 (operative 2026-10-01)",
+      "effective_date": "2026-10-01",
+      "controls_for_ca": true,
+      "last_verified": "2026-09-14",
+      "watch": "13 CCR §260, could NOT confirm whether amended in 2024-2026; verify manually. Also review the annual batch of CA dealer laws effective each Jan 1. 2026-09-14 (CNCDA Guide): Plus Disclosure (11713.1(c)(2)) is required verbatim on every web page displaying a price; advertised price is a ceiling under 11713.1(e) so date every offer; specific vehicles need VIN or license, stock number alone is insufficient (11713.1(a)); 11709.3 showroom list now effectively covers all website inventory; 11713.27 (SB 478 hidden fees) safe harbor limited to 11713.1(b) fees; 11713.13(f)(1)(E) manufacturer indemnity for preselected vendors.",
+      "sources": [
+        "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=11713.1.&lawCode=VEH"
+      ]
+    },
+    {
+      "id": "CCPA-CPRA",
+      "name": "CCPA/CPRA privacy",
+      "authority": "Cal. Civ. Code §1798.100 et seq.; CPPA regulations",
+      "status": "in force; NEW regulations effective 2026-01-01 (GPC opt-out must be CONFIRMED as processed; sensitive PI expanded incl. neural data & under-16). ADMT obligations begin 2027-01-01.",
+      "effective_date": "2026-01-01",
+      "controls_for_ca": true,
+      "last_verified": "2026-06-28",
+      "watch": "Consider a check that the site confirms GPC processing. ADMT (automated decision tech) rules start 2027-01-01, relevant if a dealer site runs automated credit pre-qualification.",
+      "sources": [
+        "https://cppa.ca.gov/announcements/2025/20250923.html"
+      ]
+    },
+    {
+      "id": "ADA-UNRUH",
+      "name": "ADA + California Unruh Civil Rights Act (website accessibility)",
+      "authority": "ADA Title III; Cal. Civ. Code §51 (damages §52); WCAG 2.1 Level AA",
+      "status": "in force; WCAG 2.1 AA is the litigation baseline; $4,000 per violation (Civ. Code §52)",
+      "effective_date": null,
+      "controls_for_ca": true,
+      "last_verified": "2026-06-28",
+      "watch": "AB 1757 (would codify WCAG 2.1 AA as the statutory standard and extend liability to web vendors) is PENDING, not law. Escalate if enacted.",
+      "sources": [
+        "https://www.levelaccess.com/compliance-overview/california-unruh-civil-rights-act-compliance/"
+      ]
+    },
+    {
+      "id": "TCPA",
+      "name": "TCPA lead-form consent",
+      "authority": "47 U.S.C. §227; 47 CFR 64.1200",
+      "status": "FCC one-to-one consent rule VACATED (Insurance Marketing Coalition v. FCC, 11th Cir., 2025-01-24). For CA dealers, prior express WRITTEN consent remains the safe standard, do NOT loosen.",
+      "effective_date": null,
+      "controls_for_ca": true,
+      "last_verified": "2026-06-28",
+      "watch": "Bradford v. Sovereign Pest (5th Cir., 2026-02-25) relaxed written-consent for telemarketing, but binds only TX/LA/MS, NOT California. Keep requiring written consent for CA lead forms.",
+      "sources": [
+        "https://law.justia.com/cases/federal/appellate-courts/ca11/24-10277/24-10277-2025-01-24.html"
+      ]
+    },
+    {
+      "id": "FTC-SEC5-DEALER-ADS",
+      "name": "FTC Section 5 dealer advertising posture (post-CARS Rule)",
+      "authority": "FTC Act §5 (15 U.S.C. §45); TILA/Reg Z 12 CFR 1026.24; CLA/Reg M 12 CFR 1013.7",
+      "status": "active enforcement; March 2026 warning letters to 97 dealer groups; FTC staff Automobile Industry Pricing Transparency FAQs ISSUED September 2026 (14 questions, staff views, not binding): all-in price with only consumer-paid government charges excluded, doc fee inside the price at the highest mandatory amount, most prominent amount on SRPs and VDPs, calls and texts are ads, lease upfront processing fees in due-at-signing, not-on-lot labeling, representative photo limits, shared dealer/vendor/OEM responsibility",
+      "effective_date": null,
+      "controls_for_ca": true,
+      "last_verified": "2026-09-16",
+      "watch": "FTC FAQs issued September 2026 and folded into rules/ca_hard_rules.json on 2026-09-16 (ftc_reference block, FTC-* rules, CA-DISC-004 citation corrected) and checks/registry.py (FTC-DOCFEE-CA, FTC-COND-PRICE, FTC-USED-STOCK-PHOTO, FTC-LEASE-DAS-FEE). Answered: (1) DPC must be inside the most prominent price (Q6) and state doc-fee rules are additive (Q7); electronic filing and emission charges answered in principle by Q2 (only charges an agency requires the consumer to pay directly are excludable) but not by name; (2) either/or and finance-conditioned incentives: may be shown, not inside the most prominent price (Q5); (3) as-low-as and subset pricing: Q9 bars a price only some buyers get; (4) no-price listings: NOT addressed. Still open: ComplyAuto state-by-state list of excludable titling/smog/emission charges (promised); ComplyAuto webinar 2026-09-21 2:00 PM ET; CNCDA response on reconciling the CARS Act total price with the FTC most-prominent all-in price (CNCDA's pre-FAQ dual format only required equal prominence); in-production vehicles. Also update mcpeeks-site-watch check_catalog.py C02 and Resources/automotive-guidelines/ftc-advertising-compliance.md when those land.",
+      "sources": [
+        "https://www.ftc.gov/news-events/news/press-releases",
+        "Resources/automotive-guidelines/ftc-advertising-compliance.md (vault)",
+        "CNCDA Guide v1.2 Part 2 Federal Note (vault PDF)",
+        "https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs",
+        "https://www.ftc.gov/news-events/news/press-releases/2026/09/ftc-publishes-price-transparency-faqs-auto-dealers",
+        "https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      ]
+    }
+  ]
+}

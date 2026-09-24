@@ -1,0 +1,178 @@
+[
+  {
+    "page_url": "https://www.nissanofirvine.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-003",
+    "title": "No 'Limit Sensitive Information' Link on Homepage",
+    "quote": "No 'Limit the Use of My Sensitive Personal Information' link (or combined alternative) found on homepage",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.135(a), CPRA",
+    "recommendation": "Add a 'Limit the Use of My Sensitive Personal Information' link to the homepage. Dealerships collect sensitive PI (financial data, driver's license info) through credit applications and trade-in forms. A single combined opt-out/limit link is acceptable."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-004",
+    "title": "Lead Form #2 Missing Privacy Notice",
+    "quote": "Form collecting (input_1.3, input_1.6, input_2, input_3, input_4) has no privacy policy link or notice at collection",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.100(a), CCPA/CPRA",
+    "recommendation": "Add a privacy policy link and notice at collection to this form describing what PI is collected and the purposes."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/inventory/New-2026-Nissan-Sentra-SV-3N1AB9CV8TY256345/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-REGZ-001",
+    "title": "Credit Trigger Terms Without Full Reg Z Disclosure",
+    "quote": "Credit terms on vdp without all required Reg Z elements",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "12 CFR \u00a7226.24 (Regulation Z)",
+    "recommendation": "Include all 5 Reg Z elements: (1) down payment, (2) monthly payment, (3) number of payments, (4) APR, (5) finance charge."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/specials/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-CARS-003",
+    "title": "Monthly Payment Without Total Amount Payable",
+    "quote": "Monthly payment advertised on specials without disclosing total amount payable over loan/lease term",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71784.41(c)(1) (CARS Act, SB 766)",
+    "recommendation": "Under the CARS Act (effective Oct 1, 2026), any monthly payment advertisement must also disclose the total amount the consumer will have paid after all scheduled payments."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-CARS-003",
+    "title": "Monthly Payment Without Total Amount Payable",
+    "quote": "Monthly payment advertised on homepage without disclosing total amount payable over loan/lease term",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71784.41(c)(1) (CARS Act, SB 766)",
+    "recommendation": "Under the CARS Act (effective Oct 1, 2026), any monthly payment advertisement must also disclose the total amount the consumer will have paid after all scheduled payments."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/inventory/new/",
+    "finding_type": "brand_violation",
+    "rule_id": "NISSAN-WEB-001",
+    "title": "Brand Name Missing from VLP Page Title",
+    "quote": "Page title: '240 New cars, trucks, and SUVs in Stock serving Costa Mesa, Lake Forest & Mission Viejo, CA' \u2014 no brand name (Nissan) found",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Include the brand name (Nissan) in the page title."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-003",
+    "title": "Disclaimers hidden behind click-to-expand on homepage",
+    "quote": "[ +DISCLAIMER ] \u2014 lease disclaimers for Kicks SV ($225/mo) and Sentra SV ($199/mo) are hidden behind click-to-expand toggles, requiring user interaction to view required terms",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code \u00a711713.16(i); FTC Dot Com Disclosures",
+    "recommendation": "Display lease disclaimers in full near the advertised payment amounts without requiring a click or tap to reveal them. Disclaimers behind interactive toggles do not meet the 'clear and conspicuous' standard."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/specials/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-003",
+    "title": "Missing disclaimers for 3 of 6 advertised lease offers",
+    "quote": "Page advertises 6 lease offers (Kicks $225/mo, Sentra $199/mo, Altima $229/mo, Murano $359/mo, Pathfinder $335/mo, Rogue $299/mo) but only 3 disclaimers are present (Kicks, Sentra, Rogue). Altima, Murano, and Pathfinder lack required lease disclosures.",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code \u00a711713.1(e); Regulation M 12 CFR \u00a71013.4",
+    "recommendation": "Add complete lease disclaimers for the 2026 Altima S ($229/mo), Murano SV ($359/mo), and Pathfinder SV ($335/mo) including VIN, term, mileage allowance, down payment, residual value, and credit tier requirements."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-004",
+    "title": "Payment amounts prominently displayed while required terms are in collapsed text",
+    "quote": "LEASE FOR $225 per month (bold/prominent) with required terms like '$2895 DOWN', 'Tier 1 or 2 approval from NMAC', 'Residual Value $16,765' buried inside collapsed [+DISCLAIMER] sections",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "Regulation M 12 CFR \u00a71013.4; CA Vehicle Code \u00a711713.16(i)",
+    "recommendation": "Ensure all Regulation M required disclosures (down payment, term, mileage, residual value, credit requirements) are displayed with equal prominence to the monthly payment amount, without requiring user interaction to reveal."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/specials/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-CARS-014",
+    "title": "Lease payment ads lack total amount payable disclosure",
+    "quote": "Kicks: $225/mo x 36 months + $2,895 down; Sentra: $199/mo x 39 months + $3,695 down; Rogue: $299/mo x 24 months + $5,495 down \u2014 none disclose the total amount payable over the lease term",
+    "severity": "advisory",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71784.41(c)(1) (CARS Act, effective Oct 1, 2026)",
+    "recommendation": "Add total amount payable for each lease offer (e.g., Kicks: $225 x 36 + $2,895 = $10,995 plus tax/fees). While the CARS Act is not yet effective until October 1, 2026, implementing this now ensures compliance at the effective date."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/inventory/used/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-CARS-013",
+    "title": "No reference to 3-day cancellation right on used vehicle page",
+    "quote": "Used vehicle listing page shows 28 vehicles with no mention of the statutory 3-day cancellation right for used vehicles $50,000 or less",
+    "severity": "advisory",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71784.40 et seq. (CARS Act, effective Oct 1, 2026)",
+    "recommendation": "Add a reference to the 3-day cancellation right on used vehicle listing pages. While the primary disclosure is at point of sale, best practice is to inform consumers of this right before they visit the dealership. Prepare for compliance before the October 1, 2026 effective date."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/inventory/New-2026-Nissan-Sentra-SV-3N1AB9CV8TY256345/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-CARS-012",
+    "title": "Dealer add-on products lack 'not required' disclosure",
+    "quote": "Add-ons listed: $455 Window Tint, $250 Wheel Locks, $290 Nitrogen, $120 Lojack, $660 Clear Bra \u2014 presented alongside vehicle pricing with disclaimer 'Price does not include dealer or vendor added accessories/upgrades' but no disclosure that these items are optional and not required for purchase",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71784.41(a) (CARS Act, effective Oct 1, 2026)",
+    "recommendation": "Add clear 'optional \u2014 not required for purchase' disclosure adjacent to each add-on product. The CARS Act requires dealers to clearly and conspicuously disclose in writing that add-on products are not required. Implement before the October 1, 2026 effective date."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-005",
+    "title": "Confusing '2025 ONLY' disclaimer on page advertising 2026 models",
+    "quote": "Contact dealer for details. On a purchase of the vehicle only. 2025 ONLY. Expires 4/2/2026.",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code \u00a711713.1(e)",
+    "recommendation": "Clarify which offer applies to 2025 models only. The homepage prominently features 2026 model lease offers, and a '2025 ONLY' disclaimer without clear linkage to a specific offer creates consumer confusion about which terms apply to which vehicles."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/get-pre-approved/",
+    "finding_type": "brand_violation",
+    "rule_id": "NISSAN-WEB-001",
+    "title": "Outdated year reference on finance page",
+    "quote": "Let us help you on this journey and into a brand new car for a better 2021.",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Update the finance page copy to remove the '2021' reference. This outdated content undermines credibility and suggests the page has not been maintained. Replace with current year or remove the year reference entirely."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/inventory/New-2026-Nissan-Sentra-SV-3N1AB9CV8TY256345/",
+    "finding_type": "brand_violation",
+    "rule_id": "NISSAN-PRICE-001",
+    "title": "Selling price below MSRP without clear separation from MSRP",
+    "quote": "MSRP $25,275 - Selling Price $24,275 \u2014 with add-on accessories ($455 Window Tint, $250 Wheel Locks, $290 Nitrogen, $120 Lojack, $660 Clear Bra) shown separately but disclaimer states 'Price does not include dealer or vendor added accessories/upgrades'",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Ensure MSRP is clearly labeled as the Manufacturer's Suggested Retail Price and that the selling price relationship to MSRP is unambiguous. The add-on accessories should be clearly presented as separate from both the MSRP and the selling price to avoid consumer confusion about total cost."
+  },
+  {
+    "page_url": "https://www.nissanofirvine.com/specials/",
+    "finding_type": "brand_violation",
+    "rule_id": "NISSAN-DISC-001",
+    "title": "Low mileage allowance (5,000 mi/yr) not prominently disclosed",
+    "quote": "All 6 lease offers include '5000 miles per year' \u2014 significantly below industry standard of 10,000-12,000 miles per year",
+    "severity": "warning",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "The 5,000 miles/year allowance is well below industry norms and significantly impacts the lease value. Per Nissan BAP guidelines, this non-standard term should be disclosed with equal prominence to the monthly payment, not buried in disclaimer text. Consider highlighting the low mileage allowance near the advertised payment."
+  }
+]

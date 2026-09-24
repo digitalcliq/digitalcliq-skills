@@ -1,0 +1,231 @@
+{
+  "_readme": "DigitalCLIQ Inventory Pulse client roster. Hardcoded per Drew, 2026-08-06. Model years are NEVER stored here: the skill resolves current + incoming model year dynamically from live inventory each run. Update platform/notes fields as runs discover them (they are a cache, not a contract). fetch field per dealer: 'server' (urllib works) or 'browser' (WAF'd, needs the in-page JS strategy); probed 2026-08-15.",
+  "schedule": {
+    "run_days": [
+      5,
+      20
+    ],
+    "anchor_day_max": 12,
+    "note": "Runs on the 5th (anchor: month-over-month vs prior month's anchor) and the 20th (pulse: vs this month's anchor)."
+  },
+  "clients": {
+    "SBMW": {
+      "display": "Sterling BMW",
+      "brand": "BMW",
+      "makes": [
+        "BMW"
+      ],
+      "drive_client_folder": "Sterling BMW",
+      "client_dealer": {
+        "name": "Sterling BMW",
+        "url": "https://www.sterlingbmw.com/",
+        "platform": "Dealer Inspire",
+        "notes": "Server-fetch 403s; use the Dealer Inspire crawl strategy from compliance-audit memory (browser surfaces cascade). 403 all server fetch (probe 2026-08-15)  [2026-08-25] Browser same-origin fetch WORKS (in-page fetch() returns 200 where server fetch 403s). Inventory sitemap = /dealer-inspire-inventory/inventory_sitemap (VDP slug carries year/model/trim/VIN, so only price needs a VDP fetch). VERIFIED ZERO new-vehicle lease/finance offers: /lease-specials/ has 30 offers all PRE-OWNED, /new-vehicle-specials/ is a pricing SRP only, /specials/ fails, /offers/ 404s. JSON-LD offers.price is the ADVERTISED price and sits ABOVE MSRP by a flat $1,044 ($85 doc + $959 Z Shield) or $2,080; capture price and msrp separately. Site mislabels BMW M coupes (VIN prefix WBS, ~$95-101k) as '3 Series All Wheel Drive Coupe' - exclude them from the 3 Series group.",
+        "fetch": "browser"
+      },
+      "competitors": [
+        {
+          "name": "Crevier BMW",
+          "url": "https://www.crevierbmw.com/",
+          "platform": "",
+          "notes": "Penske store. 403 all server fetch (probe 2026-08-15)  [2026-08-25] In-page fetch() DISPOSES the renderer on this domain; use plain tab navigation + get_page_text instead. Inventory sitemap /dealer-inspire-inventory/inventory_sitemap (975 urls). /lease-specials/ 404s; /specials/ and /new-vehicle-specials/ both wedge the pane - offers remain UNVERIFIED, never record verified_zero. Adds only the $85 doc fee, no addendum.",
+          "fetch": "browser"
+        },
+        {
+          "name": "Irvine BMW",
+          "url": "https://www.irvinebmw.com/",
+          "platform": "Dealer.com",
+          "notes": "Shelly Auto Group. 403 all server fetch (probe 2026-08-15)  [2026-08-25] Platform is Dealer.com, NOT Dealer Inspire. SRP ?model= filter works and is the reliable path. Offers page is a bare contact form; only a generic first-responder/military rebate on the homepage, so verified_zero. Adds only the $85 doc fee.",
+          "fetch": "browser"
+        },
+        {
+          "name": "Long Beach BMW",
+          "url": "https://www.longbeachbmw.com/",
+          "platform": "Dealer.com",
+          "notes": "Domain verified live 2026-08-06. 403 all server fetch (probe 2026-08-15)  [2026-08-25] Dealer.com (same family as Irvine BMW). FAILED entirely 2026-08-25: 5 attempts across Chrome MCP + Claude Browser pane all wedged. /dealer-inspire-inventory/inventory_sitemap 404s here (it is not Dealer Inspire). Retry with the Dealer.com SRP ?model= pattern that worked for Irvine.",
+          "fetch": "browser"
+        }
+      ],
+      "models": [
+        {
+          "model": "3 Series",
+          "match": [
+            "3 series",
+            "330i",
+            "m340i",
+            "330e"
+          ],
+          "trims_of_interest": [
+            "330i",
+            "M340i"
+          ]
+        },
+        {
+          "model": "X3",
+          "match": [
+            "x3"
+          ],
+          "trims_of_interest": [
+            "30",
+            "M50"
+          ]
+        },
+        {
+          "model": "X5",
+          "match": [
+            "x5"
+          ],
+          "trims_of_interest": [
+            "40i",
+            "50e",
+            "M60i"
+          ]
+        }
+      ]
+    },
+    "MCP": {
+      "display": "McPeek's CDJR of Anaheim",
+      "brand": "CDJR",
+      "makes": [
+        "Ram",
+        "Jeep",
+        "Chrysler",
+        "Dodge"
+      ],
+      "drive_client_folder": "McPeek's Anaheim",
+      "client_dealer": {
+        "name": "McPeek's CDJR of Anaheim",
+        "url": "https://www.mcpeeks.com/",
+        "platform": "Pixel Motion",
+        "notes": "Server-fetchable with Chrome UA. Inventory sitemap https://www.mcpeeks.com/inventory-sitemap.xml, VDP /inventory/display/{cond}/{year}/{make}/{model}/{VIN}. JSON-LD Vehicle on VDPs. Prices arrive as &dollar; entities: html.unescape first. Politeness: max 3 workers, 0.7s pacing (site went down under a 10-worker crawl on 2026-07-26). home+sitemaps 200 (probe 2026-08-15)  [2026-08-25] Specials are BANNER IMAGES in the homepage slideshow, also served at /lease-specials, /monthly-specials, /new-specials (identical 325KB page); /specials is a separate offers-grid page. Banner FILENAMES ARE MISLEADING (the Wrangler lease banner is named 2026-Ram-1500-Laramie-2.jpg) - always read pixels. Disclaimer text is in the page HTML near 'Show Disclaimer' and can DISAGREE with the banner (2026-08-25: banner $339/mo $3,999 down vs disclaimer $369/mo $3,499 down, disclaimer still said 'expires 8/2/2026'). Some VDPs are genuine Call for Price with EMPTY JSON-LD: the regex fallback can scrape an unrelated $61,595 off those pages, so verify any price that repeats across different models.",
+        "fetch": "server"
+      },
+      "competitors": [
+        {
+          "name": "Orange Coast CJDR",
+          "url": "https://www.ocauto.com/",
+          "platform": "",
+          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: /inventory-sitemap.xml clean per-model; specials are TEXT (not banners) at /new-vehicles/new-specials/; /finance-specials 404s.  [2026-08-25] Confirmed: /inventory-sitemap.xml clean per-model VDP urls with JSON-LD prices; specials are TEXT at /new-vehicles/new-specials/. Both lease offers conditional (above-average credit via Stellantis) and 5,000 mi/yr.",
+          "fetch": "browser"
+        },
+        {
+          "name": "Huntington Beach CJDR",
+          "url": "https://www.hbchryslerdodgejeepram.com/",
+          "platform": "",
+          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' match false-positives on ProMaster 1500 (exclude promaster|fleet-new URLs); specials are banner images at /specials/(brand).htm; floating 'Bad Credit?' CTA masks part of each banner's fine print (note in parse_note).  [2026-08-25] Confirmed: banner images at /specials/{brand}.htm (a Chrysler/Pacifica page now exists too); floating 'Bad Credit?' CTA masks banner fine print. Exclude promaster|fleet-new from the '1500' match. 2026-08-25: banner headline saving vs disclosed sale price differ by ~$7,500 on the Ram Big Horn. No new Pacifica in the sitemap this run.",
+          "fetch": "browser"
+        },
+        {
+          "name": "Puente Hills CJDR",
+          "url": "https://www.puentehillscdjr.com/",
+          "platform": "Dealer Inspire",
+          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' can hit VIN digit coincidences (verify model); real specials page /best-jeep-dodge-chrysler-ram-lease-offers-serving-los-angeles-ca/ (text cards).  [2026-08-25] Platform is Dealer Inspire. innerText/get_page_text return NEAR-EMPTY despite full rendered content - SCREENSHOTS are the only reliable read path here. Dedicated lease page carries only Wrangler/Gladiator/Cherokee; Ram and Charger offers live on homepage banners. Verify model on '1500' matches (VIN digit coincidence risk).",
+          "fetch": "browser"
+        }
+      ],
+      "models": [
+        {
+          "model": "1500",
+          "make": "Ram",
+          "match": [
+            "ram 1500",
+            "1500"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Wrangler",
+          "make": "Jeep",
+          "match": [
+            "wrangler"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Pacifica",
+          "make": "Chrysler",
+          "match": [
+            "pacifica"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Charger",
+          "make": "Dodge",
+          "match": [
+            "charger"
+          ],
+          "trims_of_interest": []
+        }
+      ]
+    },
+    "NOI": {
+      "display": "Nissan of Irvine",
+      "brand": "Nissan",
+      "makes": [
+        "Nissan"
+      ],
+      "drive_client_folder": "Nissan Of Irvine",
+      "client_dealer": {
+        "name": "Nissan of Irvine",
+        "url": "https://www.nissanofirvine.com/",
+        "platform": "",
+        "notes": "home 200, sitemap.xml 200, no inventory-sitemap (probe 2026-08-15)  [2026-08-25] Yoast sitemap.xml expands to 934 urls, 478 new-vehicle VDPs; slug /inventory/new-{YEAR}-nissan-{model-trim}-{VIN}/ carries everything but price. Specials are TEXT inside homepage offer-banner disclaimers (payment, term, mi/yr, due-at-signing, selling price, residual all present) - /new-specials/ and /new-vehicle-specials/ do NOT resolve, /lease-specials/ and /specials/ resolve but carry no offers. WATCH: 5 of 6 disclaimers state TWO different due-at-signing figures (headline vs parenthetical, e.g. $2,995 vs $4,995); 5 of 6 leases are 5,000 mi/yr. Treat 'Rogue Plug-In Hybrid' as a separate model from Rogue.",
+        "fetch": "server"
+      },
+      "competitors": [
+        {
+          "name": "Nissan of Tustin",
+          "url": "https://www.nissanoftustin.com/",
+          "platform": "",
+          "notes": "403 all server fetch (probe 2026-08-15)",
+          "fetch": "browser"
+        },
+        {
+          "name": "Nissan of Costa Mesa",
+          "url": "https://www.nissanofcostamesa.com/",
+          "platform": "SecureOfferSites / Team Velocity",
+          "notes": "home 200, inventory-sitemap.xml 200 (probe 2026-08-15)  [2026-08-25] FULL JSON INVENTORY FEED at /inventory-new.json (paginated pageSize 50, totalPages/totalVehicles/vehicles; ?page=N). 1120 new units. Fields: vin, year, make, model, trim, msrp, sellingPrice, dateInStock (gives TRUE days-on-market), vdpUrl. One fetch replaces the whole VDP crawl. Specials panels are disabled (hideLeasePanel/hideFinancePanel true), so no offers are published.",
+          "fetch": "server"
+        },
+        {
+          "name": "Nissan of Orange",
+          "url": "https://www.nissanorange.com/",
+          "platform": "",
+          "notes": "TLS handshake rejected server-side (TLSV1_ALERT_PROTOCOL_VERSION, probe 2026-08-15); browser only",
+          "fetch": "browser"
+        }
+      ],
+      "models": [
+        {
+          "model": "Rogue",
+          "match": [
+            "rogue"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Altima",
+          "match": [
+            "altima"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Sentra",
+          "match": [
+            "sentra"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Pathfinder",
+          "match": [
+            "pathfinder"
+          ],
+          "trims_of_interest": []
+        }
+      ]
+    }
+  }
+}

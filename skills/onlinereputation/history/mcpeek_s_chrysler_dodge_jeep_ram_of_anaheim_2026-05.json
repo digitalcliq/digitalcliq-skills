@@ -1,0 +1,23 @@
+{
+  "dealer_name": "McPeek's Chrysler Dodge Jeep RAM of Anaheim",
+  "month": "2026-05",
+  "snapshot_date": "2026-05-19",
+  "platforms": {
+    "google": {
+      "rating": 4.4,
+      "review_count": 2812
+    },
+    "yelp": {
+      "rating": 3.3,
+      "review_count": 720
+    },
+    "dealerrater": {
+      "rating": 4.7,
+      "review_count": 289
+    },
+    "carfax": {
+      "rating": 4.5,
+      "review_count": 815
+    }
+  }
+}

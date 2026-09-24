@@ -1,0 +1,233 @@
+[
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-001",
+    "title": "No Privacy Policy Link on Homepage",
+    "quote": "No privacy policy link found in homepage footer or navigation",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.130(a)(5), CCPA/CPRA",
+    "recommendation": "Add a clearly visible 'Privacy Policy' link to the website footer, accessible from every page."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-002",
+    "title": "No 'Do Not Sell or Share' Link on Homepage",
+    "quote": "No 'Do Not Sell or Share My Personal Information' link found on homepage",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.135(a), CPRA",
+    "recommendation": "Add a clear and conspicuous 'Do Not Sell or Share My Personal Information' link to the homepage. Dealership websites using tracking pixels, Google Analytics, or remarketing tags are likely 'sharing' PI under CPRA."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-003",
+    "title": "No 'Limit Sensitive Information' Link on Homepage",
+    "quote": "No 'Limit the Use of My Sensitive Personal Information' link (or combined alternative) found on homepage",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Civil Code \u00a71798.135(a), CPRA",
+    "recommendation": "Add a 'Limit the Use of My Sensitive Personal Information' link to the homepage. Dealerships collect sensitive PI (financial data, driver's license info) through credit applications and trade-in forms. A single combined opt-out/limit link is acceptable."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/new/Jeep/Grand-Cherokee/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DEALER-001",
+    "title": "Dealer Name Not Found on Vlp Page",
+    "quote": "Page title: 'New Grand Jeep Cherokee For Sale Near Me | Dodge Dealer in Anaheim Hills' \u2014 dealer name 'J Star Chrysler Dodge Jeep Ram of Anaheim Hills' not detected",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(a), 13 CCR \u00a7260.00",
+    "recommendation": "Ensure 'J Star Chrysler Dodge Jeep Ram of Anaheim Hills' or dealer DBA appears on every page."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/display/new/2026/Jeep/Grand-Cherokee/1C4RJHBR0TC210728/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-004",
+    "title": "Doc/Documentation Fees Excluded from Advertised Price",
+    "quote": "Found on vdp: 'advertised price does not include sales tax, vehicle registration fees, other fees required by law, '",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.1(e)",
+    "recommendation": "Doc fees must be included in the total advertised price. They are NOT exempt fees under CA law."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/display/new/2026/Jeep/Grand-Cherokee/1C4RJHBR0TC210728/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-001",
+    "title": "Expired Disclaimer Date (11/30/2019)",
+    "quote": "Disclaimer on vdp contains expiration date '11/30/2019' \u2014 over 6 years stale",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "VC \u00a711713.16(i), 13 CCR \u00a7260",
+    "recommendation": "Remove or update expired disclaimer dates. Stale disclaimers signal poor compliance oversight to regulators."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/display/new/2026/Jeep/Grand-Cherokee/1C4RJHBR0TC210728/",
+    "finding_type": "brand_violation",
+    "rule_id": "STEL-DISC-001",
+    "title": "Outdated Corporate Name (FCA) Found",
+    "quote": "FCA or Fiat Chrysler reference on vdp",
+    "severity": "warning",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Update 'FCA' or 'Fiat Chrysler Automobiles' to 'Stellantis' across all content."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/",
+    "finding_type": "brand_violation",
+    "rule_id": "STEL-CPO-001",
+    "title": "No Dedicated CPO Page Found",
+    "quote": "CPO page not found in navigation during crawl",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Create a dedicated Certified Pre-Owned page with proper CDJR CPO program branding."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/",
+    "finding_type": "brand_violation",
+    "rule_id": "STEL-NAV-001",
+    "title": "Red accent color used in primary navigation bar",
+    "quote": "Pre-Owned tab displayed with red (#CC0000) background in main navigation bar",
+    "severity": "warning",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Change the Pre-Owned navigation tab to use black/white only, matching all other navigation items. Stellantis guidelines require primary navigation to use black and white exclusively with no colored navigation bars."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/monthly-specials/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-006",
+    "title": "Lease banner and text disclaimer show conflicting payment amounts for Jeep Wrangler",
+    "quote": "Banner image: '$329 PER MONTH FOR 39 MONTHS $3899 DAS*' vs. text below: 'Lease a 2026 Jeep Wrangler 4 Door Sport for $399 a month plus tax for 39 months. $4099 due at signing.'",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code 11713.1(e); CA B&P Code 17500",
+    "recommendation": "Immediately correct the price discrepancy between the banner image ($329/mo, $3,899 DAS) and the text disclaimer ($399/mo, $4,099 DAS). Either update the banner graphic or the text to ensure consistency. Inconsistent pricing is misleading to consumers and constitutes a false advertisement."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/monthly-specials/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-003",
+    "title": "Lease and finance offers mixed in single promotional graphic without clear separation",
+    "quote": "Banner shows lease terms '$399 PER MONTH FOR 39 MONTHS $4099 DAS*' alongside finance terms '0% FOR 72 MONTHS' and 'PAYMENTS FOR 90 DAYS' in a single image",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code 11713.1(e); Regulation M / Regulation Z",
+    "recommendation": "Separate lease and finance offers into distinct advertisements or clearly delineate them within the graphic. The 0% APR finance offer lacks required Regulation Z disclosures (APR, number of payments, total of payments, amount financed) in the banner. The text below does clarify '0% APR is based on approved credit from Chrysler Capital for a PURCHASE and not a lease' but this separation should be clear within the banner itself."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/display/new/2026/Jeep/Grand-Cherokee/1C4RJHBR0TC210728/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-007",
+    "title": "Disclaimer contains expired date from 2019 and references defunct FCA corporate name",
+    "quote": "Dealer is not responsible for any rebates that customer does not qualify for and does not need to honor if requirements are not met to FCA guidelines. Exp 11/30/2019",
+    "severity": "critical",
+    "source": "legal_check",
+    "statute": "CA B&P Code 17500; CA Vehicle Code 11713.1(e)",
+    "recommendation": "Immediately update the VDP disclaimer to remove the 'Exp 11/30/2019' expired date and replace all references to 'FCA' with 'Stellantis' (FCA rebranded to Stellantis in January 2021). An expired disclaimer that is over 6 years old undermines the validity of all terms and conditions on the page and signals the dealership is not maintaining current advertising compliance."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/display/new/2026/Jeep/Grand-Cherokee/1C4RJHBR0TC210728/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRICE-004",
+    "title": "Dealer-installed $3,995 protection package not included in advertised price",
+    "quote": "Dealer Installed items include Jstar Protection Package: ELO GPS, CilaJet 3-YEAR COVERAGE, and 3M Door Protection for $3995.",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code 11713.1(e); 16 CFR 455",
+    "recommendation": "Either include the $3,995 Jstar Protection Package in the advertised price or clearly disclose this added cost prominently near the J Star Price. Currently, the disclosure is buried in the disclaimer section below the fold. A consumer would see $50,580 as the price but the actual cost is $54,575 with the pre-installed dealer package. Consider adding a line item in the Pricing Details section showing the package cost."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-008",
+    "title": "Expired RAM warranty promotion still displayed on homepage carousel",
+    "quote": "OFFER ENDS 01/02/2026. RAM IS A REGISTERED TRADEMARK OF FCA US LLC",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA B&P Code 17500",
+    "recommendation": "Remove or update the RAM Trucks powertrain warranty banner from the homepage carousel. The offer expired on 01/02/2026 (over 2 months ago as of the audit date 03/06/2026). Displaying expired promotions constitutes a deceptive advertising practice. Also update the trademark attribution from 'FCA US LLC' to reflect the current Stellantis corporate identity."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/finance-center/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-CREDIT-001",
+    "title": "Implied guaranteed financing claim on finance page",
+    "quote": "All types of credit, from good to bad, can qualify for an auto loan. No credit, no problem!",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA B&P Code 17500; CA Vehicle Code 11713.1(e)",
+    "recommendation": "Remove or qualify the guaranteed financing language. Stating 'All types of credit...can qualify' and 'No credit, no problem!' implies universal approval, which is likely not accurate. If not all applicants are approved, this language is misleading. Replace with qualified language such as 'We work with multiple lenders to help find financing options' and add a disclaimer that 'Not all applicants will qualify.'"
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/privacy/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-PRIV-002",
+    "title": "Privacy policy dated 2017, missing CCPA/CPRA required content sections",
+    "quote": "This privacy policy is effective on April 18, 2017 and may be amended from time to time.",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Civil Code 1798.100-1798.199.100 (CCPA/CPRA)",
+    "recommendation": "Comprehensively update the privacy policy to include all CCPA/CPRA required sections: (1) Consumer rights (right to know, delete, correct, opt-out, limit use of sensitive PI), (2) Categories of personal information collected, (3) Whether PI is sold or shared, (4) Specific retention periods, (5) Financial incentive disclosure if applicable, (6) At least 2 clear request submission methods. The current policy only references 'Shine the Light' from 2005 and delegates CCPA to a separate click-through link. The effective date of April 2017 predates CCPA entirely. The policy must be updated and dated within the past 12 months."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/display/new/2026/Jeep/Grand-Cherokee/1C4RJHBR0TC210728/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-DISC-005",
+    "title": "Pricing described as non-binding undermines advertised price obligation",
+    "quote": "Pricing provided may vary significantly between website and dealer as a result of supply chain constraints. Pricing shown is non-binding and does not constitute an offer.",
+    "severity": "advisory",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code 11713.1(e)",
+    "recommendation": "Remove or revise the 'non-binding' pricing language. Under California law, the advertised price must be the price at which the dealer will sell the vehicle (VC 11713.1(e)). Disclaiming the advertised price as 'non-binding' could be viewed as an attempt to bait-and-switch and conflicts with the obligation to sell at the advertised price. If supply chain issues affect pricing, individual vehicles should be re-priced on the website rather than blanket-disclaiming all prices."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/display/new/2026/Jeep/Grand-Cherokee/1C4RJHBR0TC210728/",
+    "finding_type": "brand_violation",
+    "rule_id": "STEL-VDP-001",
+    "title": "VDP title displays model name 'Grand Cherokee' twice",
+    "quote": "New 2026 Jeep Grand Cherokee Grand Cherokee Limited 4x4",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Fix the VDP heading to display the correct format: 'New 2026 Jeep Grand Cherokee Limited 4x4'. The current heading repeats 'Grand Cherokee' twice, which is a data feed formatting error that affects the brand presentation and professionalism of the page."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/inventory/new/Jeep/Grand-Cherokee/",
+    "finding_type": "brand_violation",
+    "rule_id": "STEL-WEB-002",
+    "title": "VLP page title has incorrect model name word order and wrong brand attribution",
+    "quote": "New Grand Jeep Cherokee For Sale Near Me | Dodge Dealer in Anaheim Hills",
+    "severity": "warning",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Correct the page title from 'New Grand Jeep Cherokee' to 'New Jeep Grand Cherokee' (proper model name order). Also change 'Dodge Dealer' to 'Jeep Dealer' or 'Chrysler Dodge Jeep Ram Dealer' since this is a Jeep inventory page. Incorrect model name ordering and wrong brand attribution in page titles can affect co-op reimbursement and SEO accuracy."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/",
+    "finding_type": "brand_violation",
+    "rule_id": "STEL-DAP-001",
+    "title": "Homepage RAM warranty banner contains outdated FCA trademark attribution",
+    "quote": "RAM IS A REGISTERED TRADEMARK OF FCA US LLC",
+    "severity": "advisory",
+    "source": "brand_check",
+    "statute": "",
+    "recommendation": "Update the Ram trademark attribution from 'FCA US LLC' to 'Stellantis N.V.' or the current correct legal entity name. FCA merged with PSA Group to form Stellantis in January 2021. Using the outdated corporate name in trademark attributions does not meet current Stellantis DAP content requirements."
+  },
+  {
+    "page_url": "https://www.jstarcdjrofanaheimhills.com/monthly-specials/",
+    "finding_type": "legal_violation",
+    "rule_id": "CA-LEASE-002",
+    "title": "Lease disclaimer states document fees are excluded from advertised price",
+    "quote": "Title, Tax, license, and document fees are extra.",
+    "severity": "warning",
+    "source": "legal_check",
+    "statute": "CA Vehicle Code 11713.1(e)",
+    "recommendation": "Remove 'document fees' from the list of excluded charges. Under California Vehicle Code 11713.1(e), the advertised price must include all charges the dealer intends to collect except tax, registration, transfer, and finance charges. Documentation fees (doc fees) are a dealer charge and must be included in the advertised price. Both the RAM 1500 and Jeep Wrangler lease specials contain this violation."
+  }
+]

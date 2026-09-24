@@ -1,0 +1,56 @@
+{
+ "Instagram": {
+  "platform": "Instagram",
+  "ranking_signals": ["Watch-time / completion (the gate)", "Sends per reach (3-5x a like) — top reach-to-new-people lever", "Saves (~3x a like)", "Conversation depth + creator replies in the first hour", "Original content (reposters lose 60-80% reach)", "Caption / audio / alt-text keywords (IG SEO, now indexed by Google)"],
+  "winning_formats": ["Reels 7-15s for reach, 15-30s educational; up to 3 min if retention holds", "9:16, in-app captions, no watermarks", "Carousels for saves/depth", "Interactive Stories daily", "Trial Reels to A/B hooks on non-followers"],
+  "cadence": "3-7 Reels/wk + daily Stories + 1-3 carousels/wk. Tue/Wed/Thu midday-evening (Thu 9am, Wed 12pm/6pm). A 10-day gap resets reach.",
+  "what_changed_2026": ["Sends overtook saves as the #1 reach signal", "Up to 3-min Reels recommended to non-followers", "Broadcast Channels open to all pro accounts", "Public pro posts indexed by Google"],
+  "beyond_hashtags": "Keyword-optimize name field, bio, first 125 chars of caption, on-screen text AND spoken audio. 3-5 specific tags max. Reach = sends + saves + watch-time + early replies, not hashtags.",
+  "automotive_angle": ["Localize (geo tags, city keywords, local shoulder content)", "Sell the people not the metal", "Inventory as save/send bait (model comparisons, lease-vs-buy)", "Broadcast Channel for VIP inventory drops", "Caption SEO: '[Year][Make][Model] for sale in [City]'", "Local Collabs (detailers, lenders, sports teams)"]
+ },
+ "TikTok": {
+  "platform": "TikTok",
+  "ranking_signals": ["Completion / replays", "Shares + saves", "Comments / replies (reply-with-video loop)", "Search relevance (TikTok SEO)"],
+  "winning_formats": ["Sub-30s high-completion hooks AND 1-3 min retention holders", "9:16 only, captions mandatory (30%+ watch muted)", "Hook in first 1-3s (96% of reach lands in first ~10 days)", "Recurring series (3-4 themes) so the algorithm classifies you", "Authentic, person-led, lightly produced"],
+  "cadence": "3-5/wk (top 25% post 4+), 4-6h gap. Tue-Thu 10-11am + 2-6pm local. Consistency > volume.",
+  "what_changed_2026": ["Longer high-retention video now boosted", "Platform growth slowed ~33% — small accounts lean on search + series", "Niche relevance beats broad reach"],
+  "beyond_hashtags": "TikTok SEO: primary keyword in first ~50 chars of caption + on-screen text + voiceover (audio is transcribed). Optimize handle/bio. 3-5 tags max. Engineer saves/sends/replays/comments.",
+  "automotive_angle": ["Sub-30s single-vehicle walkaround: year/make/model + price + 2-3 features spoken & on-screen", "Price-reveal hook ('How much is a 2026 [model]?' -> cut to number)", "Same-day new arrivals", "Before/after recon", "Salesperson-led; local SEO. Organic CPL ~20-40% of paid search."]
+ },
+ "YouTube": {
+  "platform": "YouTube",
+  "ranking_signals": ["Average-view-duration + satisfaction", "Shares (cheapest net-new reach)", "Early comment velocity", "Session contribution (end screens, playlists)"],
+  "winning_formats": ["Shorts 30-45s, 50%+ AVD (sub-15s collapsed)", "Long-form 8-15 min, 60%+ AVD, custom thumbnail, keyword in first 65 chars of title, chapters", "The Shorts->long-form flywheel (+~40% long-form watch-time)"],
+  "cadence": "1-2 long-form/wk (2/wk grows subs ~3x faster) + 3-5 Shorts/wk, fixed times. Long-form Thu-Fri 2-4pm; Shorts 12-3pm + 7-9pm.",
+  "what_changed_2026": ["Sub-15s Shorts lost reach (watch-time bar)", "Collaboration feature (tag up to 4 channels)", "Hype boosts small channels", "Google AI Overviews cite chaptered videos"],
+  "beyond_hashtags": "Semantic, intent-matched titles/descriptions/spoken audio + accurate captions + chapter titles mirroring shopper questions. Geo-intent ('[City] [Brand] dealer', 'near me'). Hashtags only light topical labels.",
+  "automotive_angle": ["Own 'near me' intent (searches doubled into 2026; 92% research on YT)", "Education-first (6 in 10 start unsure): comparisons, financing, trade-in", "Inventory-velocity Shorts w/ VIN CTA", "Real salespeople/GM as recurring faces (78% trust creators)", "Recurring series: New Arrivals Friday, Just Got Traded, monthly Lease Deals Explained"]
+ },
+ "Facebook": {
+  "platform": "Facebook",
+  "ranking_signals": ["Sends / private shares (top signal)", "Saves", "Reels watch-time (only format reaching non-followers)", "Replies + page replying back in the first hour"],
+  "winning_formats": ["Reels 15-30s 9:16 (~135% more reach than photos)", "Lo-fi mobile video > polished", "Photo carousels for saves", "Daily Stories", "Broadcast Channels at 10k (50-80% open)"],
+  "cadence": "3-5 feed + 4-6 Reels/wk + daily Stories. Tue/Wed/Thu, 9-11am + 12-1pm feed, 5-9pm Reels.",
+  "what_changed_2026": ["Reels are the only reliable non-follower reach", "Captions indexed like landing pages (FB is #2 product-discovery platform)", "Engagement-bait can cut reach up to 80%"],
+  "beyond_hashtags": "Facebook-SEO the whole Page (name, About, captions, alt text) in natural buyer-search language. Design for sends + saves; let Reels do cold reach. Skip 'share to win'.",
+  "automotive_angle": ["Salesperson-led 60-90s vertical walkarounds (weekly series)", "Win the local interest graph (geo keywords, local Groups)", "UGC + delivery-day (~4.5x engagement)", "Tie every video to ONE conversion action", "Broadcast Channel for 'first dibs on new arrivals'"]
+ },
+ "X / Threads": {
+  "platform": "X / Threads",
+  "ranking_signals": ["Reply-and-bookmark rate (not likes)", "X author-reply weight (+75, highest lever)", "Bookmarks (+10, 5x a like) / reposts (~20x a like)", "Threads replies-per-reach (20+ in first 30 min expands)"],
+  "winning_formats": ["X text-only posts out-engage media (~30%); 71-100 char sweet spot", "X threads (4-8 posts) ~3x engagement", "Native video 15-60s 9:16 captioned", "Never put the link in the main post — link in a reply", "Threads: text-first + 1 clean photo (~60% more reach), 1 Topic Tag"],
+  "cadence": "X 3-6/day -> 10+, Tue-Thu 9am-3pm. Threads 1-3/day, weekday 7-9am + 6-9pm (Thu 9am strongest), daily for first 60 days.",
+  "what_changed_2026": ["Threads added Topic Tags + growth tailwind", "X Premium ~2-4x reach multiplier", "DMs now audio/video"],
+  "beyond_hashtags": "Social SEO in the FIRST caption line + bio (city + what you sell). Saves/sends + author-engaged reply chains drive reach. 1 Topic Tag (Threads) / 1-2 tags max (X).",
+  "automotive_angle": ["Salesperson as the face (72% of teams use video)", "Unscripted 30s walkarounds (10x reach of long reviews)", "Local search in first caption line", "Delivery-photo engine", "<=1 of every 5-6 posts is hard promo"]
+ },
+ "LinkedIn": {
+  "platform": "LinkedIn",
+  "ranking_signals": ["Comments (~15x likes) + comment-replies", "Dwell time = the PRIMARY quality signal (~13x spread)", "Golden-hour velocity (first 60-90 min; 3+ early commenters ~5.2x reach)", "Saves + shares-to-DM (the 'Depth Score')", "Personal profile > company page (personal 5-10x reach)"],
+  "winning_formats": ["Document/carousel PDFs (~24% ER, top save-driver)", "Native video 30-90s with burned-in subtitles (only rising format)", "Hook-first text posts (beat single image ~30%)", "Newsletters/articles (compound, sponsorable)", "Rotate formats (~37% faster growth); polls only for cheap reach"],
+  "cadence": "2-4 quality posts/wk (founder), ~3/wk page — NOT daily. Tue-Thu ~10am-noon. Protect the golden hour; 24-48h spacing.",
+  "what_changed_2026": ["Personal profiles = ~65% of feed; company-page reach collapsed to ~1.6%", "Dwell time elevated to primary signal", "Comments overtook likes; saves/DM-shares first-class", "'Post daily' era ended; engagement-bait downranked", "Hashtags ~neutral-to-negative (no-hashtag +5-10%)"],
+  "beyond_hashtags": "Write hook-first for dwell; end with a genuine question; reply within ~2 hrs; design for saves and DM-shares; tight expert profile lifts every post. Links in the first comment, not the body.",
+  "automotive_angle": ["Founder/GM-led (the dealer's real voice) beats the store logo page", "Teardowns, frameworks, and case proof from real store work", "Company page = proof/recruiting; employees amplify (~561% reach)", "Turn saves/profile-views/comments into DM conversations", "B2B/fleet + employer-branding for hiring"]
+ }
+}

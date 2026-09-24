@@ -1,0 +1,130 @@
+{
+  "brand": "Nissan",
+  "program": "Brand Allowance Program (BAP) / Retail Marketing Program (RMP)",
+  "source": "Nissan BAP Guidelines, Nissan RMP Guidelines",
+  "last_updated": "2026-03-05",
+  "checks": [
+    {
+      "id": "NISSAN-LOGO-001",
+      "category": "Logo & Identity",
+      "title": "Nissan Logo Usage",
+      "description": "Nissan logo must be used per current brand standards. The flat 2D Nissan logo (2020+ redesign) must be used \u2014 not the legacy 3D chrome badge.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-LOGO-002",
+      "category": "Logo & Identity",
+      "title": "Logo Clear Space",
+      "description": "Minimum clear space must be maintained around the Nissan logo. No text, graphics, or other brand elements may encroach on the clear space zone.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-TYPO-001",
+      "category": "Typography",
+      "title": "Nissan Approved Fonts",
+      "description": "Must use Nissan-approved typefaces (Nissan Brand, Nissan AG). Web-safe fallbacks (Arial, Helvetica) are acceptable for digital where brand fonts are unavailable.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-COLOR-001",
+      "category": "Color",
+      "title": "Nissan Brand Colors",
+      "description": "Nissan brand red (#C3002F) is the primary accent color. Black and white are supporting colors. Dealer website Nissan sections should use the approved palette.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-PHOTO-001",
+      "category": "Photography",
+      "title": "Vehicle Photography Standards",
+      "description": "Vehicle photos must accurately represent the vehicle being advertised. Must use Nissan-approved studio shots or actual dealer inventory photos. No unauthorized stock images.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-PRICE-001",
+      "category": "Pricing",
+      "title": "MSRP Presentation",
+      "description": "MSRP must be clearly labeled. Cannot present MSRP as dealer's own price. Must include destination and handling charge.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-PRICE-002",
+      "category": "Pricing",
+      "title": "VIN Requirement for Specific Vehicle Pricing",
+      "description": "When advertising a specific vehicle at a specific price, the VIN (or distinguishing portion) must be included per Nissan BAP and CA law.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-PRICE-003",
+      "category": "Pricing",
+      "title": "NMAC Finance/Lease Attribution",
+      "description": "Lease and finance offers through Nissan Motor Acceptance Corporation (NMAC) must be properly attributed. Terms must match current NMAC programs.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-CPO-001",
+      "category": "Certified Pre-Owned",
+      "title": "Nissan CPO Program Branding",
+      "description": "Only vehicles certified through Nissan's official CPO program may use Nissan Certified Pre-Owned branding. Must follow Nissan CPO visual standards.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-WEB-001",
+      "category": "Website",
+      "title": "Nissan Model Name Accuracy",
+      "description": "Nissan model names must be used correctly (e.g., 'Nissan Altima' not 'Altima by Nissan'). Trim levels (S, SV, SL, SR, Platinum) must be accurate.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-WEB-002",
+      "category": "Website",
+      "title": "Third-Party Content Separation",
+      "description": "Non-Nissan third-party vendor content should be clearly separated from Nissan-branded content areas on the dealer website.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-PROHIB-001",
+      "category": "Prohibited Content",
+      "title": "Nissan Prohibited Words/Phrases",
+      "description": "Cannot use certain prohibited terms in Nissan advertising per BAP guidelines. Includes unauthorized superlatives, unsubstantiated claims, and disparagement of other brands.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-PROHIB-002",
+      "category": "Prohibited Content",
+      "title": "No Unauthorized Nissan Trademark Use",
+      "description": "Cannot modify Nissan trademarks, create unauthorized composite logos, or use Nissan brand elements in non-approved contexts.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-DISC-001",
+      "category": "Disclaimers",
+      "title": "Nissan Required Disclaimers",
+      "description": "Nissan-required disclaimers must appear on all advertising using Nissan branding or referencing Nissan offers. Includes trademark attribution and offer terms.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "NISSAN-EV-001",
+      "category": "Electric Vehicles",
+      "title": "Nissan EV / ARIYA / LEAF Branding",
+      "description": "Nissan electric vehicles (ARIYA, LEAF) have specific branding requirements. Range claims must include EPA estimated range disclaimers.",
+      "severity": "warning",
+      "website_applicable": true
+    }
+  ],
+  "vault_quick_reference": "Resources/automotive-guidelines/nissan-quick-reference.md",
+  "notes": "Vault quick-reference at the path above is the canonical fresh-rebuilt version with page citations to the source PDF. When a check here conflicts with the vault version, prefer the vault and flag this file for refresh."
+}

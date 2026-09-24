@@ -1,0 +1,4 @@
+{
+  "_comment": "Optional: current lease programs from the desking tool, keyed '<year> <make> <model>'. When present, C09 recomputes base payment = (cap-residual)/term + (cap+residual)*mf and flags variance > $20 or 3%. Update monthly or leave empty {} to skip recompute.",
+  "_example": {"2026 Ram 1500": {"money_factor": 0.00285, "residual_pct": 0.55, "term": 36}}
+}

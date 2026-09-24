@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "report_title": "Automotive Market Trend Report",
+    "region": "Southern California",
+    "generation_date": "2026-03-01",
+    "date_range_6mo": "March 2026 - August 2026",
+    "date_range_12mo": "March 2026 - February 2027"
+  },
+  "executive_summary": {
+    "overview": "The U.S. automotive market enters spring 2026 on a trajectory of modest contraction, with new-vehicle sales projected at 15.8 million units.",
+    "key_trends": [
+      "New-vehicle SAAR softens to 14.9M in January 2026",
+      "Average transaction prices near $50,000",
+      "Manheim Used Vehicle Value Index rises to 210.5"
+    ]
+  },
+  "new_vehicle_sales": {
+    "section_title": "New Vehicle Sales Trends",
+    "national": {
+      "summary": "U.S. new-vehicle sales opened 2026 with a January SAAR of 14.9 million units.",
+      "metrics": [
+        {"label": "January 2026 SAAR", "value": "14.9M units", "trend": "down", "detail": "4.1% decline YoY"},
+        {"label": "Full-Year Forecast", "value": "15.8M - 16.0M", "trend": "down", "detail": "1.5-2.4% decline from 2025"},
+        {"label": "Average Transaction Price", "value": "~$50,000", "trend": "up", "detail": "All-time high"}
+      ]
+    },
+    "oem_highlights": [
+      {"brand": "Toyota", "detail": "Dominant market leader with 2.52M units sold in 2025."},
+      {"brand": "BMW", "detail": "Record-high U.S. sales for the third consecutive year."},
+      {"brand": "Nissan", "detail": "Stabilizing sales with new leadership team."},
+      {"brand": "Stellantis", "detail": "Sales declined 3% to 1.26M units in 2025."}
+    ],
+    "regional": {
+      "summary": "California's new vehicle market rose 3.3% to 1.81 million registrations in 2025.",
+      "metrics": [
+        {"label": "CA 2025 Registrations", "value": "1.81M units", "trend": "up", "detail": "+3.3% YoY"},
+        {"label": "SoCal ZEV Share", "value": "22.2%", "trend": "down", "detail": "Declining from 2024 peak"}
+      ]
+    },
+    "outlook_6mo": "Near-term support from easing interest rates and strong tax refund activity.",
+    "outlook_12mo": "Market will navigate USMCA renegotiations and evolving tariff policy."
+  },
+  "used_vehicle_sales": {
+    "section_title": "Used Vehicle Sales Trends",
+    "summary": "The used vehicle market entered 2026 with strong momentum.",
+    "metrics": [
+      {"label": "Manheim Index", "value": "210.5", "trend": "up", "detail": "Highest since September 2023"},
+      {"label": "Total Inventory", "value": "2.18M vehicles", "trend": "up", "detail": "3% higher than year ago"},
+      {"label": "Average Listing Price", "value": "$25,533", "trend": "up", "detail": "Up 1%+ YoY"}
+    ],
+    "regional": {
+      "summary": "Southern California's used market reflects strong demand.",
+      "metrics": [
+        {"label": "Used EV Prices", "value": "Softening", "trend": "down", "detail": "Faster depreciation than ICE"}
+      ]
+    },
+    "outlook_6mo": "Wholesale values expected to continue upward through spring.",
+    "outlook_12mo": "Used vehicle prices projected to appreciate modestly."
+  },
+  "fixed_ops": {
+    "section_title": "Service & Fixed Operations Trends",
+    "summary": "Fixed operations is the critical profit anchor for dealerships in 2026.",
+    "metrics": [
+      {"label": "Average Vehicle Age", "value": "~13 years", "trend": "up", "detail": "Record high"},
+      {"label": "ELR Gap", "value": "$175 door / ~$140 effective", "trend": "flat", "detail": "Closing the gap is free profit"},
+      {"label": "Open Service Bays", "value": "6,000 nationwide", "trend": "up", "detail": "Technician shortage impact"}
+    ],
+    "ev_readiness": "Over 300,000 EVs expected to return from lease in 2026.",
+    "technician_market": "Technician shortage remains the most acute operational challenge.",
+    "outlook_6mo": "Fixed operations profitability will strengthen.",
+    "outlook_12mo": "Fixed operations will cement its role as primary profit driver."
+  },
+  "parts": {
+    "section_title": "Parts Trends",
+    "summary": "U.S. automotive aftermarket projected to grow to $238.8 billion in 2026.",
+    "metrics": [
+      {"label": "Aftermarket Size", "value": "$238.8B", "trend": "up", "detail": "Growing at 4.12% CAGR"},
+      {"label": "E-Commerce Share", "value": "~40%", "trend": "up", "detail": "Up from 25% in 2021"},
+      {"label": "OEM Parts Share", "value": "56-61%", "trend": "flat", "detail": "Aftermarket growing faster"}
+    ],
+    "oem_vs_aftermarket": "OEM supply chains account for 56-61% of parts revenue.",
+    "ev_impact": "EVs require fewer routine maintenance components.",
+    "outlook_6mo": "Parts demand supported by aging vehicle fleet.",
+    "outlook_12mo": "U.S. aftermarket expected to grow steadily toward $240B+."
+  },
+  "strategic_outlook": {
+    "section_title": "Strategic Outlook",
+    "short_term": [
+      "Capitalize on spring tax refund season",
+      "Aggressively pursue fixed operations revenue growth"
+    ],
+    "medium_term": [
+      "Build hybrid vehicle inventory and marketing strategies",
+      "Invest in technician recruitment programs"
+    ],
+    "risks": [
+      "Tariff escalation could add $2,000-$5,000 to vehicle prices",
+      "Interest rate volatility constraining affordability"
+    ],
+    "opportunities": [
+      "Off-lease EV surge creating new used segment",
+      "Fixed operations as profit center"
+    ]
+  },
+  "sources": [
+    "Cox Automotive, 2026 Industry Outlook, January 2026",
+    "S&P Global Mobility, February 2026 Forecast",
+    "NADA, Market Beat 2026"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "_metadata": {
+    "description": "Lifetime value benchmarks by brand tier for automotive dealerships",
+    "sources": [
+      "NADA Data Annual Financial Profile (2024 edition)",
+      "Cox Automotive Dealership Staffing Study 2024",
+      "J.D. Power U.S. Service Retention Study 2024",
+      "NADA Average Dealership Profile 2024"
+    ],
+    "last_updated": "2025-06-01",
+    "stale_after_months": 12,
+    "notes": "Values are industry averages. Individual dealer performance varies. GM/GSM should validate against their own DMS data."
+  },
+  "tiers": {
+    "luxury": {
+      "label": "Luxury (BMW, Mercedes, Audi, Lexus, Porsche, Land Rover, Volvo, Genesis, Acura, INFINITI, Cadillac, Lincoln)",
+      "brands": ["bmw", "mercedes", "audi", "lexus", "porsche", "land rover", "volvo", "genesis", "acura", "infiniti", "cadillac", "lincoln"],
+      "avg_front_end_gross": 3200,
+      "avg_fi_per_copy": 2100,
+      "avg_lifetime_service_gross": 4800,
+      "avg_repurchase_rate_pct": 42,
+      "avg_retention_visits": 8.5,
+      "composite_customer_ltv": 14500,
+      "defensible_cac_ceiling": 1200,
+      "defensible_cpl_ceiling": 85,
+      "notes": "Higher front gross and service retention offset higher acquisition costs. Luxury shoppers research more online, so VDP engagement metrics are critical."
+    },
+    "mainstream_import": {
+      "label": "Mainstream Import (Toyota, Honda, Nissan, Hyundai, Kia, Mazda, Subaru, VW, Mitsubishi)",
+      "brands": ["toyota", "honda", "nissan", "hyundai", "kia", "mazda", "subaru", "volkswagen", "vw", "mitsubishi"],
+      "avg_front_end_gross": 2400,
+      "avg_fi_per_copy": 1800,
+      "avg_lifetime_service_gross": 3600,
+      "avg_repurchase_rate_pct": 38,
+      "avg_retention_visits": 7.2,
+      "composite_customer_ltv": 10800,
+      "defensible_cac_ceiling": 800,
+      "defensible_cpl_ceiling": 55,
+      "notes": "Volume-driven. CPL efficiency matters more here than luxury tier. High service retention for Toyota/Honda skews tier average up."
+    },
+    "domestic_truck_suv": {
+      "label": "Domestic Truck/SUV-Heavy (Ford, Chevrolet, RAM, GMC, Jeep)",
+      "brands": ["ford", "chevrolet", "chevy", "ram", "gmc", "jeep"],
+      "avg_front_end_gross": 2800,
+      "avg_fi_per_copy": 2200,
+      "avg_lifetime_service_gross": 3200,
+      "avg_repurchase_rate_pct": 35,
+      "avg_retention_visits": 6.0,
+      "composite_customer_ltv": 11500,
+      "defensible_cac_ceiling": 900,
+      "defensible_cpl_ceiling": 65,
+      "notes": "Strong F&I income on trucks. Lower service retention than imports. Conquest campaigns against other domestic brands can be cost-effective."
+    },
+    "domestic_car": {
+      "label": "Domestic Car-Heavy (Chrysler, Dodge, Buick)",
+      "brands": ["chrysler", "dodge", "buick"],
+      "avg_front_end_gross": 1800,
+      "avg_fi_per_copy": 1500,
+      "avg_lifetime_service_gross": 2400,
+      "avg_repurchase_rate_pct": 28,
+      "avg_retention_visits": 5.0,
+      "composite_customer_ltv": 7800,
+      "defensible_cac_ceiling": 600,
+      "defensible_cpl_ceiling": 45,
+      "notes": "Lower LTV means tighter CAC tolerance. Spend efficiency is paramount. Dodge has some truck/SUV overlap via Durango and Hornet."
+    }
+  },
+  "industry_averages": {
+    "avg_new_vehicle_gross": 2500,
+    "avg_used_vehicle_gross": 2100,
+    "avg_fi_per_copy_all": 1900,
+    "avg_cpl_all_sources": 55,
+    "avg_close_rate_internet_leads_pct": 8.5,
+    "avg_close_rate_phone_leads_pct": 12,
+    "avg_close_rate_walk_in_pct": 35,
+    "avg_vdp_to_lead_rate_pct": 3.2,
+    "avg_cost_per_sale_new": 650,
+    "avg_cost_per_sale_used": 425
+  }
+}

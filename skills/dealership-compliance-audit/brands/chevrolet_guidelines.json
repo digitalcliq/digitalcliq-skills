@@ -1,0 +1,258 @@
+{
+  "brand": "Chevrolet",
+  "program": "Chevrolet Brand Guidelines / AND Chevrolet Campaign Toolkit (Sept 2025, V1.3)",
+  "source": "2025 Chevrolet Brand Guidelines.pdf",
+  "last_updated": "2026-04-15",
+  "checks": [
+    {
+      "id": "CHEVY-LOGO-001",
+      "category": "Logo & Identity",
+      "title": "Chevrolet Bowtie Logo Usage",
+      "description": "Primary logo is the three-dimensional gold bowtie, used across the majority of touchpoints. Variations include: Bowtie only, Horizontal Brand Mark (bowtie + CHEVROLET wordmark), Vertical Brand Mark, Horizontal TLD Lock Up (with 'Together let's drive'), and Vertical TLD Lock Up. Always lead with the primary 3D logo.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-LOGO-002",
+      "category": "Logo & Identity",
+      "title": "Outlined Logo Restrictions",
+      "description": "The outlined (2D) bowtie is a secondary mark, only used when production constraints or legibility is an issue. Outlined logo should be used solely over white and black backgrounds, or in rare cases secondary drive colors. Always try to lead with the Primary 3D logo.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-LOGO-003",
+      "category": "Logo & Identity",
+      "title": "Logo Modification Prohibited",
+      "description": "Do not: place the logo over areas where legibility is impacted, create new lock ups, alternate the colors of the bowtie or wordmark, rotate the orientation of the bowtie, outline or add effects to the logo, or alter the typeface or style of the wordmark.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-LOGO-004",
+      "category": "Logo & Identity",
+      "title": "Logo Clear Space & Minimum Sizing",
+      "description": "Clear space around the logo is based on the height of the bowtie wing (unit 'X') on all sides. Minimum sizing: Horizontal brand mark minimum 2 in / 5 cm (150px), Vertical brand mark minimum 1 in / 2.5 cm (78px). Logo must never fall beneath minimum sizing guides.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-LOGO-005",
+      "category": "Logo & Identity",
+      "title": "Logo Legibility Over Backgrounds",
+      "description": "Logo legibility must be prioritized across all placements. When over photos, use darkening/lightening gradients to ensure contrast. When over color backgrounds, ensure full contrast of the brand mark. The bowtie must always be clearly visible.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-LOGO-006",
+      "category": "Logo & Identity",
+      "title": "Tagline / Together Let's Drive Lock Up",
+      "description": "The brand tagline is 'Together let's drive' (TLD) with trademark symbol. Used in Print, Film, OOH, and CRM. Always use English language for 'Together let's drive' in all end tags. Padding between wordmark and TLD tagline should be half the height of the bowtie wing.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-LOGO-007",
+      "category": "Logo & Identity",
+      "title": "Co-Branding Lock Up Standards",
+      "description": "When co-branding with partners or local dealerships, optically balance the Chevrolet brand mark with the partner's. Qualifier taglines should be set in Chevy Sans Narrow Medium. Must follow approved co-branding lockup formats.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-TYPO-001",
+      "category": "Typography",
+      "title": "Chevrolet Approved Font (Chevy Sans)",
+      "description": "Chevy Sans is the exclusive, custom-built typeface for Chevrolet. Available in three families: Standard (Black through Thin), Condensed (Black through Thin), and Narrow (Black through Thin). Chevy Sans Black is the primary weight for headlines across Brand, Multiline, Truck, and SUV work.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-TYPO-002",
+      "category": "Typography",
+      "title": "Headline Typography Rules",
+      "description": "Headlines must be set in ALL CAPS using Chevy Sans Black. Large format (OOH/film/print): 95% cap-height leading, -20 tracking. Small format (social/digital/web): 100% cap-height leading, -20 tracking. Subheads: Chevy Sans Medium, ALL CAPS, 90% cap-height leading, -20 tracking.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-TYPO-003",
+      "category": "Typography",
+      "title": "Body Copy and Disclaimer Typography",
+      "description": "Body copy: Chevy Sans Medium, Sentence case, 125% cap-height leading, 0 tracking. Disclaimers: Chevy Sans Narrow Regular or Condensed Regular, sentence case, 115% cap-height leading, 0 tracking. The primary text color over imagery should be White; Black can be used when legibility cannot be achieved with White.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-TYPO-004",
+      "category": "Typography",
+      "title": "Headline Scaling Hierarchy",
+      "description": "Headlines follow a scaling hierarchy: Primary (100%) for key messaging or defining feature callouts, Secondary (66%) for 'AND' and secondary messaging in films, Tertiary (33%) for accessory messaging in features. Maintain balance and hierarchy of messaging.",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "CHEVY-COLOR-001",
+      "category": "Color",
+      "title": "Core Color Palette",
+      "description": "Chevrolet core colors: Modern Gold #F2BC18 (Pantone 7408 C), Black #000000 (Pantone Black C), White #FFFFFF (Pantone White C), Modern Blue #0077D9 (Pantone 2172 C). Modern Gold is at the heart of brand communications. Photography injects vibrancy through environment and vehicles.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-COLOR-002",
+      "category": "Color",
+      "title": "Modern Gold Highlight Usage",
+      "description": "Modern Gold (#F2BC18) highlights should be used selectively to add focus and draw attention. Primary use: distinguish and reinforce the AND mnemonic. Secondary/limited use: sparingly reinforce key features within messaging. Do not overuse gold highlights.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-COPY-001",
+      "category": "Ad Copy",
+      "title": "Chevrolet vs Chevy Naming Rules",
+      "description": "Use 'Chevrolet' for: formal brand positioning statements, corporate communications, product specifications, legal/regulatory contexts, investor relations. Use 'Chevy' for: consumer-facing marketing and advertising, emotional brand messaging, social media and digital content, brand personality expressions ('Chevy Soul'), casual/approachable communications, connecting with 'Doers' audience.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-COPY-002",
+      "category": "Ad Copy",
+      "title": "Brand Tone of Voice",
+      "description": "Chevrolet tone of voice is: Confident (vehicles speak for themselves), Sincere (honest and straightforward, no editorial, no nonsense), Charismatic (real and relatable, serious when it counts but never afraid to make you smile). Tone varies by vertical: Truck = Strong/Undaunted, SUV = Expressive/Energetic, Performance = Powerful/Sharp. EV vehicles adopt tone of their respective category.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-COPY-003",
+      "category": "Ad Copy",
+      "title": "AND Construct Messaging Framework",
+      "description": "The 'AND' construct is Chevrolet's storytelling framework connecting product and features to narrative. Use AND to connect: Humanity AND Vehicles, Nameplates AND Features, Problems AND Solutions, Performance AND Purpose. Do NOT: use AND as a crutch, use AND as punctuation replacement, or use AND to create run-on sentences. The AND word in gold is a visual mnemonic for the bowtie.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-PHOTO-001",
+      "category": "Photography",
+      "title": "Vehicle Photography Standards",
+      "description": "Vehicle photos must accurately represent the vehicle. Truck photography: strong and confident, natural lighting, outdoor environments, warm tones. SUV photography: dynamic energy, motion blur, athletic lens, vibrant colors. All photography should feel candid, authentic, and relatable \u2014 real human moments with the vehicle.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-PHOTO-002",
+      "category": "Photography",
+      "title": "Casting and Lifestyle Photography",
+      "description": "Photography should feature 'Doers' \u2014 real, relatable people who are spontaneous, confident, and active. Lifestyle should feel lived-in and authentic. Avoid overly polished or staged imagery. Vehicle should be shown in context of real life, not isolated.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-WEB-001",
+      "category": "Website",
+      "title": "Chevrolet Model Name Accuracy",
+      "description": "Chevrolet model names must be used correctly. Current nameplates include: Silverado (1500, 2500 HD, 3500 HD, EV), Colorado, Tahoe, Suburban, Traverse, Equinox (including Equinox EV), Trax, Blazer (including Blazer EV), Trailblazer, Corvette, Camaro. Trim levels (LT, RST, Z71, ZR2, Trail Boss, High Country, RS, Premier, Activ) must be accurate.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-WEB-002",
+      "category": "Website",
+      "title": "Third-Party Content Separation",
+      "description": "Non-Chevrolet third-party vendor content, ads, or widgets should be clearly separated from Chevrolet-branded content areas. No competing brand vehicles should appear in Chevrolet sections.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-WEB-003",
+      "category": "Website",
+      "title": "Chevrolet Bowtie Required on Pages",
+      "description": "The Chevrolet bowtie logo should appear on every page of the dealer website's Chevrolet sections. Branding and legibility must be prioritized. The bowtie is the most distinctive brand asset.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-PRICE-001",
+      "category": "Pricing",
+      "title": "MSRP Presentation",
+      "description": "MSRP must be clearly labeled as 'Manufacturer's Suggested Retail Price' or 'MSRP'. Cannot present MSRP as dealer's own price. Must include destination charge. Pricing should follow GM legal guidelines.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-PRICE-002",
+      "category": "Pricing",
+      "title": "GM Financial Offer Attribution",
+      "description": "Lease and finance offers through GM Financial must be properly attributed. Terms must match current GM Financial programs. Retail end cards must include: offer descriptors in Chevy Sans Medium (10.5pt, all caps), numerical price points in Chevy Sans Black (60pt, sentence case), offer math in Chevy Sans Regular (14pt, all caps small caps), disclaimer/legal in Chevy Sans Condensed/Narrow Regular (7.2pt).",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-PRICE-003",
+      "category": "Pricing",
+      "title": "Cash Allowance & APR Offer Formats",
+      "description": "Cash-only offers: '$X,XXX TOTAL CASH ALLOWANCE' with superscript footnote. Cash + DPA offers: add 'when you finance with GM Financial' with double superscript. Qualifying Cash + DPA: 'For current GM owners' qualifier above. APR offers: 'For qualified buyers / 0% APR FOR XX MONTHS / on most models'. All must include proper disclaimers.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-RETAIL-001",
+      "category": "Retail Programs",
+      "title": "Retail Event Logo Usage",
+      "description": "Chevrolet has specific retail event logos that must be used correctly: Red Tag, Truck Month, Spring Into Adventure, Summer Drive. These branded retail logos drive promotional offerings and must maintain clarity and continuity across retail programs.",
+      "severity": "advisory",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-CPO-001",
+      "category": "Certified Pre-Owned",
+      "title": "Chevrolet CPO Program Branding",
+      "description": "Only vehicles certified through Chevrolet's official CPO program may use Chevrolet Certified Pre-Owned branding. Must follow GM/Chevrolet CPO visual standards.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-DISC-001",
+      "category": "Disclaimers",
+      "title": "Chevrolet Required Disclaimers",
+      "description": "All advertising must include required disclaimers per GM legal guidelines. Disclaimer copy should be center aligned to the base of frame. Disclaimers use Chevy Sans Narrow Regular or Condensed Regular, sentence case, same type size leading. Chevrolet is a registered trademark of General Motors.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-EV-001",
+      "category": "Electric Vehicles",
+      "title": "Chevrolet EV Branding",
+      "description": "Chevrolet EV models (Equinox EV, Blazer EV, Silverado EV) follow the tone of voice of their respective vehicle category (e.g., Equinox EV = SUV tone, Silverado EV = Truck tone). Range and charging claims must include GM-estimated range disclaimers. EV models are part of the full vehicle spectrum, not a separate sub-brand.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-PROHIB-001",
+      "category": "Prohibited Content",
+      "title": "Chevrolet Prohibited Content",
+      "description": "Cannot depict unsafe or irresponsible vehicle operation. No competing brand vehicles in Chevrolet-branded sections. No unsubstantiated claims or superlatives. Content must align with brand values: Community, Ambition, Ingenuity, Authenticity. No overly staged or inauthentic imagery.",
+      "severity": "warning",
+      "website_applicable": true
+    },
+    {
+      "id": "CHEVY-FILM-001",
+      "category": "Video / Film",
+      "title": "Film Opening and End Card Standards",
+      "description": "Films must always start with a Chevy bowtie in the first few seconds for brand attribution. Films always end with the full brand mark + 'Together let's drive' tagline. The AND visual mnemonic transitions to the full brand mark animation in end cards. End card VO: 'Chevrolet. Together let's drive.' Always use English for TLD in end tags.",
+      "severity": "advisory",
+      "website_applicable": false
+    },
+    {
+      "id": "CHEVY-OUTDATE-001",
+      "category": "Content Currency",
+      "title": "Outdated Content Prohibited",
+      "description": "No expired specials, promotions, or seasonal events (Red Tag, Truck Month, etc.) should remain on the website after they end. All content must be current. No outdated model year references or discontinued nameplates in active promotions.",
+      "severity": "warning",
+      "website_applicable": true
+    }
+  ],
+  "vault_quick_reference": "Resources/automotive-guidelines/chevrolet-quick-reference.md",
+  "notes": "Vault quick-reference at the path above is the canonical fresh-rebuilt version with page citations to the source PDF. When a check here conflicts with the vault version, prefer the vault and flag this file for refresh."
+}

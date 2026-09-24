@@ -1,0 +1,18 @@
+# Substring match against external <script src> domains. One per line.
+# Anything NOT matching a line here gets flagged in C15.
+# FourEyes was terminated — it is deliberately absent. Keep this list current.
+mcpeeks.com
+pixelmotion
+googletagmanager.com
+google-analytics.com
+googleapis.com
+gstatic.com
+googleadservices.com
+doubleclick.net
+facebook.net
+complyauto
+impel
+spincar
+jquery
+cloudflare
+jsdelivr

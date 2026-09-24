@@ -1,0 +1,231 @@
+{
+  "_readme": "DigitalCLIQ Inventory Pulse client roster. Hardcoded per Drew, 2026-08-06. Model years are NEVER stored here: the skill resolves current + incoming model year dynamically from live inventory each run. Update platform/notes fields as runs discover them (they are a cache, not a contract). fetch field per dealer: 'server' (urllib works) or 'browser' (WAF'd, needs the in-page JS strategy); probed 2026-08-15.",
+  "schedule": {
+    "run_days": [
+      5,
+      20
+    ],
+    "anchor_day_max": 12,
+    "note": "Runs on the 5th (anchor: month-over-month vs prior month's anchor) and the 20th (pulse: vs this month's anchor)."
+  },
+  "clients": {
+    "SBMW": {
+      "display": "Sterling BMW",
+      "brand": "BMW",
+      "makes": [
+        "BMW"
+      ],
+      "drive_client_folder": "Sterling BMW",
+      "client_dealer": {
+        "name": "Sterling BMW",
+        "url": "https://www.sterlingbmw.com/",
+        "platform": "Dealer Inspire",
+        "notes": "Server-fetch 403s; use the Dealer Inspire crawl strategy from compliance-audit memory (browser surfaces cascade). 403 all server fetch (probe 2026-08-15)",
+        "fetch": "browser"
+      },
+      "competitors": [
+        {
+          "name": "Crevier BMW",
+          "url": "https://www.crevierbmw.com/",
+          "platform": "",
+          "notes": "Penske store. 403 all server fetch (probe 2026-08-15)",
+          "fetch": "browser"
+        },
+        {
+          "name": "Irvine BMW",
+          "url": "https://www.irvinebmw.com/",
+          "platform": "",
+          "notes": "Shelly Auto Group. 403 all server fetch (probe 2026-08-15)",
+          "fetch": "browser"
+        },
+        {
+          "name": "Long Beach BMW",
+          "url": "https://www.longbeachbmw.com/",
+          "platform": "Dealer Inspire (suspected, curl 403s)",
+          "notes": "Domain verified live 2026-08-06. 403 all server fetch (probe 2026-08-15)",
+          "fetch": "browser"
+        }
+      ],
+      "models": [
+        {
+          "model": "3 Series",
+          "match": [
+            "3 series",
+            "330i",
+            "m340i",
+            "330e"
+          ],
+          "trims_of_interest": [
+            "330i",
+            "M340i"
+          ]
+        },
+        {
+          "model": "X3",
+          "match": [
+            "x3"
+          ],
+          "trims_of_interest": [
+            "30",
+            "M50"
+          ]
+        },
+        {
+          "model": "X5",
+          "match": [
+            "x5"
+          ],
+          "trims_of_interest": [
+            "40i",
+            "50e",
+            "M60i"
+          ]
+        }
+      ]
+    },
+    "MCP": {
+      "display": "McPeek's CDJR of Anaheim",
+      "brand": "CDJR",
+      "makes": [
+        "Ram",
+        "Jeep",
+        "Chrysler",
+        "Dodge"
+      ],
+      "drive_client_folder": "McPeek's Anaheim",
+      "client_dealer": {
+        "name": "McPeek's CDJR of Anaheim",
+        "url": "https://www.mcpeeks.com/",
+        "platform": "Pixel Motion",
+        "notes": "Server-fetchable with Chrome UA. Inventory sitemap https://www.mcpeeks.com/inventory-sitemap.xml, VDP /inventory/display/{cond}/{year}/{make}/{model}/{VIN}. JSON-LD Vehicle on VDPs. Prices arrive as &dollar; entities: html.unescape first. Politeness: max 3 workers, 0.7s pacing (site went down under a 10-worker crawl on 2026-07-26). home+sitemaps 200 (probe 2026-08-15)",
+        "fetch": "server"
+      },
+      "competitors": [
+        {
+          "name": "Orange Coast CJDR",
+          "url": "https://www.ocauto.com/",
+          "platform": "",
+          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: /inventory-sitemap.xml clean per-model; specials are TEXT (not banners) at /new-vehicles/new-specials/; /finance-specials 404s.",
+          "fetch": "browser"
+        },
+        {
+          "name": "Huntington Beach CJDR",
+          "url": "https://www.hbchryslerdodgejeepram.com/",
+          "platform": "",
+          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' match false-positives on ProMaster 1500 (exclude promaster|fleet-new URLs); specials are banner images at /specials/(brand).htm; floating 'Bad Credit?' CTA masks part of each banner's fine print (note in parse_note).",
+          "fetch": "browser"
+        },
+        {
+          "name": "Puente Hills CJDR",
+          "url": "https://www.puentehillscdjr.com/",
+          "platform": "",
+          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' can hit VIN digit coincidences (verify model); real specials page /best-jeep-dodge-chrysler-ram-lease-offers-serving-los-angeles-ca/ (text cards).",
+          "fetch": "browser"
+        }
+      ],
+      "models": [
+        {
+          "model": "1500",
+          "make": "Ram",
+          "match": [
+            "ram 1500",
+            "1500"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Wrangler",
+          "make": "Jeep",
+          "match": [
+            "wrangler"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Pacifica",
+          "make": "Chrysler",
+          "match": [
+            "pacifica"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Charger",
+          "make": "Dodge",
+          "match": [
+            "charger"
+          ],
+          "trims_of_interest": []
+        }
+      ]
+    },
+    "NOI": {
+      "display": "Nissan of Irvine",
+      "brand": "Nissan",
+      "makes": [
+        "Nissan"
+      ],
+      "drive_client_folder": "Nissan Of Irvine",
+      "client_dealer": {
+        "name": "Nissan of Irvine",
+        "url": "https://www.nissanofirvine.com/",
+        "platform": "",
+        "notes": "home 200, sitemap.xml 200, no inventory-sitemap (probe 2026-08-15)",
+        "fetch": "server"
+      },
+      "competitors": [
+        {
+          "name": "Nissan of Tustin",
+          "url": "https://www.nissanoftustin.com/",
+          "platform": "",
+          "notes": "403 all server fetch (probe 2026-08-15)",
+          "fetch": "browser"
+        },
+        {
+          "name": "Nissan of Costa Mesa",
+          "url": "https://www.nissanofcostamesa.com/",
+          "platform": "",
+          "notes": "home 200, inventory-sitemap.xml 200 (probe 2026-08-15)",
+          "fetch": "server"
+        },
+        {
+          "name": "Nissan of Orange",
+          "url": "https://www.nissanorange.com/",
+          "platform": "",
+          "notes": "TLS handshake rejected server-side (TLSV1_ALERT_PROTOCOL_VERSION, probe 2026-08-15); browser only",
+          "fetch": "browser"
+        }
+      ],
+      "models": [
+        {
+          "model": "Rogue",
+          "match": [
+            "rogue"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Altima",
+          "match": [
+            "altima"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Sentra",
+          "match": [
+            "sentra"
+          ],
+          "trims_of_interest": []
+        },
+        {
+          "model": "Pathfinder",
+          "match": [
+            "pathfinder"
+          ],
+          "trims_of_interest": []
+        }
+      ]
+    }
+  }
+}

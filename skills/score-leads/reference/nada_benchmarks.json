@@ -1,0 +1,180 @@
+{
+  "_meta": {
+    "title": "NADA & Industry Benchmark Reference - Lead Scoring",
+    "maintained_by": "DigitalCLIQ",
+    "version": "2025",
+    "last_updated": "2026-06-22",
+    "update_cadence": "Annually, when new NADA Data drops (usually mid-year) and when refreshed close-rate studies publish.",
+    "how_to_use": "The score-leads skill loads this file to add an absolute benchmark layer ON TOP of the existing relative 1-10 score. Close rates benchmark each source against its source-type. Cost yardsticks are displayed as context on the NADA Benchmarks tab. Every number is editable; update the value and the citation together.",
+    "support_legend": {
+      "strong": "Primary source (NADA PDF) or multi-source consensus. Cite confidently.",
+      "moderate": "Single credible vendor/advisory source. Cite with caveat.",
+      "estimate": "Directional only, no single authoritative study. Label clearly in output."
+    }
+  },
+
+  "close_rate_benchmarks": {
+    "_about": "Lead-to-sale (30-day) close-rate midpoints by source-type, expressed as a fraction (0.10 = 10%). Tiers: luxury / mainstream / powersports. Mainstream = industry-blended base from the studies; luxury applies a directional uplift on first-party/internet/OEM (luxury brands rank highest in internet-lead effectiveness); powersports has NO published lead-to-sale close rate, so values are proxy-estimates derived from the auto internet-lead floor (~6%, Foureyes) adjusted by Pied Piper ILE response-effectiveness (high-ILE / Harley-type dealers skew to the top of each range; ~half of powersports dealers never phone web leads, dragging the average down). The 'estimate' support flag marks every figure that is directional rather than from a single authoritative study.",
+    "categories": {
+      "website": {
+        "label": "Dealer Website / Internet Leads",
+        "range": [0.06, 0.20],
+        "luxury": 0.12,
+        "mainstream": 0.10,
+        "powersports": 0.09,
+        "support": "moderate",
+        "source": "Foureyes 30-Day Close Rate Study 2025 (realized ~6%); Demand Local / Maritz target band 10-15%; high performers 18-20%. Luxury uplift per WardsAuto/Pied Piper internet-effectiveness rankings.",
+        "url": "https://www.foureyes.io/blog/30-day-dealer-close-rate"
+      },
+      "phone": {
+        "label": "Phone / Call-In Leads",
+        "range": [0.12, 0.16],
+        "luxury": 0.15,
+        "mainstream": 0.14,
+        "powersports": 0.13,
+        "support": "strong",
+        "source": "Urban Science / Foureyes via Demand Local: 14% 30-day close. Phone also sets appointments ~75% vs ~40% internet.",
+        "url": "https://www.urbanscience.com/resources/close-rate-vs-defection-rate-what-both-metrics-reveal-about-dealership-performance/"
+      },
+      "walk_in": {
+        "label": "Walk-In / Showroom / Floor Traffic",
+        "range": [0.20, 0.30],
+        "luxury": 0.27,
+        "mainstream": 0.25,
+        "powersports": 0.22,
+        "support": "strong",
+        "source": "Foureyes 2025: 25% 30-day close, highest of any source; 83.7% of those sales close in the first 3 days.",
+        "url": "https://www.foureyes.io/blog/30-day-dealer-close-rate"
+      },
+      "third_party": {
+        "label": "Third-Party Marketplace (AutoTrader, Cars.com, CarGurus, Edmunds, TrueCar)",
+        "range": [0.04, 0.11],
+        "luxury": 0.07,
+        "mainstream": 0.06,
+        "powersports": 0.06,
+        "support": "moderate",
+        "source": "Rework 2026: new-car third-party leads close 5-7%. AutoTrader sold rate ~10.9%; TrueCar ~4% standard. Mainstream-brand phenomenon; luxury relies less on these.",
+        "url": "https://resources.rework.com/libraries/automotive-sales-growth/third-party-lead-providers"
+      },
+      "oem": {
+        "label": "OEM / Factory-Referred Leads",
+        "range": [0.13, 0.15],
+        "luxury": 0.15,
+        "mainstream": 0.14,
+        "powersports": 0.13,
+        "support": "moderate",
+        "source": "Rework 2026: OEM brand-site leads close 13-15%, above generic third-party, below dealer-website first-party.",
+        "url": "https://resources.rework.com/libraries/automotive-sales-growth/third-party-lead-providers"
+      },
+      "owned_equity": {
+        "label": "Owned Equity - Repeat / Referral / Service Drive",
+        "range": [0.30, 0.45],
+        "luxury": 0.40,
+        "mainstream": 0.38,
+        "powersports": 0.33,
+        "support": "estimate",
+        "source": "ESTIMATE (range 30-45%). Best-documented of the estimate buckets and the top-converting channel. AutoAlert 2026: equity-mining shown-appt-to-sold 25-30% avg, 33-38% strong, 40%+ top decile. Equity/repeat leads cited 40-50% close (Demand Local 2025). Caveat: a QUALIFIED equity/service/repeat lead closes 30-45%; a RAW whole-database mining campaign converts only ~3-10% to sale. This benchmark scores qualified leads.",
+        "url": "https://www.autoalert.com/equity-mining-benchmarks/"
+      },
+      "chat": {
+        "label": "Chat / Digital-Retail Tools (Gubagoo, Podium, Roadster, CarNow, ActivEngage)",
+        "range": [0.10, 0.18],
+        "luxury": 0.15,
+        "mainstream": 0.13,
+        "powersports": 0.11,
+        "support": "estimate",
+        "source": "ESTIMATE (range 10-18%, online deal-builder sub-channel skews 15-20%). Chat behaves like first-party website leads but outperforms generic web forms: Cox Automotive ~2-3x close-rate lift from chat-to-store conversation continuity; live chat +20-30% conversion vs static forms; Gubagoo early-adopter close 15% vs third-party 5-8% (2013, dated vendor data); CarNow 13.55% click-to-lead. Absolute close rates are largely vendor-derived, hence estimate. Too central to automotive to leave unscored.",
+        "url": "https://www.demandlocal.com/blog/live-chat-and-messaging-statistics/"
+      },
+      "data_list": {
+        "label": "OEM / FS Data Lists, Conquest & Equity-Mining (not buy-leads)",
+        "range": [0.0, 0.03],
+        "luxury": null,
+        "mainstream": null,
+        "powersports": null,
+        "support": "strong",
+        "source": "Data lists (OEM financial-services lists such as Stellantis Financial or BMW Financial Services, owner-in-market, event/tour rosters, equity-mining feeds) are names, not inbound buy-leads. Near-zero direct close is expected and correct. NOT benchmarked (vs Bench = N/A) and excluded from the store self-score; still scored 1-10 relative to this report.",
+        "url": ""
+      }
+    },
+    "store_blended": {
+      "_about": "Reference only. The live store self-score does NOT use these fixed numbers; it computes a lead-weighted expectation from each acquisition source's own source-type benchmark, so the store is judged against its actual lead mix (an internet-only report is held to a lower bar than a walk-in-inclusive one). These fixed full-source blends are kept as a sanity-check reference (full-source scorecard: internet + phone + walk-in + owned).",
+      "luxury": 0.17,
+      "mainstream": 0.16,
+      "powersports": 0.13,
+      "support": "moderate",
+      "source": "Mainstream 16% = Foureyes H1 2025 blended 30-day close (16.2%, 8M+ opportunities, strong). Luxury (17%) is a directional uplift and powersports (13%) is a proxy-estimate (no published powersports blend) - both directional, not from a single study.",
+      "url": "https://www.foureyes.io/blog/30-day-dealer-close-rate"
+    }
+  },
+
+  "cost_yardsticks": {
+    "_about": "NADA cost/economics context shown on the NADA Benchmarks tab. Displayed as reference; the close-rate layer drives the benchmark flags.",
+    "ad_cost_per_new_unit_usd": {
+      "value": 739,
+      "year": 2025,
+      "support": "strong",
+      "source": "NADA Data 2025, p.15. Up 4.8% YoY (from $705 in 2024). Blended cost-per-sale target should sit near or below this.",
+      "url": "https://www.nada.org/media/4695/download"
+    },
+    "ad_pct_of_total_gross": {
+      "low": 0.06,
+      "high": 0.07,
+      "support": "moderate",
+      "source": "Widely-cited NADA recommended band (not in the PDF directly). Guardrail for the annual ad-budget envelope.",
+      "url": "https://www.nada.org/media/4695/download"
+    },
+    "ad_channel_mix_2025": {
+      "sem": 0.211,
+      "third_party_listing": 0.20,
+      "seo": 0.195,
+      "social": 0.142,
+      "tv": 0.105,
+      "radio": 0.069,
+      "direct_mail": 0.056,
+      "newspaper": 0.021,
+      "support": "strong",
+      "source": "NADA Data 2025, p.16. Digital is ~75% of total ad spend. Third-party listing sites = 20% (the marketplace line to scrutinize).",
+      "url": "https://www.nada.org/media/4695/download"
+    },
+    "avg_new_vehicle_price_usd": {
+      "value": 48205,
+      "year": 2025,
+      "support": "strong",
+      "source": "NADA Data 2025, p.7.",
+      "url": "https://www.nada.org/media/4695/download"
+    },
+    "avg_used_vehicle_price_usd": {
+      "value": 28680,
+      "year": 2025,
+      "support": "strong",
+      "source": "NADA Data 2025, p.10.",
+      "url": "https://www.nada.org/media/4695/download"
+    },
+    "gross_per_unit_usd": {
+      "_about": "Front+back gross per unit. NADA Data 2025 does NOT publish per-unit gross; these are Haig Partners Q2 2025 figures, store-specific and editable. The NCB model used $2,387 from that store's own June deals.",
+      "new_front_plus_back": 5800,
+      "used_front_plus_back": 4180,
+      "f_and_i_per_unit": 2515,
+      "support": "moderate",
+      "source": "Haig Partners - New Vehicle Gross Profits Rebound Q2 2025. Buy-sell advisory aggregate, not NADA. Override per store.",
+      "url": "https://haigpartners.com/resources/new-vehicle-gross-profits-rebound-in-q2-2025-what-it-means-for-the-future-of-dealership-valuations/"
+    }
+  },
+
+  "seasonal_indices_nada": {
+    "_about": "NADA luxury/import monthly seasonal demand pattern, for annualizing a short window to a 12-month run rate. Index 1.00 = annual average month.",
+    "jan": 0.88, "feb": 0.94, "mar": 1.08, "apr": 1.04, "may": 1.02, "jun": 1.00,
+    "jul": 0.96, "aug": 1.03, "sep": 1.02, "oct": 1.05, "nov": 0.98, "dec": 1.00,
+    "support": "moderate",
+    "source": "NADA seasonal indices (DigitalCLIQ forecast model).",
+    "url": "https://www.nada.org/media/4695/download"
+  },
+
+  "brand_tier_map": {
+    "_about": "Maps a franchise keyword (matched case-insensitively in the store name) to a benchmark tier. Default tier when no keyword matches = mainstream.",
+    "luxury": ["bmw", "lexus", "mercedes", "benz", "audi", "acura", "infiniti", "cadillac", "volvo", "porsche", "jaguar", "land rover", "genesis", "lincoln", "maserati", "alfa romeo", "tesla"],
+    "powersports": ["harley", "davidson", "motorcycle", "powersports", "power sports", "indian", "ducati", "triumph", "ktm", "polaris", "can-am", "yamaha", "kawasaki", "honda powersports"],
+    "mainstream": ["nissan", "chrysler", "dodge", "jeep", "ram", "cdjr", "chevrolet", "chevy", "ford", "toyota", "honda", "kia", "hyundai", "subaru", "mazda", "volkswagen", "vw", "buick", "gmc", "mitsubishi"]
+  }
+}

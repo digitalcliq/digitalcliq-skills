@@ -1,0 +1,1758 @@
+{
+  "jurisdiction": "California",
+  "source": "2022 CNCDA Advertising Law Manual + California Vehicle Code + California Code of Regulations Title 13 + SB 766 California CARS Act (Chapter 354, 2025) + California DMV CARS Act consumer summary (checked 2026-09-10) + CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) + CNCDA Webinar FAQ (2026-08-31), folded in 2026-09-14 + FTC Automobile Industry Pricing Transparency FAQs (September 2026) with ComplyAuto analysis, folded in 2026-09-16",
+  "last_updated": "2026-09-16",
+  "rules": [
+    {
+      "id": "CA-PRICE-001",
+      "category": "Price Advertising",
+      "title": "Total Selling Price Required",
+      "statute": "VC §11713.1(e)",
+      "description": "Advertised price must be the total selling price including all charges to the consumer. Only tax, registration, electronic filing fee, and smog transfer/certification fees may be excluded. California lets those charges and the capped document processing charge sit outside the advertised price. FEDERAL OVERLAY (FTC FAQs Q2, Q6, Sept. 2026): only charges an agency requires the consumer to pay directly may be excluded; a dealer-imposed or passed-through charge, including the doc fee, belongs in the most prominent price. See FTC-PRICE-001 and FTC-PRICE-002.",
+      "trigger_patterns": [
+        "price",
+        "\\$\\d",
+        "MSRP",
+        "starting at",
+        "from \\$",
+        "as low as",
+        "sale price",
+        "net price",
+        "internet price"
+      ],
+      "fail_condition": "Price shown that does not represent total selling price, or uses 'plus' to add dealer fees/charges beyond tax/reg/smog",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRICE-002",
+      "category": "Price Advertising",
+      "title": "No Plus Language for Non-Exempt Fees",
+      "statute": "VC §11713.1(e)",
+      "description": "Cannot use 'plus' or similar language to add charges to the advertised price except for tax, registration, electronic filing, and smog fees.",
+      "trigger_patterns": [
+        "plus",
+        "\\+ ",
+        "additional fees",
+        "plus dealer",
+        "plus doc",
+        "plus accessories"
+      ],
+      "fail_condition": "Advertised price followed by 'plus' language adding non-exempt fees (doc fees, dealer fees, accessories, etc.)",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRICE-003",
+      "category": "Price Advertising",
+      "title": "Dealer-Installed Accessories Must Be Itemized",
+      "statute": "VC §11713.1(e)",
+      "description": "If dealer-installed accessories or add-ons are included in the advertised price, they must be itemized separately with individual prices listed.",
+      "trigger_patterns": [
+        "accessories",
+        "dealer installed",
+        "dealer added",
+        "add-on",
+        "protection package",
+        "appearance package"
+      ],
+      "fail_condition": "Dealer-installed accessories bundled into price without individual itemization",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRICE-004",
+      "category": "Price Advertising",
+      "title": "Specific Vehicle Requires VIN or Stock Number",
+      "statute": "VC §11713.1(a)",
+      "description": "When advertising a specific vehicle for sale, must identify it by model, model-year, and either VIN (distinguishing portion) or license plate number. Class of 5+ identical vehicles (same make, model, model-year) is exempt from VIN requirement.",
+      "trigger_patterns": [
+        "as low as",
+        "from \\$",
+        "starting at",
+        "one at this price",
+        "stock #",
+        "stk"
+      ],
+      "fail_condition": "Specific vehicle advertised at a price without VIN or license plate number (and fewer than 5 identical units in stock)",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRICE-005",
+      "category": "Price Advertising",
+      "title": "Advertised Vehicle Must Be Sold at Advertised Price",
+      "statute": "13 CCR §260.04(b)",
+      "description": "A specific vehicle advertised must be sold at or below the advertised price while it remains unsold/unleased, unless the ad states prices are good only for a specific time.",
+      "trigger_patterns": [],
+      "fail_condition": "Vehicle listed at a price that cannot actually be purchased at that price",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRICE-006",
+      "category": "Price Advertising",
+      "title": "Standard Equipment Must Be Included",
+      "statute": "VC §11713.16(h)",
+      "description": "Cannot advertise the price of a new vehicle unless it has all equipment listed as standard by the manufacturer, or the dealer has replaced standard equipment with equipment of higher value.",
+      "trigger_patterns": [
+        "price",
+        "\\$\\d",
+        "MSRP"
+      ],
+      "fail_condition": "Price advertised for a vehicle missing standard equipment",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-DEALER-001",
+      "category": "Dealer Identity",
+      "title": "Dealer Name in Every Ad",
+      "statute": "VC §11713.1(a), 13 CCR §260.00",
+      "description": "Dealer name (or DBA) must appear in every advertisement, including website pages, social media, email, and digital ads.",
+      "trigger_patterns": [],
+      "fail_condition": "Any advertisement or advertising page missing the dealer's legal or DBA name",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-BAIT-001",
+      "category": "Bait and Switch",
+      "title": "Vehicle Must Be Available",
+      "statute": "VC §11713(b)",
+      "description": "Cannot advertise a vehicle not actually for sale at the dealership or available from the manufacturer at the time of the advertisement. FTC FAQ Q10 (Sept. 2026): units not physically on the lot (in transit, offsite, shared inventory) must be plainly labeled as not on the lot; in-transit units must truly be in transit and unallocated; sold or delivered units may not be kept live to draw traffic.",
+      "trigger_patterns": [],
+      "fail_condition": "Vehicle advertised that is not in stock or available from manufacturer",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-BAIT-002",
+      "category": "Bait and Switch",
+      "title": "No Discouraging Purchase of Advertised Vehicle",
+      "statute": "VC §11713.1(b)",
+      "description": "Cannot refuse to show, demonstrate, or sell a vehicle at the advertised price, or disparage the advertised vehicle to switch the customer to a different vehicle.",
+      "trigger_patterns": [],
+      "fail_condition": "Evidence of bait-and-switch tactics in advertising or sales process",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGZ-001",
+      "category": "Credit / Reg Z",
+      "title": "Credit Trigger Terms Require Full Disclosure",
+      "statute": "12 CFR §226.24 (Regulation Z)",
+      "description": "If ANY single credit trigger term is mentioned, ALL of the following must be disclosed: (1) down payment amount, (2) monthly payment amount, (3) number of payments, (4) APR, (5) finance charge. Trigger terms include: down payment amount, monthly payment, number of payments, period of repayment, finance charge, or APR when not used alone.",
+      "trigger_patterns": [
+        "\\$\\d+/mo",
+        "per month",
+        "monthly payment",
+        "down payment",
+        "\\$\\d+ down",
+        "\\d+ months",
+        "finance",
+        "APR",
+        "% APR",
+        "0% ",
+        "interest"
+      ],
+      "fail_condition": "Any credit trigger term used without full Reg Z disclosure of all required terms",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGZ-002",
+      "category": "Credit / Reg Z",
+      "title": "On Approved Credit Must Be Spelled Out",
+      "statute": "VC §11713.16(b)",
+      "description": "'On approved credit' or 'on credit approval' must be clearly and conspicuously disclosed, unabbreviated. Cannot use 'OAC' or 'O.A.C.'",
+      "trigger_patterns": [
+        "OAC",
+        "O\\.A\\.C",
+        "on approved credit",
+        "on credit approval",
+        "with approved credit"
+      ],
+      "fail_condition": "Use of abbreviation 'OAC' or 'O.A.C.' instead of spelling out 'On Approved Credit'",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGZ-003",
+      "category": "Credit / Reg Z",
+      "title": "Everyone Financed Claims",
+      "statute": "VC §11713.16(f)",
+      "description": "Cannot advertise 'everyone financed', 'no credit rejected', or similar claims unless the dealer is willing to extend credit to any person under any and all circumstances.",
+      "trigger_patterns": [
+        "everyone financed",
+        "no credit rejected",
+        "all credit accepted",
+        "guaranteed credit",
+        "bad credit.*no problem",
+        "guaranteed financing",
+        "we finance everyone"
+      ],
+      "fail_condition": "Universal credit claims used when the dealer actually has credit qualifications",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGZ-004",
+      "category": "Credit / Reg Z",
+      "title": "Zero Down / No Downpayment Claims",
+      "statute": "VC §11713(k), §11713.16(g)",
+      "description": "'No downpayment', 'zero down', or similar terms cannot be advertised unless the vehicle will be sold without any prior payment of any kind or trade-in. Downpayment amount must include any payment required prior to delivery, including sales tax or license.",
+      "trigger_patterns": [
+        "zero down",
+        "\\$0 down",
+        "no down",
+        "no money down",
+        "nothing down",
+        "0 down"
+      ],
+      "fail_condition": "Zero-down claim when any payment (including tax/license) is actually required before delivery",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGZ-005",
+      "category": "Credit / Reg Z",
+      "title": "Unpaid Balance Requires Total Sale Price",
+      "statute": "VC §11713.16(c)",
+      "description": "Cannot advertise an amount described as 'unpaid balance' or 'balance can be financed' unless the total sale price is clearly and conspicuously disclosed in close proximity.",
+      "trigger_patterns": [
+        "unpaid balance",
+        "balance can be financed",
+        "finance the rest",
+        "finance the balance"
+      ],
+      "fail_condition": "'Unpaid balance' or 'balance financed' language without total sale price clearly disclosed nearby",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGM-001",
+      "category": "Lease / Reg M",
+      "title": "Lease Trigger Terms Require Full Disclosure",
+      "statute": "CA Civil Code §2985.71, Regulation M",
+      "description": "If ANY lease trigger term is mentioned, ALL of the following must be disclosed: (1) all Reg M disclosures, (2) mileage limit and excess mileage charge, (3) 'Plus tax and license' statement if not included in payments. Lease trigger terms: amount of any payment, capitalized cost reduction or other payment due at signing, statement that no payment is required at signing.",
+      "trigger_patterns": [
+        "\\$\\d+/mo.*lease",
+        "lease.*\\$\\d+",
+        "per month.*lease",
+        "lease payment",
+        "due at signing",
+        "due at lease",
+        "sign.*drive",
+        "capitalized cost",
+        "cap cost"
+      ],
+      "fail_condition": "Any lease trigger term used without full Reg M disclosure set",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGM-002",
+      "category": "Lease / Reg M",
+      "title": "Plus Tax and License Required on Leases",
+      "statute": "CA Civil Code §2985.71(b)(3)",
+      "description": "Every lease advertisement must include 'Plus tax and license' or substantially similar statement if tax, license, and registration fees are not included in the advertised payments.",
+      "trigger_patterns": [
+        "lease",
+        "leasing",
+        "per month.*lease"
+      ],
+      "fail_condition": "Lease advertisement missing 'Plus tax and license' disclosure when those fees are not included",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-REGM-003",
+      "category": "Lease / Reg M",
+      "title": "Lease Due-at-Signing Prominence",
+      "statute": "Regulation M §213.7(d)(2)(ii)",
+      "description": "Any statement of amount due at signing (e.g., '$500 down') or that no payment is due ('$0 down') shall not appear more prominently than the total amount due at lease signing. FTC FAQ Q8 (Sept. 2026): any processing fee due upfront must be inside an advertised total amount due at signing.",
+      "trigger_patterns": [
+        "due at signing",
+        "due at lease",
+        "\\$0 down.*lease",
+        "\\$\\d+ down.*lease"
+      ],
+      "fail_condition": "Down payment amount displayed more prominently than total due at signing in lease ad",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-NEWUSED-001",
+      "category": "New vs Used",
+      "title": "Used Vehicles Must Be Identified as Used",
+      "statute": "VC §11713.16(a)",
+      "description": "All used vehicles of the current or prior model year must be advertised with 'used', 'previously owned', or a similar term indicating the vehicle is used.",
+      "trigger_patterns": [
+        "pre-owned",
+        "certified",
+        "CPO"
+      ],
+      "fail_condition": "Used vehicle advertised without clear 'used', 'previously owned', or similar designation",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-NEWUSED-002",
+      "category": "New vs Used",
+      "title": "Cannot Advertise Used Vehicle as New",
+      "statute": "VC §11713(d)",
+      "description": "Cannot advertise or represent a vehicle as new if it is a used vehicle. Demonstrators, executive cars, service vehicles, rentals, loaners, and lease vehicles are legally 'used' and must not be described as 'new'.",
+      "trigger_patterns": [
+        "new",
+        "brand new",
+        "factory fresh"
+      ],
+      "fail_condition": "A used vehicle (including demos, loaners, rentals) described as 'new' in advertising",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-NEWUSED-003",
+      "category": "New vs Used",
+      "title": "Demonstrator/Loaner/Rental Disclosure",
+      "statute": "VC §11713(t)",
+      "description": "Vehicles previously used by the dealer as demonstrators, executive vehicles, service vehicles, rentals, loaners, or lease vehicles must disclose this previous use in advertising. Cannot describe as 'new'.",
+      "trigger_patterns": [
+        "demo",
+        "demonstrator",
+        "loaner",
+        "executive",
+        "service vehicle",
+        "rental",
+        "lease return"
+      ],
+      "fail_condition": "Former demonstrator/loaner/rental/executive vehicle advertised without disclosing its prior use",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-CERT-001",
+      "category": "Certified Pre-Owned",
+      "title": "Certified Used Vehicle Requirements",
+      "statute": "VC §11713.18",
+      "description": "Cannot advertise a used vehicle as 'certified' or use similar descriptive terms implying certification unless it meets a used vehicle certification program AND none of the 9 prohibiting conditions apply (odometer fraud, lemon buyback, salvage title, frame damage, etc.).",
+      "trigger_patterns": [
+        "certified",
+        "CPO",
+        "certified pre-owned",
+        "factory certified"
+      ],
+      "fail_condition": "Vehicle advertised as 'certified' that does not meet certification program requirements or has a disqualifying condition",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-DISC-001",
+      "category": "Disclosures",
+      "title": "Clear and Conspicuous Standard",
+      "statute": "VC §11713.16(i), 13 CCR §260",
+      "description": "All required disclosures must be 'clear and conspicuous', readable font size, not hidden in fine print, not requiring scrolling or clicking to find, adequate contrast, and proximate to the claim they qualify.",
+      "trigger_patterns": [],
+      "fail_condition": "Required disclosures that are illegible, buried in fine print, require scrolling/clicking, or are not proximate to the claims they qualify",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-DISC-002",
+      "category": "Disclosures",
+      "title": "Rebate/Incentive Disclosure",
+      "statute": "VC §11713.1(e)",
+      "description": "If manufacturer rebates or incentives are deducted from the advertised price, this must be clearly disclosed. The ad must state the rebate amount and any conditions/qualifications required to receive it.",
+      "trigger_patterns": [
+        "rebate",
+        "incentive",
+        "bonus cash",
+        "cash back",
+        "conquest",
+        "loyalty",
+        "military",
+        "college grad"
+      ],
+      "fail_condition": "Rebates deducted from advertised price without clear disclosure of rebate amount and qualification requirements",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-DISC-003",
+      "category": "Disclosures",
+      "title": "Trade-In Requirement Disclosure",
+      "statute": "VC §11713.1(e)",
+      "description": "If the advertised price requires a trade-in, this must be clearly and conspicuously disclosed.",
+      "trigger_patterns": [
+        "trade",
+        "with trade",
+        "trade-in",
+        "trade in required"
+      ],
+      "fail_condition": "Advertised price contingent on trade-in without clear disclosure",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-DISC-004",
+      "category": "Disclosures",
+      "title": "Doc Fee / Dealer Fee Disclosure",
+      "statute": "VC §11713.1 (state disclosure); FTC Act §5 and FTC Pricing Transparency FAQs Q6 and Q7 (federal inclusion)",
+      "description": "Corrected 2026-09-16: California Veh. Code §11713.1 lets the capped document processing charge be excluded from the advertised price if disclosed, so this is not a state-law violation on its own. Federally, FTC staff (Pricing Transparency FAQs Q6, Sept. 2026) say the full mandatory doc fee must be inside the advertised price, using the highest mandatory amount any buyer pays, and Q7 says state doc-fee disclosures are additive. Any other dealer fee (dealer, processing, service, reconditioning) charged beyond the advertised price is a violation under both regimes.",
+      "trigger_patterns": [
+        "doc fee",
+        "document fee",
+        "dealer fee",
+        "processing fee",
+        "documentation"
+      ],
+      "fail_condition": "Doc fee or other dealer fee charged on top of the advertised price. Non-DPC dealer fees fail outright; a California document processing charge disclosed per state law is a federal-exposure warning under FTC FAQ Q6",
+      "severity": "critical",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "CA-SALE-001",
+      "category": "Sale / Savings Claims",
+      "title": "Sale Must Have Dates and Lower Prices",
+      "statute": "CA Business & Professions Code §17501",
+      "description": "The word 'sale' implies a reduction from the dealer's regular price. A 'sale' must have definite start/end dates and prices must be lower than the immediately preceding regular price.",
+      "trigger_patterns": [
+        "sale",
+        "sale event",
+        "clearance",
+        "blowout",
+        "liquidation"
+      ],
+      "fail_condition": "'Sale' claim without defined dates or where prices are not actually reduced from the prior regular price",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-SALE-002",
+      "category": "Sale / Savings Claims",
+      "title": "Savings Claims Must Be Substantiated",
+      "statute": "CA Business & Professions Code §17501, §17500",
+      "description": "Any claim of savings (e.g., 'Save $5,000') must be substantiated, the reference price must be a genuine, recent price at which the vehicle was offered for sale.",
+      "trigger_patterns": [
+        "save",
+        "savings",
+        "discount",
+        "off MSRP",
+        "below MSRP",
+        "markdown",
+        "reduced"
+      ],
+      "fail_condition": "Savings claims based on inflated or fictitious reference prices",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PIC-001",
+      "category": "Vehicle Pictures",
+      "title": "Pictures Must Match Advertised Vehicle",
+      "statute": "VC §11713(s)",
+      "description": "Pictures used in connection with a price advertisement must be of the year, make, and model being offered for sale. Pictures shall not depict optional equipment or a design not actually offered at the advertised price. FTC FAQ Q11 (Sept. 2026): a representative photo is acceptable only if the pictured car matches make, model, condition, and other material characteristics and a reasonable consumer understands it is illustrative; for used vehicles consumers expect the exact car.",
+      "trigger_patterns": [],
+      "fail_condition": "Photo showing a different year/make/model or optional equipment not included at the advertised price",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-VEH-001",
+      "category": "Vehicle Description",
+      "title": "Model Year Accuracy",
+      "statute": "VC §11713.5",
+      "description": "Cannot represent a vehicle as a model year different from the year model designated at the time of manufacture.",
+      "trigger_patterns": [
+        "model year",
+        "\\d{4}"
+      ],
+      "fail_condition": "Vehicle advertised with incorrect model year",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-VEH-002",
+      "category": "Vehicle Description",
+      "title": "Vehicle Equipment Accuracy",
+      "statute": "13 CCR §260.05",
+      "description": "No specific vehicle shall be advertised as having special equipment or accessories unless such equipment or accessories are installed and operative at the time of the advertisement.",
+      "trigger_patterns": [
+        "equipped with",
+        "includes",
+        "features",
+        "comes with"
+      ],
+      "fail_condition": "Vehicle advertised with equipment/features not actually installed",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-VEH-003",
+      "category": "Vehicle Description",
+      "title": "Vehicle Condition Accuracy",
+      "statute": "13 CCR §260.03",
+      "description": "Statements of vehicle condition must accurately reflect the known condition, and pictures must accurately depict overall appearance.",
+      "trigger_patterns": [
+        "condition",
+        "like new",
+        "excellent",
+        "pristine",
+        "perfect"
+      ],
+      "fail_condition": "Vehicle condition misrepresented in advertising text or photos",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-HISTORY-001",
+      "category": "Vehicle History",
+      "title": "Prior Use Disclosure for Special Vehicles",
+      "statute": "13 CCR §260.02(b)",
+      "description": "Former taxicabs, rental vehicles, publicly owned vehicles, insurance salvage vehicles, and revived salvage vehicles must be clearly identified as such if the previous status is known to the seller.",
+      "trigger_patterns": [
+        "former",
+        "taxi",
+        "rental",
+        "salvage",
+        "fleet",
+        "government"
+      ],
+      "fail_condition": "Vehicle with known prior status as taxi/rental/salvage/fleet not disclosed in advertising",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-COMPARE-001",
+      "category": "Comparison Claims",
+      "title": "Factual Claims Must Be Substantiated",
+      "statute": "CA Business & Professions Code §17508",
+      "description": "Any factual or comparison advertising claim must be based on factual, objective evidence. Claims comparing to competitors or stating rankings (e.g., '#1 dealer') must be substantiated.",
+      "trigger_patterns": [
+        "#1",
+        "number one",
+        "best",
+        "lowest price",
+        "most",
+        "highest rated",
+        "top rated",
+        "leading",
+        "biggest"
+      ],
+      "fail_condition": "Ranking or comparison claims without factual substantiation",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-FUEL-001",
+      "category": "Fuel Economy",
+      "title": "Fuel Economy Claims Must Include EPA Estimates",
+      "statute": "16 CFR Part 259",
+      "description": "General fuel economy claims must include the EPA fuel economy estimate. Claims must match the driving mode (city vs highway) and be identified as estimates.",
+      "trigger_patterns": [
+        "mpg",
+        "fuel economy",
+        "gas mileage",
+        "miles per gallon",
+        "fuel efficient",
+        "great mileage",
+        "driving range"
+      ],
+      "fail_condition": "Fuel economy claims without EPA estimates or misleading city/highway representation",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRIV-001",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "Privacy Policy Must Be Accessible from Homepage",
+      "statute": "CA Civil Code §1798.130(a)(5), CCPA/CPRA",
+      "description": "Businesses subject to CCPA must maintain a comprehensive privacy policy that is easily accessible from the homepage, typically linked in the website footer. The privacy policy must be updated at least every 12 months.",
+      "trigger_patterns": [
+        "privacy",
+        "privacy policy"
+      ],
+      "fail_condition": "No privacy policy link found on homepage or footer, or privacy policy link is broken/inaccessible",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRIV-002",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "'Do Not Sell or Share My Personal Information' Link Required",
+      "statute": "CA Civil Code §1798.135(a), CPRA",
+      "description": "Businesses that sell or share personal information must provide a clear and conspicuous link titled 'Do Not Sell or Share My Personal Information' on their homepage. Dealership websites that use third-party tracking (Google Analytics, Facebook Pixel, remarketing tags) or share lead data with third-party vendors are likely 'sharing' personal information for cross-context behavioral advertising under CPRA.",
+      "trigger_patterns": [
+        "do not sell",
+        "do not share",
+        "opt.out",
+        "privacy rights"
+      ],
+      "fail_condition": "No 'Do Not Sell or Share My Personal Information' link on the homepage, or the link is not clear and conspicuous",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRIV-003",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "'Limit the Use of My Sensitive Personal Information' Link Required",
+      "statute": "CA Civil Code §1798.135(a), CPRA",
+      "description": "If a business collects or processes sensitive personal information, it must provide a mechanism for consumers to limit use. CPRA allows a single combined link (e.g., 'Do Not Sell or Share My Personal Information') to cover both opt-out and limit-sensitive functions. A 'Do Not Sell' link, a comprehensive CCPA/CPRA privacy page (e.g., via ComplyAuto or similar compliance platform), or any dedicated privacy rights link in the footer satisfies this requirement. Only flag if NO privacy/opt-out link of any kind exists.",
+      "trigger_patterns": [
+        "sensitive",
+        "limit use",
+        "sensitive personal"
+      ],
+      "fail_condition": "No privacy rights link of any kind (Do Not Sell, Limit Sensitive, CCPA opt-out, or combined alternative) found on the homepage when the business collects sensitive PI",
+      "severity": "warning"
+    },
+    {
+      "id": "CA-PRIV-004",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "Notice at Collection Required at Data Collection Points",
+      "statute": "CA Civil Code §1798.100(a), CCPA/CPRA",
+      "description": "At or before the point of collecting personal information, businesses must inform consumers of: (1) the categories of PI being collected, (2) the purposes for collection, (3) a link to the 'Do Not Sell or Share' page if applicable, and (4) a link to the full privacy policy. On dealership websites, this applies to lead forms, finance/credit applications, trade-in forms, service appointment forms, chat widgets, and any form that collects personal information.",
+      "trigger_patterns": [
+        "form",
+        "submit",
+        "apply",
+        "get price",
+        "contact",
+        "schedule",
+        "chat",
+        "trade-in",
+        "credit app"
+      ],
+      "fail_condition": "Lead forms, credit applications, or other data collection points that do not display a notice at collection with required elements (categories of PI collected, purposes, privacy policy link)",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRIV-005",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "Privacy Policy Must Include Required Content",
+      "statute": "CA Civil Code §1798.130(a)(5), CCPA/CPRA",
+      "description": "The privacy policy must include: (1) description of consumer rights (right to know, delete, correct, opt-out, limit), (2) categories of PI collected in the prior 12 months, (3) sources of PI, (4) business/commercial purposes for collecting or selling PI, (5) categories of third parties to whom PI is disclosed, (6) whether PI is sold or shared and the categories involved, (7) retention periods or criteria for determining retention, and (8) at least two designated methods for submitting consumer requests.",
+      "trigger_patterns": [],
+      "fail_condition": "Privacy policy missing required content sections such as consumer rights description, categories of PI collected, third-party disclosures, or consumer request submission methods",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-PRIV-006",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "At Least Two Consumer Request Submission Methods Required",
+      "statute": "CA Civil Code §1798.130(a)(1), CCPA/CPRA",
+      "description": "Businesses must designate at least two methods for consumers to submit requests to know, delete, correct, or opt-out. For businesses that are not exclusively online, one method must be a toll-free phone number. A website form or email address must also be provided if the business operates a website.",
+      "trigger_patterns": [
+        "request",
+        "rights",
+        "privacy request",
+        "toll-free",
+        "1-800"
+      ],
+      "fail_condition": "Fewer than two consumer request submission methods provided, or missing toll-free number for non-online-only business",
+      "severity": "warning"
+    },
+    {
+      "id": "CA-PRIV-007",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "Financial Incentive Disclosure for Data-for-Price Exchanges",
+      "statute": "CA Civil Code §1798.125(b), CCPA/CPRA",
+      "description": "If a business offers a different price, rate, level, or quality of goods or services in exchange for a consumer providing personal information (e.g., 'Submit your info for our internet price' or 'Get your trade-in value'), this constitutes a financial incentive program. The business must: (1) clearly describe the incentive, (2) explain how the value of PI is calculated, (3) obtain opt-in consent, and (4) allow the consumer to revoke consent at any time.",
+      "trigger_patterns": [
+        "internet price",
+        "e-price",
+        "get price",
+        "unlock price",
+        "see price",
+        "trade-in value",
+        "get offer",
+        "exclusive price",
+        "submit.*price",
+        "lead.*price"
+      ],
+      "fail_condition": "Website offers pricing, trade-in values, or other benefits conditioned on submitting personal information without disclosing this as a financial incentive program or linking to the required financial incentive notice",
+      "severity": "warning"
+    },
+    {
+      "id": "CA-PRIV-008",
+      "category": "Privacy / CCPA-CPRA",
+      "title": "Must Honor Global Privacy Control (GPC) Signals",
+      "statute": "CA Civil Code §1798.135(e), CPRA; 11 CCR §7025",
+      "description": "Businesses must treat Global Privacy Control (GPC) browser signals as a valid consumer opt-out request for the sale and sharing of personal information. The business must process GPC signals without requiring the consumer to take any additional steps. The privacy policy must disclose whether and how the business responds to GPC signals.",
+      "trigger_patterns": [
+        "global privacy control",
+        "GPC",
+        "browser signal",
+        "opt-out preference signal"
+      ],
+      "fail_condition": "Privacy policy does not mention GPC signal handling, or website demonstrably ignores GPC signals by continuing to fire third-party tracking after receiving a GPC signal",
+      "severity": "warning"
+    },
+    {
+      "id": "CA-CARS-001",
+      "category": "CARS Act / Price Advertising",
+      "title": "Total Price Required in Vehicle-Specific Ads",
+      "statute": "CA Civil Code §1784.41(a) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "The total price must be disclosed in any advertisement that represents any monetary amount for a specific vehicle offered for sale. Total price means the sale price excluding only taxes, government fees, and rebates, but including all dealer adjustments and dealer-installed items. This disclosure must also appear in the first written communication with a consumer about a specific vehicle. DMV summary (checked 2026-09-10): total price is required in any ad or initial written communication that references a specific vehicle or financing terms, and the first-communication rule covers the first email, text, document, or form mentioning the vehicle or financing. Ads must be clear and conspicuous. Applies to new and used vehicles. CNCDA guidance (Guide Part 2, FAQ Q4, Q9, Q10): an advertisement is any statement the dealer intentionally communicates to the public to promote a sale (13 CCR §255.00(b)), which includes website listings, dealer-fed third-party listings, dealer-authored stickers, mailers, email blasts, and social posts. MSRP-only advertising and MSRP with a 'not the selling price' disclaimer do not satisfy the Act; 'contact dealer for price' does not satisfy it; a CTA that stands in place of the price on a specific-vehicle page is the online version of 'call for price'. The advertised total price is a ceiling (Veh. Code §11713.1(e)): the dealer must sell at or below it to anyone while the unit is unsold unless the ad carried an expiration that has passed, so every price ad and CRM template needs an expiration date. A 'well-qualified buyers only' disclaimer cures none of this. Itemizing installed items in the ad is not required; their cost simply has to be inside the figure.",
+      "trigger_patterns": [
+        "price",
+        "\\$\\d",
+        "MSRP",
+        "starting at",
+        "from \\$",
+        "as low as",
+        "sale price",
+        "net price",
+        "internet price",
+        "e-price",
+        "\\$\\d[\\d,]*\\s*/\\s*mo",
+        "APR",
+        "contact\\s+(us|dealer|the\\s+dealer)\\s+for\\s+(price|pricing)",
+        "see\\s+dealer\\s+for\\s+(price|pricing|details)",
+        "price\\s+upon\\s+request",
+        "call\\s+for\\s+(price|pricing)",
+        "(get|see|unlock|reveal|request)\\s+(your\\s+|our\\s+|the\\s+)?(e-?price|internet\\s+price|best\\s+price)"
+      ],
+      "fail_condition": "Vehicle-specific advertisement showing a monetary amount that does not represent the total price (excluding only taxes, government fees, and rebates); or a first written response (email, SMS, chat transcript, lead form auto-reply) about a specific vehicle or its financing that omits total price",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-002",
+      "category": "CARS Act / Add-On Disclosures",
+      "title": "Add-On Products Must Be Disclosed as Not Required",
+      "statute": "CA Civil Code §1784.41(b) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers must clearly and conspicuously disclose in writing that add-on products and services (products/services not provided by the manufacturer for which the dealer charges) are not required for vehicle purchase or lease. If the transaction is negotiated in a language other than English, the disclosure must also be provided in that language. DMV summary: optional products such as warranties, GAP, and theft protection must be clearly disclosed and explicitly stated as optional, in writing, before signing.",
+      "trigger_patterns": [
+        "add-on",
+        "addon",
+        "protection package",
+        "appearance package",
+        "service contract",
+        "GAP",
+        "gap waiver",
+        "nitrogen",
+        "theft deterrent",
+        "paint protection",
+        "surface protection",
+        "extended warranty",
+        "maintenance plan",
+        "warranty",
+        "theft protection",
+        "vehicle service contract",
+        "prepaid maintenance"
+      ],
+      "fail_condition": "Add-on products or services presented on the website without a clear written disclosure that they are not required for purchase or lease",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-CARS-003",
+      "category": "CARS Act / Payment Advertising",
+      "title": "Monthly Payment Must Include Total Amount Payable",
+      "statute": "CA Civil Code §1784.41(c)(1) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "When advertising a monthly payment amount, the dealer must also disclose the total amount the consumer will have paid after making all scheduled monthly payments. This gives consumers a clear picture of the full cost over the life of the loan or lease. CNCDA: on a multi-pencil, each written payment column carries the total the consumer will pay at that payment plus any assumed consideration; a lease column shows the total of scheduled lease payments. Safest BDC practice is to state the total price and reserve payment figures for desked terms, because any written payment quote triggers this disclosure. CNCDA FAQ Q39, Guide Appendix D Ex. 5.",
+      "trigger_patterns": [
+        "\\$\\d+/mo",
+        "per month",
+        "monthly payment",
+        "\\$/month",
+        "mo\\.",
+        "monthly lease"
+      ],
+      "fail_condition": "Monthly payment advertised without disclosing the total amount payable after all scheduled monthly payments are made",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-004",
+      "category": "CARS Act / Payment Advertising",
+      "title": "Extended Term Warning Required on Lower Payment Ads",
+      "statute": "CA Civil Code §1784.41(d) (CARS Act, SB 766). Pin-cite corrected 2026-09-14 from (c)(3) to (d)",
+      "effective_date": "2026-10-01",
+      "description": "Any advertisement stating that a consumer can lower their monthly payment must include a disclosure that lower monthly payments often increase the total amount paid by the consumer over the duration of the loan or lease. Exception: internet tools allowing consumers to adjust payment parameters are exempt from this requirement. CNCDA: the notice is preprinted on every Reynolds Pre-Contract Disclosure because the form's own including/excluding payment quote is a written comparison. The consumer's own use of an internet payment tool is not a violation, but a dealer-initiated message sent through the tool carries the full disclosure. CNCDA FAQ Q40.",
+      "trigger_patterns": [
+        "lower payment",
+        "reduce.*payment",
+        "affordable payment",
+        "low monthly",
+        "payments as low",
+        "lower your payment"
+      ],
+      "fail_condition": "Advertisement promoting lower monthly payments without disclosing that extended terms often increase the total amount paid",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-005",
+      "category": "CARS Act / Payment Advertising",
+      "title": "Down Payment / Trade-In Impact Must Be Disclosed",
+      "statute": "CA Civil Code §1784.41(c)(2) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "When advertising a monthly payment that takes into account a downpayment or trade-in value, the dealer must disclose the downpayment amount and/or trade-in value used to calculate that payment. CNCDA best practice: treat an applied rebate the same way and disclose the rebate amount separately from other consideration. Guide Part 3.",
+      "trigger_patterns": [
+        "\\$\\d+/mo",
+        "per month",
+        "monthly payment",
+        "with trade",
+        "down payment",
+        "trade-in"
+      ],
+      "fail_condition": "Monthly payment advertised that factors in a downpayment or trade-in value without disclosing those amounts",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-006",
+      "category": "CARS Act / Used Vehicle Cancellation",
+      "title": "3-Day Right to Cancel for Used Vehicles $50,000 or Less",
+      "statute": "CA Civil Code §1784.43 (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Consumers who purchase or lease a used vehicle at retail for $50,000 or less have a 3-calendar-day right (including weekends, per DMV) to cancel the transaction for any reason. The dealer must provide a separate written disclosure document titled '3-Day Right to Cancel Used Car Purchase or Lease' with specific terms. Does not apply if the vehicle is driven more than 400 miles, purchased at auction, or if it is a motorcycle or off-highway vehicle. DMV summary: the three days include weekends; conditions apply, typically a 400-mile limit and a restocking fee of $200 to $600. CNCDA operating detail (Guide Part 5, FAQ Q51 to Q57): the period and the 400-mile limit run from execution of the agreement, not delivery; three calendar days commence the day after execution and end at the posted close of business, extended to the next open day when day three falls on a closed day, holiday closures included. $50,000 is inclusive ($50,001 is not covered) and is measured on purchase price or capitalized cost; CNCDA recommends granting the right whenever the vehicle price is $50,000 or less even if optional add-ons push the amount financed higher. 'Used' follows Veh. Code §665. Excluded: new vehicles at any price, motorcycles, lease-end buyouts to the lessee in possession, and Vehicle Code auction sales. The separate disclosure is Reynolds form LAWCA-CANCELDSCL, titled '3-Day Right to Cancel Used Car Purchase or Lease', signed the same date as the agreement and translated when the negotiation was in a Civ. Code §1632(b) language. A breakdown after delivery that the customer did not cause does not defeat the right.",
+      "trigger_patterns": [
+        "used",
+        "pre-owned",
+        "certified",
+        "CPO",
+        "previously owned"
+      ],
+      "fail_condition": "Used vehicle listings or purchase process lacking any reference to the 3-day right to cancel, or failure to provide the required cancellation disclosure document",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-007",
+      "category": "CARS Act / Used Vehicle Cancellation",
+      "title": "Restocking Fee Limits on Cancellation",
+      "statute": "CA Civil Code §1784.31(g) and §1784.43(a)(2) (CARS Act, SB 766). Pin-cite corrected 2026-09-14 from §1784.43(c)",
+      "effective_date": "2026-10-01",
+      "description": "Restocking fees for cancelled used vehicle purchases are capped at: 1.5% of the sale price (minimum $200, maximum $600), plus up to $1 per mile driven over 250 miles (maximum $150). Alternatively, the dealer may charge actual documented shipping costs if lower. Any restocking fee disclosed on the website that exceeds these limits is a violation. CNCDA: the fee is deducted from any refund first and only a shortfall is due from the customer at the door; demanding cash for a fee the refund would cover, or refusing to process the cancellation until the fee is paid separately, is both overcharging and impeding. A dealer that charged a shipping fee may instead retain actual shipping cost up to the same cap and refund the balance. Worked example: $28,000 sale, 310 miles, base $420 plus mileage $60 = $480. The statutory limits do not apply to voluntary returns after the period. CNCDA Guide Part 5, FAQ Q55.",
+      "trigger_patterns": [
+        "restocking",
+        "restock fee",
+        "cancellation fee",
+        "return fee"
+      ],
+      "fail_condition": "Restocking fee disclosed that exceeds the statutory maximum (1.5% of sale price, $200-$600 range, plus $1/mile over 250 up to $150)",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-008",
+      "category": "CARS Act / Used Vehicle Cancellation",
+      "title": "48-Hour Refund Timeline on Cancellation",
+      "statute": "CA Civil Code §1784.43(d) (CARS Act, SB 766). Pin-cite corrected 2026-09-14 from (e)",
+      "effective_date": "2026-10-01",
+      "description": "When a used vehicle purchase is cancelled under the 3-day right, the dealer must process the refund within 48 hours of the cancellation, minus allowable restocking fees and mileage charges. Any website policy stating a longer refund timeline violates the CARS Act. Exception: where payment was made by a method without immediately verified funds (a personal check), the refund may wait until two business days after verification, with documentation to the customer of when verification occurred. Unverified payment delays the refund only; it is never a basis to reject the cancellation. Delays outside the dealer's control (bank or card processing) are excused. Registration fees are not a permitted deduction and are refunded to the customer; sales tax attributable to refunded amounts is refunded and claimed with CDTFA. CNCDA Guide Part 5, FAQ Q59.",
+      "trigger_patterns": [
+        "refund",
+        "cancellation.*refund",
+        "return.*refund",
+        "money back"
+      ],
+      "fail_condition": "Website policy or FAQ stating a refund timeline longer than 48 hours for used vehicle cancellations",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-009",
+      "category": "CARS Act / Used Vehicle Cancellation",
+      "title": "No Impeding Cancellation Rights",
+      "statute": "CA Civil Code §1784.43(c) (CARS Act, SB 766). Pin-cite corrected 2026-09-14 from (f)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot impede a consumer's exercise of the 3-day cancellation right. Prohibited conduct includes: claiming the person who handles cancellations is unavailable, withholding downpayments or trade-ins, overcharging restocking fees, misrepresenting cancellation requirements, or claiming excessive damage without reasonable basis. CNCDA adds two everyday violations: telling the customer the manager is not available to process the return, and demanding the restocking fee in cash instead of deducting it from the refund. A Failure Notice issued on thin grounds is not a shield; it documents the violation. CNCDA Guide Part 5.",
+      "trigger_patterns": [
+        "cancel",
+        "return policy",
+        "all sales final",
+        "no returns",
+        "as-is",
+        "final sale"
+      ],
+      "fail_condition": "Website language discouraging or prohibiting cancellation of used vehicle purchases (e.g., 'all sales final', 'no returns') without acknowledging the statutory 3-day cancellation right",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-010",
+      "category": "CARS Act / Misrepresentation",
+      "title": "No Misrepresentation of Financing Costs or Terms",
+      "statute": "CA Civil Code §1784.40(a) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot misrepresent any material information regarding the costs or terms of purchasing, financing, or leasing a vehicle. This includes misrepresenting APR, loan term, total cost, fees, or any condition of financing.",
+      "trigger_patterns": [
+        "financing",
+        "APR",
+        "interest rate",
+        "loan",
+        "payment",
+        "credit",
+        "terms"
+      ],
+      "fail_condition": "Financing terms, rates, or costs presented in a misleading or inaccurate manner",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-CARS-011",
+      "category": "CARS Act / Misrepresentation",
+      "title": "No Misrepresentation of Add-On Necessity or Benefits",
+      "statute": "CA Civil Code §1784.40(b) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot misrepresent any material aspect of an add-on product or service, including its necessity, benefits, coverage, cost, or terms. Cannot imply add-ons are required for purchase or financing when they are not.",
+      "trigger_patterns": [
+        "required",
+        "mandatory",
+        "must have",
+        "must purchase",
+        "included in",
+        "required for financing",
+        "lender required"
+      ],
+      "fail_condition": "Add-on products presented as required for vehicle purchase or financing when they are optional, or benefits/coverage misrepresented",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-CARS-012",
+      "category": "CARS Act / Misrepresentation",
+      "title": "No Misrepresentation of Vehicle Availability at Advertised Price",
+      "statute": "CA Civil Code §1784.40(d) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot misrepresent that a vehicle is available for purchase at an advertised price when it is not. This reinforces existing bait-and-switch prohibitions with CARS Act-specific enforcement authority. CNCDA (FAQ Q11 to Q18): a lower figure displayed as the vehicle's price in the dealer's digital retailing tool, a dealer-fed third-party listing, or a program platform becomes the advertised total price for every customer and the two figures together invite this claim. There is no intent element and no bona fide error defense; correct a pricing error immediately, keep the record of the error and the fix, and pull upfitted units from feeds until the total price is updated. A listing the manufacturer controls or a scraped listing the dealer never disseminated is not the dealer's ad, but document that and request correction in writing. The 48-hour post-sale withdrawal under Veh. Code §11713(c) remains the safe harbor.",
+      "trigger_patterns": [
+        "digital\\s+retail",
+        "build\\s+(my|your)\\s+deal",
+        "express\\s+(store|checkout|purchase)",
+        "in[\\s-]*transit",
+        "subject\\s+to\\s+prior\\s+sale"
+      ],
+      "fail_condition": "Vehicle advertised at a price that is not actually available to the consumer, or conditions not disclosed that prevent purchase at that price",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-013",
+      "category": "CARS Act / Misrepresentation",
+      "title": "No Misrepresentation of Government Affiliation or Endorsement",
+      "statute": "CA Civil Code §1784.40(j) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot misrepresent or imply any affiliation with, or endorsement by, a government entity. This includes using government-sounding names, seals, logos, or language that could create a false impression of government backing. Pin-cite corrected 2026-09-10 from (i) to (j) to match the chaptered text and checks/registry.py; (i) is the remedy misrepresentation, see CA-CARS-023.",
+      "trigger_patterns": [
+        "government",
+        "federal",
+        "state program",
+        "official",
+        "endorsed by",
+        "authorized by",
+        "government approved",
+        "certified by.*state"
+      ],
+      "fail_condition": "Website content implying government affiliation, endorsement, or authorization that does not exist",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-CARS-014",
+      "category": "CARS Act / Misrepresentation",
+      "title": "No Misrepresentation of Consumer Preapproval Status",
+      "statute": "CA Civil Code §1784.40(e) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot misrepresent that a consumer is preapproved for financing or a lease when they are not, or misrepresent the terms of any preapproval.",
+      "trigger_patterns": [
+        "pre-approved",
+        "preapproved",
+        "pre-qualified",
+        "prequalified",
+        "you're approved",
+        "guaranteed approval",
+        "instant approval"
+      ],
+      "fail_condition": "Website claims of consumer preapproval or guaranteed approval without genuine preapproval criteria being met",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-CARS-015",
+      "category": "CARS Act / Prohibited Add-On Charges",
+      "title": "No Charging for Add-Ons That Provide No Benefit",
+      "statute": "CA Civil Code §1784.42(a) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot charge for add-on products or services if the consumer will receive no benefit. Specifically prohibited: nitrogen-filled tires below 95% purity, products without coverage for the transaction/vehicle/consumer, non-compliant GAP agreements, service contracts void due to preexisting damage, oil change packages for electric vehicles, catalytic converter marking on vehicles without catalytic converters, and surface protection products that void the manufacturer warranty. CNCDA (Guide Part 4, FAQ Q49): catalytic converter marking is a benefit in itself under Veh. Code §24020 and is no-benefit only on a vehicle without a converter; a marking product bundled with a theft-recovery or reimbursement promise is a different product that may be insurance under Ins. Code §116. Build eligibility screens so per-se no-benefit products cannot be sold: no oil-change products on EVs, no converter marking without a converter, no service contract on a vehicle whose condition voids it, no GAP outside the Civ. Code §2982.12 loan-to-value parameters. The 'selected by, and would benefit' safe harbor requires genuine customer election; defaulted or pre-selected products may not get it, and very high penetration on an optional product is treated by enforcers as evidence it was mandatory.",
+      "trigger_patterns": [
+        "nitrogen",
+        "tire fill",
+        "GAP",
+        "gap waiver",
+        "service contract",
+        "oil change",
+        "catalytic converter",
+        "cat marking",
+        "surface protection",
+        "paint protection",
+        "fabric protection",
+        "pre[\\s-]*(installed|loaded)",
+        "every\\s+(vehicle|unit)\\s+(is\\s+)?(equipped|comes)\\s+with",
+        "activat(e|ion)\\s+(fee|required)",
+        "theft[\\s-]*recovery",
+        "lojack|kahu|ikon|recovr"
+      ],
+      "fail_condition": "Website advertising add-on products that may provide no consumer benefit (e.g., oil change packages listed for EVs, nitrogen fill without purity disclosure, surface protection without warranty compatibility note)",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-016",
+      "category": "CARS Act / Contract Disclosures",
+      "title": "Cooling-Off Period Notice in Purchase Agreements",
+      "statute": "CA Civil Code §2982 as amended by CARS Act, SB 766",
+      "effective_date": "2026-10-01",
+      "description": "All conditional sale contracts must include the following notice: 'CALIFORNIA DOES NOT HAVE A COOLING-OFF PERIOD FOR NEW VEHICLES. HOWEVER, IF YOU PURCHASED OR LEASED A USED VEHICLE FOR $50,000 OR LESS, YOU HAVE 3 DAYS TO CANCEL THIS CONTRACT FOR ANY REASON. ADDITIONAL RESTRICTIONS MAY APPLY, INCLUDING A RESTOCKING FEE.' This replaces the previous contract cancellation option language. CNCDA: the Reynolds Retail Installment Sale Contract 553CA1026 carries the language; the old §2982(r) boxed 'THERE IS NO COOLING-OFF PERIOD UNLESS YOU OBTAIN A CONTRACT CANCELLATION OPTION' notice must be gone from the form after 2026-10-01. Guide Part 5, Appendix C.",
+      "trigger_patterns": [
+        "cooling off",
+        "cooling-off",
+        "cancellation period",
+        "right to cancel",
+        "3 day",
+        "three day",
+        "contract\\s+cancellation\\s+option",
+        "(two|2)[\\s-]*day",
+        "72[\\s-]*hour",
+        "\\$\\s?40,000"
+      ],
+      "fail_condition": "Online purchase agreement or contract template missing the required CARS Act cooling-off period notice, or still displaying the old pre-October 2026 cancellation option language",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-017",
+      "category": "CARS Act / Contract Disclosures",
+      "title": "Cooling-Off Period Notice in Lease Agreements",
+      "statute": "CA Civil Code §2985.8 as amended by CARS Act, SB 766",
+      "effective_date": "2026-10-01",
+      "description": "All vehicle lease agreements must include the CARS Act cooling-off period notice referencing the 3-day right to cancel for used vehicles $50,000 or less. This replaces the previous lease contract cooling-off language. CNCDA: contact the leasing companies for updated lease agreements; the old §2985.8(e) boxed notice must be gone. Guide Part 5.",
+      "trigger_patterns": [
+        "lease agreement",
+        "lease contract",
+        "cooling off",
+        "cancellation"
+      ],
+      "fail_condition": "Online lease agreement template missing the required CARS Act cooling-off period notice",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-018",
+      "category": "CARS Act / Dealer Notices",
+      "title": "Point-of-Sale Physical Notice Required",
+      "statute": "VC §11709.2 as amended by CARS Act, SB 766",
+      "effective_date": "2026-10-01",
+      "description": "Dealers must display a prominent physical notice in 36-point or larger type in all sales areas stating: 'CALIFORNIA DOES NOT HAVE A COOLING-OFF PERIOD FOR NEW VEHICLES. BUT IF YOU PURCHASED OR LEASED A USED VEHICLE FOR $50,000 OR LESS, YOU HAVE 3 DAYS TO CANCEL THIS CONTRACT FOR ANY REASON. ADDITIONAL RESTRICTIONS MAY APPLY, INCLUDING A RESTOCKING FEE. ASK THE DEALER FOR MORE INFORMATION ABOUT HOW TO EXERCISE THIS RIGHT.' If motorcycles/off-highway vehicles are also sold, additional language is required. CNCDA (Guide Part 5, FAQ Q61, Q62): the notice goes in each sales office and sales cubicle where written terms of specific transactions are discussed and in each room where contracts are regularly executed, not on a general showroom floor without such areas. It may be combined on one poster with other required notices if the required text stays at 36 point and conspicuous. Reynolds supplies compliant signage. Current 'no cooling off' signage must be replaced.",
+      "trigger_patterns": [],
+      "fail_condition": "Physical dealership notice not displayed or not updated to reflect CARS Act language (not directly verifiable via website audit, flag as advisory for in-dealership verification)",
+      "severity": "advisory",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-019",
+      "category": "CARS Act / Record Retention",
+      "title": "Two-Year Record Retention Required",
+      "statute": "CA Civil Code §1784.44 (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers must retain for two years: all communications/advertisements demonstrating total price compliance, all purchase/financing/lease documents (signed by consumer regardless of final approval), all add-on documentation including service contracts and GAP agreements, all cancellation requests and refund proofs, and all written customer complaints about sales/financing/leasing/cancellation/add-ons. Failure to retain records is itself a violation. DMV summary lists the retained set as advertisements, first communications, pricing disclosures, add-on consents, and cancellation notices. CNCDA practical retention (Guide Part 7, FAQ Q63 to Q67): the Act does not require archiving every ad; it requires records sufficient to show the price, features, and financing terms disseminated for each vehicle and when. Retain the DMS or inventory-provider feed export by vehicle and date and get the vendor's written confirmation it can produce two years of history; dated captures of the website and major third-party sites are a supplement, not a substitute. Keep creative files with run dates and placement only where the piece states a total price or payment for a specific vehicle; general brand or event ads are outside the rule. Mailers: creative, mailing date, distribution list identifiers. For customers who sign, every worksheet; for non-buyers, the first written communication plus written inquiries and responses. Before a CRM migration, export the full two-year history in searchable form. 'Complaints' excludes surveys, reviews, and testimonials. CNCDA advises against over-retention beyond what the Act and other law require.",
+      "trigger_patterns": [],
+      "fail_condition": "Not directly verifiable via website audit, flag as advisory reminder for internal compliance processes",
+      "severity": "advisory",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-020",
+      "category": "CARS Act / Consumer Rights",
+      "title": "Consumer Waivers of CARS Act Rights Are Void",
+      "statute": "CA Civil Code §1784.21 (waivers void) and §1784.22 (remedies cumulative) (CARS Act, SB 766). Pin-cite corrected 2026-09-14",
+      "effective_date": "2026-10-01",
+      "description": "Any attempt to require consumers to waive their rights under the CARS Act is unenforceable and void. Website terms of service, purchase agreements, or arbitration clauses that attempt to waive CARS Act protections are violations. CNCDA: do not accept vendor-supplied forms that purport to obtain waivers of the three-day right or any other CARS Act protection. CNCDA Guide Part 1.",
+      "trigger_patterns": [
+        "waive",
+        "waiver",
+        "agree to waive",
+        "relinquish",
+        "give up right",
+        "forfeit right",
+        "no cancellation"
+      ],
+      "fail_condition": "Website terms, conditions, or agreements that attempt to have consumers waive their rights under the CARS Act (including cancellation rights, add-on disclosure rights, or total price disclosure rights)",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-021",
+      "category": "CARS Act / Misrepresentation",
+      "title": "No Misrepresentation of Trade-In Payoff Timeline",
+      "statute": "CA Civil Code §1784.40(g)-(h) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot misrepresent the timing of trade-in vehicle payoff or the consequences of late payoff (such as impact on consumer credit). Also cannot misrepresent downpayment or trade-in retention policies. CNCDA: commit only to what Veh. Code §11709.4 requires and the deal documents state. Guide Part 6.",
+      "trigger_patterns": [
+        "trade-in",
+        "trade in",
+        "payoff",
+        "pay off",
+        "we'll pay off",
+        "guaranteed payoff"
+      ],
+      "fail_condition": "Website making representations about trade-in payoff timing or guarantees that could be misleading",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-022",
+      "category": "CARS Act / Add-On Charges",
+      "title": "Add-On Providers Must Be Paid Within 10 Days",
+      "statute": "CA Civil Code §1784.42(b) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers must pay add-on product/service providers within 10 days of purchase or lease execution, unless the agreement with the provider allows later payment and coverage is not affected. This is not directly website-verifiable but is included for compliance awareness. CNCDA accounting action item: many stores remit on monthly statements; before 2026-10-01 either move add-on remittances to a within-10-days cycle or obtain written agreements from each vendor authorizing later payment and confirming coverage is effective regardless. Proof of timely payment is an enumerated record under §1784.44(a)(3). Guide Part 4, FAQ Q50.",
+      "trigger_patterns": [],
+      "fail_condition": "Not directly verifiable via website audit, flag as advisory for internal compliance",
+      "severity": "advisory",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-023",
+      "category": "CARS Act / Misrepresentation",
+      "title": "No Misrepresentation of the Remedy When the Advertised Price Is Not Honored",
+      "statute": "CA Civil Code §1784.40(i) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Dealers cannot misrepresent the remedy available to a consumer if the dealer fails to sell or lease a vehicle at the advertised total price. Listed by the DMV summary (checked 2026-09-10) as 'remedy if advertised price isn't honored'. Website price-guarantee, price-match, and 'we honor our internet price' language must state the actual remedy accurately and must not imply the consumer has no recourse or a lesser remedy than the law provides.",
+      "trigger_patterns": [
+        "price (match|protection) guarantee",
+        "(honor|match)\\w*\\s+(the|our|any)?\\s*(advertised|internet|online|posted|e-)price",
+        "guaranteed (internet|online|advertised) price",
+        "if we (can't|cannot|do not|don't) honor",
+        "prices? subject to change without notice"
+      ],
+      "fail_condition": "Website language that misstates, limits, or disclaims the consumer's remedy when an advertised total price is not honored (for example, 'prices subject to change without notice, no remedy' or 'our only obligation is to correct the listing')",
+      "severity": "critical"
+    },
+    {
+      "id": "CA-CARS-024",
+      "category": "CARS Act / Applicability",
+      "title": "Applicability and Exemptions (Scope Advisory)",
+      "statute": "CA Civil Code §1784.31 (CARS Act, SB 766); DMV summary checked 2026-09-10",
+      "effective_date": "2026-10-01",
+      "description": "The Act covers licensed California dealers selling or leasing light-duty vehicles (GVWR under 10,000 lb), new and used. Exempt per the DMV summary: wholesale transactions, fleet sales, auction sales, and commercial purchasers buying five or more vehicles per year. The chaptered statute defines fleet sales as more than one vehicle in a single transaction for business use, while the DMV summary says five or more units; apply the statute and flag the discrepancy for counsel. Motorcycles are excluded from the used-vehicle cancellation right only; total-price advertising, misrepresentation, add-on, and records rules still apply to motorcycle dealers. CNCDA (Guide Part 1, FAQ Q36, Q37, Q52): the commercial-purchaser count is per dealer, so a business that buys many vehicles a year but fewer than five from this store is covered here; a single light-duty vehicle sold to a small business is generally covered. Auction sales of used vehicles are exempt from the §1784.41 disclosures and the three-day right; a lease-end buyout to the lessee in possession is exempt from the three-day right only. Autobrokers are dealers in their own right. A vehicle delivered for registration in another state is arguably outside the Act (not required to be registered under the Vehicle Code), but that cannot reach advertising, and CNCDA recommends giving out-of-state shoppers the total price anyway.",
+      "trigger_patterns": [],
+      "fail_condition": "Not a website violation. Advisory so every report states scope; use it when a client claims exemption (fleet, commercial, heavy-duty, motorcycle) and needs the correct test applied.",
+      "severity": "advisory",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-025",
+      "category": "CARS Act / Price Advertising",
+      "title": "MSRP Shown In Place Of, Or More Prominently Than, Total Price",
+      "statute": "CA Civil Code §1784.41(a), §1784.31(j) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "MSRP may appear in a dealer advertisement only if it is clearly labeled as the manufacturer's suggested retail price and displayed no more prominently than the dealer's total price. MSRP-only advertising is effectively prohibited, a disclaimer that MSRP is not the selling price does not satisfy the Act, and even where the total price equals MSRP the dealer must state its total price. CNCDA Guide Part 2 and Appendix D Example 3; FAQ Q4. FTC FAQ Q5 (Sept. 2026) adds that prominence includes placement: a smaller MSRP positioned where it draws the eye defeats the actual price, and labels such as 'the price you'll get' near both numbers are confusing.",
+      "trigger_patterns": [
+        "msrp\\s+(is\\s+)?not\\s+(the\\s+)?(selling|advertised|sale|dealer'?s?|actual)\\s+price",
+        "price\\s+shown\\s+is\\s+(the\\s+)?msrp",
+        "msrp\\s+only",
+        "starting\\s+msrp",
+        "manufacturer'?s?\\s+suggested\\s+retail\\s+price\\s+(is\\s+)?not"
+      ],
+      "fail_condition": "A page or ad for a specific vehicle shows MSRP as the only price, as the most prominent price, or with a disclaimer that MSRP is not the selling price, without the dealer's total price displayed at least as prominently",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-026",
+      "category": "CARS Act / Price Advertising",
+      "title": "Total Price Gated Behind a Click, Lead Form, Login, or Scan",
+      "statute": "CA Civil Code §1784.41(a)(1) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "For any page that references a specific vehicle for sale, the total price must appear clearly and conspicuously on that page. A CTA that stands in place of the price ('See price and payments', 'Unlock savings', 'Get ePrice', 'Click for price') is the online version of 'call for price'; gating the price behind a click, a lead form, or a login is the violation. A button that leads to additional detail is fine once the total price is already displayed. A QR-code-only price on a sticker is doubtful, and the FTC has long said price information should not sit behind a link. CNCDA FAQ Q6, Q10.",
+      "trigger_patterns": [
+        "(get|see|unlock|reveal|click|request|check|view)\\s+(here\\s+)?(for\\s+|your\\s+|our\\s+|the\\s+|my\\s+)?(e-?price|internet\\s+price|best\\s+price|sale\\s+price|special\\s+price|price|pricing|payments?)",
+        "(unlock|reveal)\\s+(savings|pricing|discount)",
+        "scan\\s+(the\\s+)?(qr|code)\\s+for\\s+(price|pricing)",
+        "price\\s+available\\s+(upon|on)\\s+request"
+      ],
+      "fail_condition": "A specific-vehicle page (VDP, SRP tile, special) carries a price CTA, lead form, login, or QR code and no visible total price for that vehicle",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-027",
+      "category": "CARS Act / Price Advertising",
+      "title": "Statutory Plus Disclosure Verbatim on Every Page Displaying a Price",
+      "statute": "CA Vehicle Code §11713.1(c)(2); CA Civil Code §1784.41(f) (preserved)",
+      "effective_date": "2026-10-01",
+      "description": "The statutory 'Plus Disclosure' remains required in qualifying print advertising and on every dealer web page displaying a vehicle's price, verbatim and with no abbreviations: 'Plus government fees and taxes, any finance charges, any dealer document processing charge, any electronic filing charge, and any emission testing charge.' If the dealer includes the document processing charge in its advertised price (the FTC posture), remove the reference to it or otherwise change the disclosure so it is not misleading. CNCDA Guide Part 2, Appendix A and B.",
+      "trigger_patterns": [
+        "plus\\s+(government|gov'?t\\.?)\\s+fees",
+        "plus\\s+tax(es)?\\b",
+        "\\+\\s*tax",
+        "plus\\s+(applicable\\s+)?fees",
+        "plus\\s+ttl\\b",
+        "plus\\s+tax,?\\s+title"
+      ],
+      "fail_condition": "A page displaying a vehicle price carries an abbreviated, altered, or missing Plus Disclosure (for example 'plus tax and fees', 'plus gov't fees', or 'excludes tax, title, license') instead of the verbatim statutory sentence, or references a document processing charge the dealer has already included in the price",
+      "severity": "warning",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-028",
+      "category": "CARS Act / Price Advertising",
+      "title": "Rebate and Net-Cost Presentation",
+      "statute": "CA Civil Code §1784.31(j)(3), §1784.41(f); CA Vehicle Code §11713.1(j), §11713.16(e)",
+      "effective_date": "2026-10-01",
+      "description": "The total price is stated without any rebate deduction. A rebate may then be shown separately as a specific dollar amount labeled by source ('Factory Rebate'), with the after-rebate figure labeled 'net cost', never 'price'. Dealer rebates and 'cash back' are not permitted; 'up to $X in rebates' is problematic because rebates must be stated in specific dollar amounts; conflicting stacked rebate deductions may not be advertised; a rebate limited to a group needs its qualification details in close proximity, and one conditioned on dealer-arranged financing needs especially clear and conspicuous disclosure. CNCDA Guide Part 2, Appendix D Example 2. FTC FAQ Q5 and Q9 (Sept. 2026) agree on the core: a first-responder or dealer-financing discount may be shown, but never inside the most prominent price, which must be what any buyer using any financing pays. California is stricter on labeling (net cost, no dealer cash back).",
+      "trigger_patterns": [
+        "after\\s+(all\\s+)?(rebates?|incentives?|offers)",
+        "cash\\s+back",
+        "up\\s+to\\s+\\$[\\d,]+\\s+(in\\s+)?(rebates?|savings|incentives?|off)",
+        "dealer\\s+rebate",
+        "net\\s+(cost|price)",
+        "with\\s+all\\s+(offers|rebates|incentives)",
+        "(price|sale\\s+price)\\s+after\\s+rebate",
+        "must\\s+finance\\s+(with|through)"
+      ],
+      "fail_condition": "The after-rebate figure is the only or the headline price, is labeled a price, stacks conditional or conflicting rebates, uses dealer cash back or 'up to' rebate phrasing, or omits adjacent eligibility for a group-limited or finance-conditioned rebate",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-029",
+      "category": "CARS Act / Price Advertising",
+      "title": "Installed Items Excluded From Price (Pay-or-Remove Language)",
+      "statute": "CA Civil Code §1784.31(j)(2), §1784.41(a)(1); CA Vehicle Code §11713.1(q)",
+      "effective_date": "2026-10-01",
+      "description": "Excluding an item installed on a specific vehicle from its advertised price is unlawful from 2026-10-01, even with a disclosure that the product 'may be purchased for an additional cost or removed at the customer's option'. The class-advertising disclaimer that a price 'does not apply to vehicles with dealer-added options or accessories' survives only in true class advertising with no identified vehicle. The dealer is not required to remove or discount an installed item a customer refuses; the total price is for the vehicle as equipped. A new vehicle priced above MSRP must itemize each added item and label remaining markup on the supplemental sticker. CNCDA Guide Part 2 'Superseded practices', Appendix D Example 1; FAQ Q7, Q48.",
+      "trigger_patterns": [
+        "(excludes?|does\\s+not\\s+include|not\\s+included\\s+in\\s+(the\\s+)?price)[^.]{0,80}(dealer[\\s-]*(installed|added)|installed\\s+(accessor|option|equipment|item|product)|accessor(y|ies)|add[\\s-]*ons?|protection\\s+(package|product)|appearance\\s+package)",
+        "(removed|remove)\\s+at\\s+(the\\s+)?customer'?s?\\s+(option|request)",
+        "purchased\\s+for\\s+an\\s+additional\\s+(cost|charge)",
+        "does\\s+not\\s+apply\\s+to\\s+vehicles\\s+with\\s+dealer[\\s-]*(added|installed)",
+        "plus\\s+(dealer[\\s-]*)?(installed|added)\\s+(accessor|option|equipment)",
+        "pay\\s+or\\s+remove"
+      ],
+      "fail_condition": "A specific-vehicle page or disclaimer excludes an item already on the vehicle from the advertised price, offers it as pay-or-remove, or applies the class-ad accessory disclaimer to an identified unit",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-030",
+      "category": "CARS Act / Payment Advertising",
+      "title": "Lease or Payment Ad for an Identified Unit Without Total Price",
+      "statute": "CA Civil Code §1784.41(a)(2) (CARS Act, SB 766); Regulation M; CA Vehicle Code §11713.16",
+      "effective_date": "2026-10-01",
+      "description": "A lease payment or amount due at signing is a monetary amount, so a lease or finance ad that identifies a specific vehicle (stock number, VIN, or a photo of an identified unit) must show that vehicle's total price. Using MSRP to identify the class of vehicles a lease offer applies to does not identify a specific vehicle and does not trigger the requirement, provided no unit is otherwise identified. Regulation M, Regulation Z, and Veh. Code §11713.16 continue to apply, and the FTC has said its all-in pricing position applies to lease ads. CNCDA FAQ Q19; Guide Appendix D Examples 4 and 6.",
+      "trigger_patterns": [
+        "lease\\s+(special|offer|for|this)",
+        "\\$\\d[\\d,]*\\s*(/|per)\\s*mo",
+        "due\\s+at\\s+signing",
+        "(stock|stk)\\s*#?\\s*:?\\s*[a-z0-9]{4,}",
+        "\\bvin\\b"
+      ],
+      "fail_condition": "A lease or payment offer tied to a stock number, VIN, or photo of an identified unit shows no total price for that unit",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-031",
+      "category": "CARS Act / First Written Communication",
+      "title": "Automated First Touch: Auto-Reply, Text Opt-In, AI Chat, Link-Only Replies",
+      "statute": "CA Civil Code §1784.41(a)(3)(A), (B) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "A reply to a vehicle-specific inquiry is the dealer's first response regarding that vehicle whether or not the reply names it; a generic acknowledgment, an invitation to apply for credit, or any substantive reply that omits the price does not defer the duty. Clean configurations: merge the vehicle's total price into the auto-reply, or limit the auto-reply to a bare administrative receipt with no vehicle reference, marketing content, or credit invitation and put the total price in the first substantive reply. Text opt-in requests and confirmations carry only consent language. When an AI agent hears a specific vehicle, the next substantive reply (agent or human) states the total price; a transfer notice may precede it but the price follows promptly. State the price in the message body; a link to the VDP is supplemental because the page can change and a retained link-only message will not show what was disclosed. A salesperson's message through the digital retailing tool counts if it displays the total price and the tool retains it two years. Credit-only inquiries with no vehicle trigger nothing; avoid quoting figures until a unit is identified. Verbal quotes do not trigger the rule; a worksheet, screen, or printout shown to a walk-in does. No signature is required. CNCDA Guide Part 2; FAQ Q23 to Q32.",
+      "trigger_patterns": [
+        "thank\\s+you\\s+for\\s+(your\\s+)?(inquiry|interest|contacting|reaching\\s+out)",
+        "we('ll| will)\\s+be\\s+in\\s+touch",
+        "reply\\s+(yes|y|stop)\\b",
+        "(live|web)\\s*chat",
+        "chat\\s+with\\s+(us|an?\\s+(agent|specialist))",
+        "text\\s+us",
+        "apply\\s+for\\s+(credit|financing)\\s+(now|today|first)"
+      ],
+      "fail_condition": "A website chat, autoresponder, SMS opt-in, or lead-form confirmation that references a specific vehicle, a price, a payment, or invites a credit application without stating that vehicle's total price; or a first-touch template that relies on a link in place of the price",
+      "severity": "warning",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-032",
+      "category": "CARS Act / Payment Advertising",
+      "title": "Digital Retailing and Online Payment Tools",
+      "statute": "CA Civil Code §1784.41(c), (d); §1784.40(d); §1784.44(a)(1) (CARS Act, SB 766); CA Vehicle Code §11713.13",
+      "effective_date": "2026-10-01",
+      "description": "The consumer's own use of an internet tool that adjusts financing parameters is not a violation and records generated solely by such tools need not be retained. CNCDA reads that safe harbor as plainly covering the lower-payment comparison notice; whether it covers the total-of-payments disclosure is arguable, so configure the tool to display the total of payments and assumed consideration alongside any payment. A dealer-initiated message sent through the tool carries the full disclosures. A tool that shows a vehicle price lower than the public website has advertised that lower price to everyone. Where a manufacturer-preselected tool cannot be configured to comply, notify the manufacturer in writing (indemnity on demand under Veh. Code §11713.13(f)(1)(E)). CNCDA FAQ Q11, Q27, Q40.",
+      "trigger_patterns": [
+        "digital\\s+retail",
+        "build\\s+(my|your)\\s+deal",
+        "payment\\s+calculator",
+        "estimate\\s+(your\\s+)?(payment|monthly)",
+        "\\broadster\\b",
+        "smartpath",
+        "express\\s+(store|checkout|purchase)",
+        "shop\\s+(online|from\\s+home)",
+        "start\\s+(your\\s+)?(deal|purchase)\\s+online"
+      ],
+      "fail_condition": "The digital retailing or payment tool shows a vehicle price different from the VDP or SRP, shows a monthly payment without the total of payments and assumed consideration, or a dealer-sent message through the tool omits the disclosures",
+      "severity": "warning",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-033",
+      "category": "CARS Act / Price Advertising",
+      "title": "Third-Party Listing, OEM Site, and Program Pricing Parity",
+      "statute": "CA Civil Code §1784.44(a)(1), §1784.40(d), §1784.41(f) (CARS Act, SB 766); CA Vehicle Code §11713.1(e), §11713.13(f)(1)(E)",
+      "effective_date": "2026-10-01",
+      "description": "A listing generated from the dealer's inventory feed (Cars.com, Autotrader, CarGurus, Edmunds, TrueCar, Google Vehicle Ads, Meta catalogs, an OEM locator fed by a program the dealer opted into) is the dealer's advertisement: correct errors immediately, audit third-party displays on a schedule, and keep the audit records. Program or member pricing (TrueCar, Costco Auto Program) is compliant only when the platform shows the same total price as the website and then, separately, a discount conditioned on the program; a lower figure presented as the vehicle's price is the advertised price for everyone. A listing the manufacturer controls and populates, or a scraped listing, is not the dealer's ad, but document that, request correction in writing, and expect customers to arrive expecting the lower price. Written notice to the manufacturer triggers its indemnity duty for a preselected vendor. CNCDA Guide Part 2 and Part 7; FAQ Q12 to Q15. FTC FAQ Q12 (Sept. 2026): everyone with control over an ad (dealer, third-party advertiser, OEM) is responsible for the actual price being most prominent; the dealer must give vendors the actual price, take every step within its control, and avoid contradictory internal instructions, and stays responsible for ads under its name even when an OEM originated them.",
+      "trigger_patterns": [
+        "truecar",
+        "costco\\s+auto",
+        "cars\\.com|autotrader|cargurus|edmunds|carfax",
+        "member\\s+(price|savings|pricing)"
+      ],
+      "fail_condition": "A dealer-fed listing shows a different price than the site, MSRP only, a program price presented as the vehicle's price, or a sold unit past 48 hours; or an OEM or scraped discrepancy is undocumented and no written correction request exists",
+      "severity": "warning",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-034",
+      "category": "CARS Act / Price Advertising",
+      "title": "Advertised Price Is a Ceiling; Expiration Date on Every Price Ad and Template",
+      "statute": "CA Vehicle Code §11713.1(e); CA Civil Code §1784.40(d) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Under preexisting law the dealer must sell an advertised vehicle to any person at or below the advertised total price while it remains unsold, whether or not the buyer saw the ad, unless the ad stated an expiration that has passed. The Act sets no duration for a first written communication but prohibits misrepresenting availability at a communicated total price. CNCDA: put an expiration date in every price advertisement and in every CRM and BDC template that states a total price, and honor any price that has not expired. This works alongside the 48-hour post-sale withdrawal safe harbor. CNCDA Guide Part 2 'Should dealers still date offers'; FAQ Q16, Q17.",
+      "trigger_patterns": [
+        "\\$\\s?\\d{1,3},\\d{3}"
+      ],
+      "fail_condition": "A specific-vehicle price display, special, or first-communication template carries no expiration date or 'offer expires' statement",
+      "severity": "warning",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-035",
+      "category": "CARS Act / Dealer Notices",
+      "title": "Showroom Price List or On-Vehicle Price Posting (Scope Advisory)",
+      "statute": "CA Vehicle Code §11709.3",
+      "effective_date": "2026-10-01",
+      "description": "For every vehicle advertised at a specific price and identified by VIN or license number, which after 2026-10-01 is every vehicle on the dealer's website, the dealer must either display the advertised price clearly and conspicuously on or in the vehicle or post in the showroom, easily accessible to customers, a list of currently advertised vehicles by make, model, model-year, VIN or license number, and advertised price. The list must cover the full inventory, update whenever website prices change, and drop sold vehicles within 48 hours. An on-vehicle price is the dealer's advertisement of that unit and must equal the total price shown online; the best practice is the price itself, not only a QR code. CNCDA FAQ Q2, Q6; Guide Appendix A.",
+      "trigger_patterns": [],
+      "fail_condition": "Not website-verifiable. Advisory for the client: confirm the showroom list or on-vehicle pricing covers every listed unit, matches the online total price, and is refreshed with the website and within 48 hours of a sale",
+      "severity": "advisory",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-036",
+      "category": "CARS Act / Price Advertising",
+      "title": "Supplemental Price Sticker and Addendum Rules",
+      "statute": "CA Vehicle Code §11713.1(q); CA Civil Code §1784.31(j)(2) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "An addendum or supplemental price sticker is for equipment physically installed on the vehicle, and every item on it is part of the total price. An addendum with a $0 vehicle price that lists optional products, or that lists installed products at $0 as if the customer could decline them, is the pay-or-remove structure the Act was written to end. A separate notice about F&I products is permitted only if it is not labeled or formatted like an addendum, says the products are optional, carries no figure readable as the vehicle's price, and lists nothing installed on the vehicle. On a new vehicle priced above MSRP the sticker must identify the price as the dealer's asking price, disclose MSRP, itemize each added item with its price, and label any remaining difference 'added mark-up'. Subdivision (q) applies to new vehicles only; a supplemental sticker on a used vehicle implies an MSRP baseline that does not exist. No California law requires the document processing charge on the addendum. Best practice: show the total price on the sticker and match it to the online figure. CNCDA FAQ Q3, Q5, Q7, Q21; Guide Part 2 and Part 4.",
+      "trigger_patterns": [
+        "\\baddendum\\b",
+        "supplemental\\s+(price\\s+)?sticker",
+        "market\\s+adjustment",
+        "added\\s+mark[\\s-]*up",
+        "dealer\\s+mark[\\s-]*up",
+        "adjusted\\s+market\\s+value"
+      ],
+      "fail_condition": "Web copy or a photographed sticker shows an addendum listing non-installed products, installed items at $0 or as optional, an addendum on a used vehicle, or a new vehicle above MSRP without itemized adds and labeled mark-up",
+      "severity": "warning",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-037",
+      "category": "CARS Act / Price Advertising",
+      "title": "Social Media and Employee Posts Are Dealer Advertisements",
+      "statute": "13 CCR §255.00(b); CA Civil Code §1784.41(a) (CARS Act, SB 766); CA Vehicle Code §11713.1",
+      "effective_date": "2026-10-01",
+      "description": "A vehicle post on a salesperson's personal social media is the dealer's advertisement and the salesperson is the dealer's agent; the dealer is bound by an incorrect price posted there. Every social post referencing a specific vehicle needs the total price and the existing Vehicle Code disclosures. CNCDA recommends a written social media policy prohibiting unapproved vehicle posts. CNCDA FAQ Q20. FTC FAQ Q3 (Sept. 2026) goes further federally: phone calls and text messages from dealer staff that state a price are advertising too.",
+      "trigger_patterns": [],
+      "fail_condition": "Creative-level check for brand-check and social-media-manager: a dealer or employee social post identifies a specific vehicle (stock number, VIN, or photo of an identified unit) or states a payment without the total price and required disclosures, or the store has no written social media policy",
+      "severity": "advisory",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-038",
+      "category": "CARS Act / Prohibited Add-On Charges",
+      "title": "Pre-Installed Devices and Hybrid Product Structure",
+      "statute": "CA Civil Code §1784.31(a), §1784.31(j)(2), §1784.42(a), (c) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "Every non-OEM product answers two questions: is it on the vehicle when advertised (then its cost is in the total price) and would the customer benefit from it. Four groups result: preinstalled physical equipment (in the price), hybrid products with a physical component plus coverage (component in the price with a meaningful but modest complimentary warranty, upgraded coverage optional in F&I), traditional F&I products (optional, disclosed, screened), and due-bill accessories installed after sale (not in the price, documented specifically). The dealer's own process decides the category. Do not call hardware 'free' when its cost is recovered through a paid product, and do not present an installed item as something the customer pays to 'activate'. A device deactivated when the customer declines delivers no benefit on its own terms and makes the subscription look like an indirect charge for it; supportable alternatives are the hybrid structure or a pure dealer inventory tool with no charge, no F&I presentation, and removal or permanent deactivation at delivery. Very high subscription penetration on a preinstalled device is a structural warning sign. A tracker left active with dealer access raises privacy issues: written consent with any subscription, dealer access terminated on decline. CNCDA Guide Part 2 and Part 4; FAQ Q46 to Q48; Scali Rasmussen Add-On Memo.",
+      "trigger_patterns": [
+        "pre[\\s-]*(installed|loaded)\\s+(on\\s+)?(every|all|each)",
+        "every\\s+(vehicle|unit)\\s+(is\\s+)?(equipped|comes)\\s+with",
+        "all\\s+(of\\s+our\\s+)?(vehicles|units|inventory)\\s+(are\\s+|is\\s+)?(equipped|come|comes)\\s+with",
+        "activat(e|ion)\\s+(fee|required|your)",
+        "(gps|theft[\\s-]*recovery|lojack|kahu|ikon|recovr|stolen\\s+vehicle\\s+recovery)",
+        "free\\s+(with\\s+)?(subscription|activation|enrollment)",
+        "(etch|etching)\\s+(on\\s+)?(every|all)"
+      ],
+      "fail_condition": "A pre-installed device or protection product is excluded from the total price, presented as free while its cost is recovered through a subscription or another product, deactivated when declined, or presented as optional while installed on every unit",
+      "severity": "warning",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-039",
+      "category": "CARS Act / Used Vehicle Cancellation",
+      "title": "Repealed Contract Cancellation Option Language",
+      "statute": "CA Vehicle Code §11713.21 (repealed effective 2026-10-01); CA Civil Code §1784.43(b), (j) (CARS Act, SB 766)",
+      "effective_date": "2026-10-01",
+      "description": "The paid two-day contract cancellation option is repealed on 2026-10-01 and its form may no longer be used, even by a store that already gives every customer a free three-day return. The Act requires a disclosure titled '3-Day Right to Cancel Used Car Purchase or Lease' with specified content; a dealer offering greater protections describes them in that disclosure and the signage. Any reference to a 72-hour option, a purchased return option, a $40,000 threshold, or 'no cooling-off period unless you obtain a contract cancellation option' describes repealed law and misstates the customer's rights. CNCDA FAQ Q56, Q57.",
+      "trigger_patterns": [
+        "contract\\s+cancellation\\s+option",
+        "cancellation\\s+option\\s+agreement",
+        "(two|2)[\\s-]*day\\s+(contract\\s+)?(cancel|return)",
+        "72[\\s-]*hour\\s+(return|cancel|option)",
+        "\\$\\s?40,000",
+        "(purchase|buy)\\s+(a|the|your)\\s+(cancellation|return)\\s+option",
+        "no\\s+cooling[\\s-]*off\\s+period\\s+unless"
+      ],
+      "fail_condition": "Website, FAQ, policy, or contract-sample copy still describes the repealed paid two-day option, the $40,000 threshold, a 72-hour purchased option, or 'no cooling-off unless you purchase an option'",
+      "severity": "critical",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "CA-CARS-040",
+      "category": "CARS Act / Enforcement",
+      "title": "Enforcement Posture and Hidden-Fee Law Exposure (Scope Advisory)",
+      "statute": "CA Civil Code §1784.22; Bus. & Prof. Code §17200, §17500; Civ. Code §1750 et seq. (CLRA); CA Vehicle Code §11713.27 (SB 478)",
+      "effective_date": "2026-10-01",
+      "description": "The Act contains no express private right of action and the DMV has no direct authority to enforce it, but remedies are non-exclusive: CNCDA expects plaintiffs to pursue violations through the Unfair Competition Law, the False Advertising Law, and the CLRA where the conduct fits; the Attorney General and district attorneys may enforce; the DMV may pursue parallel Vehicle Code theories on overlapping advertising rules; and the FTC's Section 5 authority continues. California's 2024 hidden-fee law lets private attorneys sue under the CLRA, and the dealer safe harbor is narrow: only the fees enumerated in Veh. Code §11713.1(b) may be excluded from an advertised price. Excluding anything else, such as a required dealer-added product, falls outside the safe harbor. Enforcement actions overwhelmingly begin with consumer complaints. CNCDA Guide Part 8.",
+      "trigger_patterns": [],
+      "fail_condition": "Not a website violation on its own. Use it to frame the exposure in the report: any mandatory dealer-added charge or installed product outside the advertised price is reachable by private CLRA suits on top of Vehicle Code and CARS Act liability",
+      "severity": "advisory",
+      "source": "CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) and Webinar FAQ (2026-08-31); vault note Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+    },
+    {
+      "id": "FTC-PRICE-001",
+      "category": "Price Advertising",
+      "title": "FTC: Advertised Price Is the Price Any Consumer Can Walk In and Pay",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q1, Q2",
+      "effective_date": null,
+      "description": "The advertised price must be the actual price any consumer can walk in and pay. Only amounts a federal, state, or local agency requires the consumer to pay directly (taxes, registration) may be excluded. Dealer fees the government authorizes but does not mandate, and charges the government imposes on the dealer that the dealer passes on, must be included.",
+      "trigger_patterns": [
+        "plus\\s+(dealer|processing|service|admin(istrative)?|reconditioning|prep)\\s*(fee|charge)",
+        "(does\\s+not|doesn't)\\s+include\\s+[^.]{0,60}(fee|charge)",
+        "excludes?\\s+[^.]{0,60}(dealer|processing|doc(ument)?|filing|smog|emission)\\s*(fee|charge)",
+        "fees?\\s+(are\\s+)?(additional|extra|not\\s+included)"
+      ],
+      "fail_condition": "A price shown with any dealer-imposed or passed-through charge (dealer, processing, reconditioning, electronic titling convenience, pass-through smog) added on top, rather than inside the price",
+      "severity": "critical",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-PRICE-002",
+      "category": "Disclosures",
+      "title": "FTC: Document Fee Inside the Price, at the Highest Mandatory Amount",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q6, Q7",
+      "effective_date": null,
+      "description": "The full mandatory document fee must be inside the advertised price (FTC example: $40,000 plus an $85 doc fee is advertised as $40,085). If some buyers are charged a higher mandatory doc fee than others, the advertised price must carry the highest one. State doc-fee disclosures, caps, and wording rules are layered on top once the all-in price is the most prominent amount. California tension: state law lets the capped document processing charge sit outside the CARS Act total price; see ftc_reference.california_tension for the conservative dual presentation.",
+      "trigger_patterns": [
+        "doc(ument(ary|ation)?)?\\s*(processing\\s*)?(fee|charge)",
+        "plus\\s+\\$\\d+\\s*(doc|document)"
+      ],
+      "fail_condition": "Doc fee excluded from the most prominent price, or the price reflects a discounted doc fee lower than what some buyers must pay. For California stores following the state Plus Disclosure, flag as a federal-exposure warning with human review",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-PRICE-003",
+      "category": "Price Advertising",
+      "title": "FTC: Actual Price Is the Most Prominent Amount on Every Page Stating Any Amount",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q4, Q5",
+      "effective_date": null,
+      "description": "Any webpage that states any amount a consumer may pay, including inventory-search (SRP/VLP) pages and vehicle-listing (VDP) pages, must show the actual price as the most prominent amount. Prominence is judged by font size AND placement: a smaller MSRP, payment, savings figure, or conditional price placed where it draws the eye defeats the actual price. Wording such as 'the price you'll get' near both MSRP and the actual price is confusing.",
+      "trigger_patterns": [
+        "the\\s+price\\s+you'?ll\\s+(get|pay)",
+        "your\\s+price",
+        "you\\s+save",
+        "msrp"
+      ],
+      "fail_condition": "An SRP or VDP where MSRP, a payment, a savings number, or a conditional price is visually more prominent (size or placement) than the actual price, or where price labels blur which figure the buyer pays. Visual finding: human review required",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-PRICE-004",
+      "category": "Price Advertising",
+      "title": "FTC: Conditional Discounts Outside the Most Prominent Price",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q5, Q9",
+      "effective_date": null,
+      "description": "A discount available only to some buyers (first responders, military, college grads, loyalty, conquest, dealer or captive financing, trade-in) may be advertised, but the most prominent price must be the one any consumer pays with any financing, and the discount terms must be clear. A price built around a negotiated price or discount that only some prior buyers received is deceptive.",
+      "trigger_patterns": [
+        "(price|pricing)\\s+[^.]{0,80}(includes?|reflects?|after|less)\\s+[^.]{0,60}(financ\\w*\\s*(bonus|cash|incentive|discount|rebate)|dealer\\s*financ\\w*|military|first\\s*responder|college|loyalty|conquest)",
+        "must\\s+finance\\s+(with|through)",
+        "when\\s+you\\s+finance\\s+(with|through)"
+      ],
+      "fail_condition": "The headline price already deducts a finance-conditioned or group-limited discount, or the price is one only some buyers were offered",
+      "severity": "critical",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-ADDON-001",
+      "category": "Disclosures",
+      "title": "FTC: Optional Items Presented Honestly",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q9",
+      "effective_date": null,
+      "description": "Dealers may offer protection packages, accessories, and other goods and services, but may not suggest an optional add-on is required, imply an installed 'option' cannot be removed and must be paid for, misstate an option's cost, or charge for options the consumer did not agree to. The FTC states it has sued over this conduct and will continue to.",
+      "trigger_patterns": [
+        "(required|mandatory|must\\s+(purchase|buy|pay\\s+for))\\s+[^.]{0,40}(package|protection|accessor|add[\\s-]*on)",
+        "(cannot|can't|can\\s+not)\\s+be\\s+removed",
+        "pre[\\s-]*installed\\s+[^.]{0,40}(required|mandatory|non[\\s-]*removable)"
+      ],
+      "fail_condition": "Website or ad language that presents an optional product as required, an installed option as non-removable and payable, or misstates its cost",
+      "severity": "critical",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-LEASE-001",
+      "category": "Lease / Reg M",
+      "title": "FTC: Upfront Processing Fees Inside Advertised Due-at-Signing",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q8; Reg M 12 CFR 1013.7",
+      "effective_date": null,
+      "description": "Processing fees due upfront in a lease must be included in any advertised total amount due at signing or due upfront. Reg M and Reg Z obligations are unchanged. A 'zero due at signing' claim fails if any fee is due at signing.",
+      "trigger_patterns": [
+        "due\\s+at\\s+(lease\\s+)?signing",
+        "due\\s+up[\\s-]*front",
+        "drive[\\s-]*off"
+      ],
+      "fail_condition": "A lease ad states a due-at-signing total that excludes a doc, processing, or dealer fee due upfront ('plus doc fee', 'excludes processing fee', 'plus dealer fees at signing')",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-AVAIL-001",
+      "category": "Vehicle Description",
+      "title": "FTC: Vehicles Not on the Lot Plainly Labeled",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q10",
+      "effective_date": null,
+      "description": "Vehicles in transit from the manufacturer, stored offsite, or available through inventory sharing may be advertised only if the ad plainly states the car is not physically on the lot. An in-transit unit may use a representative photo but must actually be in transit and not allocated to another consumer's paid order. In-production or build-to-order units are not addressed and carry more risk.",
+      "trigger_patterns": [
+        "in[\\s-]*transit",
+        "arriving\\s+soon",
+        "coming\\s+soon",
+        "in\\s+production",
+        "(off[\\s-]*site|sister\\s+store|another\\s+location|located\\s+at)",
+        "build\\s+(to|your)\\s+order"
+      ],
+      "fail_condition": "An inventory listing for a unit that is in transit, offsite, shared, or in production with no plain not-on-the-lot statement, or an in-transit unit already allocated to another buyer's paid order",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-AVAIL-002",
+      "category": "Vehicle Description",
+      "title": "FTC: No Sold or Unavailable Units Used to Draw Traffic",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q10",
+      "effective_date": null,
+      "description": "Dealers must not advertise cars that have already been paid for and delivered, or are otherwise unavailable, as a tactic to draw consumers in and steer them to higher-priced options. Whether a recently sold unit is a problem depends on timing and the ad's wording; California's 48-hour withdrawal rule (Veh. Code §11713(c)) is the state safe harbor.",
+      "trigger_patterns": [],
+      "fail_condition": "Not reliably website-verifiable in one crawl. Flag when inventory diffs show a sold or delivered unit still live beyond 48 hours, especially a price-leader unit",
+      "severity": "critical",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-PIC-001",
+      "category": "Vehicle Pictures",
+      "title": "FTC: Representative Photos Only When Truly Representative",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q11",
+      "effective_date": null,
+      "description": "A representative (stock) photo is allowed only when the pictured vehicle is the same make, model, condition, and all other material characteristics as the car offered, and a reasonable consumer would understand the image is illustrative. Common and generally acceptable for new and in-transit units. For used and antique vehicles, consumers reasonably expect the photo to show the exact car, so stock or representative photos on used listings are a deception risk.",
+      "trigger_patterns": [
+        "stock\\s+(photo|image|picture)",
+        "representative\\s+(photo|image|picture)",
+        "for\\s+illustration(\\s+purposes)?(\\s+only)?",
+        "image\\s+(may|might)\\s+not\\s+(reflect|represent|be)",
+        "photos?\\s+(may|might)\\s+not\\s+(reflect|represent|be)"
+      ],
+      "fail_condition": "A used or CPO listing uses a stock or representative photo, or a new-vehicle stock photo shows a different trim, color, or equipment than the unit priced",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-MEDIA-001",
+      "category": "Price Advertising",
+      "title": "FTC: Every Medium Counts, Including Staff Calls and Texts",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q3",
+      "effective_date": null,
+      "description": "Dealer and third-party websites, social media, print, roadside signs, and phone calls and text messages with dealer staff are all subject to the FTC Act. Any price a salesperson or BDC agent states by phone or text must be the truthful, all-in price. ComplyAuto flags calls and texts as a new compliance focus.",
+      "trigger_patterns": [],
+      "fail_condition": "Not website-verifiable. Advisory reminder: BDC call scripts, SMS templates, and CRM auto-texts that state a price must use the all-in advertised price",
+      "severity": "advisory",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-RESP-001",
+      "category": "Price Advertising",
+      "title": "FTC: Shared Responsibility Across Dealer, Vendors, and OEM",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q12",
+      "effective_date": null,
+      "description": "Everyone with control over an ad is responsible for the actual price being the most prominent amount. Dealers must give third parties the actual price, take all steps within their control to make it most prominent, and make sure no one at the store gives contradictory instructions. Third-party advertisers must show it most prominently. OEM policies must not conflict. Dealers remain responsible for every ad under their name, including OEM-originated ads.",
+      "trigger_patterns": [],
+      "fail_condition": "Advisory: third-party listings, OEM co-op templates, or agency creative show a different or less prominent price than the dealer's actual price, and there is no written correction request on file",
+      "severity": "advisory",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    },
+    {
+      "id": "FTC-ENF-001",
+      "category": "Price Advertising",
+      "title": "FTC: No Grace Period, and Competitors Can Report You",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q13, Q14",
+      "effective_date": null,
+      "description": "Price transparency under Section 5 is not new and has no compliance window; anyone misleading consumers about price risks FTC action now. The FTC invites the public, including competing dealers, to report violations with ad copies or contracts at ReportFraud.ftc.gov.",
+      "trigger_patterns": [],
+      "fail_condition": "Advisory for every report: federal exposure is current, not future-dated, unlike the California CARS Act posture",
+      "severity": "advisory",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+    }
+  ],
+  "cars_act_reference": {
+    "note": "Reference block only; legal_check.py reads data['rules'] and ignores this key. Use it for report context, recommendation copy, and client-facing scope questions.",
+    "dmv_summary_url": "https://www.dmv.ca.gov/portal/vehicle-registration/new-registration/registering-a-vehicle-purchased-from-a-dealer/california-combating-auto-retail-scams-act/",
+    "dmv_summary_checked": "2026-09-10",
+    "dmv_disclaimer": "DMV states its page is only a summary and that enforcement follows the exact text of the Vehicle Code and Civil Code. Where the summary and the chaptered statute differ, the statute controls.",
+    "effective_date": "2026-10-01",
+    "applies_to": "Licensed California dealers selling or leasing light-duty vehicles (GVWR under 10,000 lb), new and used.",
+    "exemptions_per_dmv": [
+      "wholesale transactions",
+      "fleet sales (DMV summary says five or more units)",
+      "auction sales",
+      "commercial purchasers buying five or more vehicles per year"
+    ],
+    "exemptions_per_statute": [
+      "wholesale sales (not a retail sale under Rev. & Tax. Code 6007)",
+      "vehicles not required to be registered",
+      "fleet sales: MORE THAN ONE vehicle in a single transaction, primarily for business or commercial use (Civ. Code 1784.31(f)(2))",
+      "commercial purchasers: five or more vehicles from that dealer per year, primarily for business use",
+      "vehicles with GVWR of 10,000 lb or more"
+    ],
+    "known_discrepancies": [
+      "Fleet threshold: DMV summary says five or more units; chaptered text says more than one vehicle in a single transaction. Apply the statute. Flagged for counsel and for the next legal-watch pass.",
+      "Used-vehicle cancellation: DMV says vehicles 'valued' $50,000 or less; statute keys on purchase or lease price. Apply the statute.",
+      "Mileage: DMV says 'around 400 miles'; statute says the right is lost if the vehicle is driven more than 400 miles. Apply the statute."
+    ],
+    "first_communication_rule_dmv_wording": "Total price must appear in the first email, text, document, or form mentioning the vehicle or financing. Ads must be clear and conspicuous.",
+    "cooling_off_dmv_wording": "Three days including weekends, for any reason, used vehicles $50,000 or less; mileage limit and restocking fee of $200 to $600 may apply.",
+    "records_dmv_wording": "Retain for two years: advertisements, first communications, pricing disclosures, add-on consents, cancellation notices.",
+    "federal_posture_dmv_wording": "Mirrors many provisions of the federal CARS Rule but is enforceable at the state level following federal disapproval.",
+    "consumer_complaint_channels": [
+      {
+        "body": "California DMV",
+        "channel": "Record of Complaint form, online, or by phone",
+        "phone": "1-800-777-0133",
+        "notes": "DMV frames non-compliance as a Car Buyer's Bill of Rights complaint. Dealer license status can be checked in the Occupational Licensing Status Information System or with the local DMV Inspector Office."
+      },
+      {
+        "body": "California Attorney General",
+        "url": "https://www.oag.ca.gov",
+        "phone": "1-800-952-5225"
+      },
+      {
+        "body": "Bureau of Automotive Repair",
+        "url": "https://www.smogcheck.ca.gov",
+        "phone": "1-800-952-5210"
+      },
+      {
+        "body": "Arbitration Certification Program (DCA)",
+        "url": "https://www.dca.ca.gov/acp/",
+        "phone": "916-574-7350"
+      },
+      {
+        "body": "Consumer Motor Vehicle Recovery Corporation",
+        "url": "http://www.cmvrc.org/",
+        "phone": "1-800-961-6175"
+      },
+      {
+        "body": "California Department of Consumer Affairs",
+        "url": "https://www.dca.ca.gov",
+        "phone": "1-800-952-5210"
+      }
+    ],
+    "cncda_guidance": {
+      "sources": [
+        {
+          "title": "CNCDA California Dealer Compliance Guide, The California CARS Act (SB 766), Version 1.2",
+          "date": "2026-08-07",
+          "vault_file": "Resources/automotive-guidelines/CNCDA-CARS-Act-Compliance-Guide-v1.2-2026-08-07.pdf",
+          "note": "Continuously updated through October 2026 per CNCDA; re-pull from CNCDA Comply before 2026-10-01"
+        },
+        {
+          "title": "CNCDA CARS Act Webinar FAQ (Countdown to the CARS Act, 2026-08-25 webinar)",
+          "date": "2026-08-31",
+          "vault_file": "Resources/automotive-guidelines/CNCDA-CARS-Act-Webinar-FAQ-2026-08-31.pdf"
+        },
+        {
+          "title": "Vault digest by rule ID",
+          "vault_file": "Resources/automotive-guidelines/cncda-cars-act-guidance.md"
+        }
+      ],
+      "folded_in": "2026-09-14",
+      "legal_hotline": "CNCDA Legal Hotline (916) 441-2599, legalhotline@cncda.org (members)",
+      "biggest_risks_first_120_days": [
+        "Installed or effectively required add-on products left out of the total price (highest-dollar, actively pursued by regulators)",
+        "First-written-communication failures in the BDC and CRM: auto-replies, templates, salesperson texts that reference a vehicle without the price",
+        "Records: inability to produce the first written communication on request",
+        "Three-day cancellation mechanics: wrong form, miscounted period, mishandled refund or trade-in"
+      ],
+      "advertisement_definition": "Any statement the dealer intentionally communicates to the public generally to promote a sale (13 CCR 255.00(b)): website listings, dealer-fed third-party listings, dealer-authored stickers, mailers, email blasts, social posts including employee personal accounts.",
+      "advertised_price_is_a_ceiling": "Veh. Code 11713.1(e): sell at or below the advertised total price to any person while unsold, whether or not the buyer saw the ad, unless the ad stated an expiration that has passed. Date every price ad and every CRM/BDC template.",
+      "plus_disclosure_verbatim": "Plus government fees and taxes, any finance charges, any dealer document processing charge, any electronic filing charge, and any emission testing charge.",
+      "federal_dpc_posture": "FTC staff stated in April 2026 (NADA webinar) that the most prominent advertised price must include every dealer-imposed mandatory charge including the document processing charge; written FTC guidance had not issued as of 2026-08-07 and dealer associations are seeking it. California law keeps the DPC, electronic filing charge, and emission testing charge outside total price. CNCDA's optional dual-compliant format: 'Total Price', 'Document processing charge (not a governmental fee)', 'Price including document processing charge', DPC-inclusive figure at least equal prominence, taxes and government fees still excluded, never labeled out-the-door.",
+      "first_written_communication": {
+        "trigger": "Content and context, not channel. Email, text, chat, digital-retailing message, or a worksheet shown to a walk-in all qualify; a verbal quote does not. A reply to a vehicle-specific inquiry is a response regarding that vehicle whether or not it names the vehicle.",
+        "auto_reply_configurations": [
+          "Merge the vehicle's total price from inventory into the auto-reply",
+          "Bare administrative receipt only (no vehicle reference, no marketing, no credit invitation), then the first substantive reply states the total price"
+        ],
+        "text_opt_in": "Consent mechanics only; no vehicle reference, price, or promotion. First substantive text after consent carries the total price.",
+        "ai_agent": "Next substantive reply after a specific vehicle is named states the total price; a bare transfer notice may precede it but the price follows promptly.",
+        "link_only": "Not recommended. State the total price in the message body; a link is supplemental. Counsel before adopting a link-in-place-of-price process.",
+        "credit_only_inquiry": "No trigger. Avoid quoting rates, payments, or amounts until a vehicle is identified.",
+        "walk_in": "First worksheet, printed quote, or electronic message that references the vehicle. Reynolds Total Price Disclosure form LAWCA-TOTPRCDISC adds a signature; no signature is required by the Act, the disclosure must be made, not acknowledged.",
+        "personal_phones": "Only through a dealership-managed app routed to the CRM or a retained platform; written policy; Labor Code 2802 reimbursement applies.",
+        "safest_bdc_reply": "State the total price and nothing more; reserve payment figures for desked terms."
+      },
+      "reynolds_forms": {
+        "LAWCA-TOTPRCDISC": "Total Price Disclosure (any deal, keyed to advertising and first communication)",
+        "LAWCA-PCD 10/26": "Pre-Contract Disclosure for retail installment sale contracts; must match the contract exactly; lower-payment notice preprinted",
+        "LAWCA-OPD": "Optional Add-On Products or Services Disclosure; lease and cash deals, and finance deals with add-ons outside the PCD categories; disclose at first written presentation, document at signing",
+        "LAWCA-CANCELDSCL": "3-Day Right to Cancel Used Car Purchase or Lease disclosure, every covered used deal",
+        "LAWCA-CANCELACKN": "Acknowledgment of Cancellation and Receipt (itemized unwind)",
+        "LAWCA-CANCELFAIL": "Notice of Failure to Meet Cancellation Requirement(s); not statutory, protective only when grounds are accurate; manager signs",
+        "553CA1026": "Reynolds Retail Installment Sale Contract carrying the first-page cancellation language",
+        "order": "Reynolds Document Service Consultant, CelinaCustomerService@reyrey.com, 1.800.344.0996; eForms through the DMS provider"
+      },
+      "three_day_mechanics": {
+        "clock": "Runs from execution of the agreement, not delivery; three calendar days starting the day after execution, ending at posted close of business, extended to the next open day if day three falls on a closed day (holidays included). 400 miles measured from execution.",
+        "threshold": "$50,000 inclusive on purchase price or capitalized cost; CNCDA recommends granting the right whenever the vehicle price is at or under $50,000 even if optional add-ons push the amount financed higher.",
+        "restocking_fee": "1.5% of sale price, $200 floor, $600 cap (or actual shipping cost up to that cap), plus $1 per mile over 250 capped at $150. Deducted from the refund first; only a shortfall is due at the door.",
+        "refund": "Within 48 hours of exercise; two business days after verification for non-verified payment methods, with documentation; unverified funds never justify rejecting the cancellation. Refund tax attributable to refunded amounts and claim with CDTFA; registration fees are not a deduction.",
+        "trade_in": "Return it if unsold; otherwise the greatest of contract allowance, gross resale price (reconditioning not deducted), or fair market value supported by a 7-day written offer or a pricing-guide printout, less only indebtedness actually paid; redacted proof of sale if the store says it sold the trade. Consider holding trades for the window.",
+        "rollback": "A three-day return is a DMV rollback, not an unwind: report of sale stands, DMV fees are not refunded to the dealer, document with bill of sale, REG 262, REG 256; notify the lender and cancel the assignment.",
+        "signage": "36-point physical notice in each sales office and cubicle where written terms are discussed and each contract room; may share a poster if the text stays 36-point; Reynolds supplies it."
+      },
+      "records_practical": "Retain the DMS or inventory-provider feed export by vehicle and date with the vendor's written confirmation of two-year retrievability; dated site and third-party captures supplement it. Keep creative with run dates and placement only where it states a total price or payment for a specific vehicle; mailers with mailing date and list identifiers. Export the full two-year CRM history before any migration. Complaints exclude surveys, reviews, testimonials. CNCDA advises against over-retention.",
+      "enforcement": "No express private right of action; DMV has no direct authority; expect UCL, FAL, and CLRA suits, AG and DA actions, DMV Vehicle Code theories, and FTC Section 5. SB 478 hidden-fee law: only Veh. Code 11713.1(b) fees may be excluded from an advertised price under the dealer safe harbor.",
+      "resolved_open_questions": {
+        "lease_advertising": "Covered in practice when a specific unit is identified; MSRP used to identify a class does not trigger it (FAQ Q19)",
+        "class_ads": "No identified unit means no total-price trigger; 'starting at' quantity and VIN rules still apply (Guide Appendix D Ex. 6)",
+        "optional_installed_items": "Must be priced in; pay-or-remove is unlawful; dealer need not remove or discount a refused item (Guide Part 2, FAQ Q48)",
+        "internet_tool_carve_out": "Plainly covers the lower-payment comparison notice; total-of-payments coverage is arguable; configure tools to show both (FAQ Q40)",
+        "used_lease_threshold": "Purchase price or capitalized cost of $50,000 or less (FAQ Section E)",
+        "private_right_of_action": "None express; UCL, FAL, CLRA vehicles expected (Guide Part 8)",
+        "section_1632_languages": "Spanish, Chinese, Tagalog, Vietnamese, Korean (Guide Part 3)",
+        "delay": "No delaying or amending legislation enacted or pending as of 2026-08-31 (FAQ Q69)"
+      }
+    }
+  },
+  "ftc_reference": {
+    "note": "Federal overlay. legal_check.py reads only data['rules']; this block is context for reports, recommendations, and counsel questions. FTC rules use the FTC-* id prefix and the same category names as the California rules so page-type routing picks them up.",
+    "primary_source": "https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs",
+    "press_release": "https://www.ftc.gov/news-events/news/press-releases/2026/09/ftc-publishes-price-transparency-faqs-auto-dealers",
+    "issued": "September 2026",
+    "binding_status": "FTC staff views, not binding on the public or the Commission. The FTC describes them as accurate statements of the law as a general matter; net impression of each ad remains fact-specific. Section 5 has applied for decades, so there is no compliance grace period (FAQ 13).",
+    "secondary_analysis": {
+      "source": "ComplyAuto, Brad Miller, 'FTC Issues Dealer Advertising FAQs', 2026-09-16",
+      "url": "https://complyauto.com/ftc-issues-dealer-advertising-faqs/",
+      "follow_ups": [
+        "ComplyAuto webinar on the FAQs, Monday 2026-09-21, 2:00 PM ET",
+        "ComplyAuto promised a separate state-by-state document on whether electronic titling, smog, and emissions charges are excludable"
+      ]
+    },
+    "faq_digest": {
+      "Q1": "Why price transparency: the advertised price must be the price the consumer will actually pay, aside from required government charges such as taxes.",
+      "Q2": "Advertised price = the actual price any consumer can walk in and pay. Exclude only amounts a federal, state, or local agency requires the CONSUMER to pay directly. Everything else is in, including dealer fees a government authorizes but does not mandate, and charges the government imposes on the dealer that the dealer passes on.",
+      "Q3": "Every medium: dealer and third-party websites, social media, print, roadside signs, and phone calls and text messages with dealer staff. A price stated anywhere must be truthful and transparent.",
+      "Q4": "Any webpage stating any amount a consumer may pay, including inventory-search pages and vehicle-listing pages, must show the actual price as the most prominent amount.",
+      "Q5": "MSRP, discounts, and rebates may appear if the actual price is the most prominent amount. Prominence is not only font size: a smaller MSRP placed where it draws the eye defeats prominence, and labels like 'the price you'll get' near both numbers are confusing. A conditional discount (first responders, dealer financing) may be offered if the price any consumer pays, with any financing, is most prominent and the terms are clear.",
+      "Q6": "Document fee: the advertised price must include the full mandatory doc fee. FTC's example: $40,000 vehicle plus $85 doc fee must be advertised at $40,085. If some buyers are charged a higher mandatory fee than others, the advertised price must carry the highest.",
+      "Q7": "State doc-fee rules (separate disclosure, caps, wording) are additive. First make the all-in price the most prominent amount, then add whatever state disclosures are required.",
+      "Q8": "Leases: processing fees due upfront must be included in any advertised total amount due upfront. Reg M, Reg Z, and other federal duties are unchanged.",
+      "Q9": "Negotiation and optional items: the advertised price cannot rest on a discount or negotiated price only some buyers got. Dealers may not suggest an optional add-on is required, imply an installed option cannot be removed and must be paid for, misstate an option's cost, or charge for options the consumer did not agree to.",
+      "Q10": "Vehicles not on the lot (in transit, offsite, inventory sharing) may be advertised only if the ad plainly says the car is not on the lot. In-transit units must actually be in transit and not allocated to another consumer's paid order. Sold, delivered, or unavailable units may not be advertised to draw traffic and steer buyers up.",
+      "Q11": "Representative photos only when the pictured car is the same make, model, condition, and other material characteristics and a reasonable consumer understands it is illustrative. Common for new and in-transit units; for used and antique cars consumers expect the photo to be the exact car.",
+      "Q12": "Shared responsibility: dealers give third parties the actual price, take all steps in their control to make it most prominent, and avoid contradictory internal instructions; third-party advertisers show it most prominently; OEM policies must not conflict. Dealers remain responsible for every ad under their name.",
+      "Q13": "No grace period: Section 5 price transparency has applied for decades.",
+      "Q14": "Report violations, including competitors, at ReportFraud.ftc.gov with ad copies or contracts."
+    },
+    "open_questions_resolved": {
+      "document_processing_charge": "Answered: must be inside the most prominent advertised price (Q6), and state doc-fee disclosure rules are additive (Q7).",
+      "electronic_filing_and_emission_testing_charges": "Answered in principle, not by name: a charge the government authorizes but does not mandate, or imposes on the dealer who passes it on, must be in the price (Q2). Exclusion turns on whether an agency requires the consumer to pay it directly. ComplyAuto state-by-state analysis pending.",
+      "either_or_oem_incentives": "Largely answered by the Q5 dealer-financing example: a finance-conditioned discount may be advertised alongside the price, but the most prominent price must be the one a buyer using any financing pays.",
+      "as_low_as_and_subset_pricing": "Not addressed by name; Q9 bars an advertised price based on a discount only some buyers get, and Q5 requires the all-comers price be most prominent.",
+      "no_price_listings": "Not addressed. Q4 applies once a page states any amount. California separately bars call-for-price from 2026-10-01 (CA-CARS-026).",
+      "in_production_units": "Not addressed; Q10 says in-transit units must actually be in transit. Treat in-production listings with caution."
+    },
+    "california_tension": {
+      "summary": "California Veh. Code §11713.1 and the CARS Act total-price definition keep the document processing charge (capped), electronic filing charge, and emission testing charge outside the advertised total price, and the CA Plus Disclosure names them as extra. FTC Q2, Q6, and Q7 say dealer-imposed and passed-through charges belong inside the most prominent price regardless of state doc-fee rules.",
+      "cncda_format_before_faq": "CNCDA Guide v1.2 dual format: Total Price, then 'Document processing charge (not a governmental fee)', then 'Price including document processing charge', with the DPC-inclusive figure at least as prominent as total price, never labeled out-the-door.",
+      "interpretive_posture": "INTERPRETIVE, confirm with counsel and the next CNCDA update. The FAQ asks that the all-in figure be THE most prominent amount, not merely equal. Conservative presentation for California stores: make the price including the document processing charge (and any electronic filing or emission charge the dealer passes on) the single most prominent figure, show the CARS Act total price and the Plus Disclosure less prominently beneath it, and never label either figure out-the-door. Skill findings on this point ship as warnings with human review, not criticals, while the state and federal positions are reconciled."
+    }
+  }
+}

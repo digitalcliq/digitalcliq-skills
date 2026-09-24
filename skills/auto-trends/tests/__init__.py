@@ -1,0 +1,1 @@
+# auto-trends test package

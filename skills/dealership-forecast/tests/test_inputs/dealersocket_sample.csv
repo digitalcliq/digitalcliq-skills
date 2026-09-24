@@ -1,0 +1,11 @@
+Source,MarketingChannel,MarketingChannelNewProspects,MarketingChannelContacted,MarketingChannelApptOpen,MarketingChannelApptShow,MarketingChannelSold,MarketingChannelTopGross,MarketingChannelFIGross,MarketingChannelTotalGross,TotalNewProspects,TotalContacted,TotalSold
+AutoTrader.com,Internet,85,72,25,20,10,$250000,$45000,$295000,85,72,10
+CarGurus,Internet,60,50,18,14,7,$175000,$31500,$206500,60,50,7
+Cars.com,Internet,55,46,15,11,5,$125000,$22500,$147500,55,46,5
+Dealer Website,Internet,150,130,45,35,12,$300000,$54000,$354000,150,130,12
+TrueCar,Internet,40,35,12,9,4,$100000,$18000,$118000,40,35,4
+CARFAX,Internet,30,25,8,6,3,$75000,$13500,$88500,30,25,3
+====SYSTEM SOURCES====,,,,,,,,,,,
+Dealer Mgmt Sys,DMS,200,180,50,45,35,$877475,$157945,$1035420,200,180,35
+Previous Customer,CRM,45,40,15,14,12,$300000,$54000,$354000,45,40,12
+Walk-In,Showroom,80,75,30,28,20,$500000,$90000,$590000,80,75,20

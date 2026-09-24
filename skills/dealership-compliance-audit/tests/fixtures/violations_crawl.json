@@ -1,0 +1,38 @@
+{
+  "url": "https://www.example-baddealer.com",
+  "brand": "bmw",
+  "client": "Bad Dealer BMW",
+  "crawl_date": "2026-06-23",
+  "pages": {
+    "homepage": {
+      "url": "https://www.example-baddealer.com",
+      "title": "Best Car Deals Online",
+      "text_excerpt": "We are the #1 BMW dealer in Southern California with the lowest prices anywhere. Mercedes and Audi owners welcome to trade in.",
+      "disclaimers": [],
+      "prices_found": []
+    },
+    "specials": {
+      "url": "https://www.example-baddealer.com/specials",
+      "title": "Specials",
+      "text_excerpt": "Summer Blowout Sale! 2026 BMW X5 lease for $599/mo. Loyalty rebate and military rebate and conquest rebate applied. Gets 40 MPG highway. Clearance pricing.",
+      "lease_payments": ["$599/mo"],
+      "lease_terms": [],
+      "has_lease_offers": true,
+      "disclaimers": [],
+      "disclaimer_buttons_clicked": 0
+    },
+    "finance": {
+      "url": "https://www.example-baddealer.com/finance",
+      "title": "Finance",
+      "text_excerpt": "Everyone is financed! Bad credit no problem, guaranteed approval. $0 down OAC.",
+      "disclaimers": []
+    },
+    "used": {
+      "url": "https://www.example-baddealer.com/used",
+      "title": "Used Cars",
+      "page_text_excerpt": "Pristine, like new vehicles. No accidents on every car. Clean title guaranteed.",
+      "has_cpo_section": false,
+      "disclaimers": []
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+    "dealership": "Test Motors",
+    "date_start": "2025-01-01",
+    "date_end": "2025-12-31",
+    "crm": "momentum",
+    "input_files": ["test_inputs/momentum_sample.csv"],
+    "budget_file": null,
+    "exclude_sources": ["Service Dept", "Dealer Mgmt Sys"],
+    "output_path": "/tmp/test_dcliq_forecast_output.xlsx",
+    "monthly_data": false
+}

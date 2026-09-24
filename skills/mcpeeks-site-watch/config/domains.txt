@@ -1,0 +1,8 @@
+# One domain per line. www. variants are checked automatically — don't add them.
+# ADD THE REST OF THE ~50 OWNED DOMAINS BELOW (Drew: paste from registrar list).
+mcpeeks.com
+mcpeeksdodgeanaheim.com
+mcpeeks.autos
+mcpeek.autos
+cdjr.autos
+mcpeekcdjr.com
