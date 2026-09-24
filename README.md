@@ -47,12 +47,14 @@ Custom Claude skills built by Drew Moon for DigitalCLIQ, an automotive marketing
 - `ai-team`: night-shift analyst team on Claude Code agent teams, briefs Drew in Slack each morning.
 
 **Vault tooling**
+- `automotive-intelligence`: bootstraps a second-brain vault for a dealership General Manager, then interviews the GM and personalizes every file. Source lives in the vault's `Automotive Intelligence Skill/` folder; not installed as a runtime skill.
 - `second-brain-optimizer`: 5-pass audit and tune-up for an Obsidian vault. Also lives in its own repo, `digitalcliq/second-brain-optimizer`.
 
 ## Where each skill runs
 
 - Most skills run from the `anthropic-skills` plugin on Drew's Claude account. The live copy sits in `~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/.../skills/`.
 - `ai-team`, `second-brain-optimizer`, and the agents run from the vault's `.claude/` folder.
+- `automotive-intelligence` is kept as source in the vault's `Automotive Intelligence Skill/` folder and is not installed anywhere.
 - `nightly-notes` is a prompt kept in the vault's `Skills/` folder.
 
 A plugin re-sync can overwrite the runtime copy with an older version from the account. After any re-sync, compare the runtime against this repo before running a skill, and restore from here if fixes went missing.

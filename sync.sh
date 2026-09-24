@@ -26,6 +26,7 @@ rsync -a "$RT/post_flight.py" "$REPO/shared/post_flight.py"
 # Vault-hosted skills
 rsync -a --delete "${EXCL[@]}" "$VAULT/.claude/skills/ai-team/" "$REPO/skills/ai-team/"
 rsync -a --delete "${EXCL[@]}" --exclude .git "$VAULT/Second Brain Optimizer Skill/" "$REPO/skills/second-brain-optimizer/"
+rsync -a --delete "${EXCL[@]}" --exclude .git "$VAULT/Automotive Intelligence Skill/" "$REPO/skills/automotive-intelligence/"
 mkdir -p "$REPO/skills/nightly-notes"
 rsync -a "$VAULT/Skills/nightly-notes/SKILL.md" "$REPO/skills/nightly-notes/SKILL.md"
 rsync -a --delete "${EXCL[@]}" "$VAULT/.claude/agents/" "$REPO/agents/"

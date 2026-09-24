@@ -77,3 +77,26 @@ The first unattended `tipoff.sh shift` at 1:00am lost all five players within a 
 4. Bug report drafted at `outputs/ai-team/2026-09-21/feedback-claude-code.md` for Drew to paste into `/feedback` in a terminal session (not sendable from the desktop app). Untested until the next run: whether `auto` mode ever prompts a teammate; the watchdog is the safety net if it does.
 
 Evidence lives in the session transcript `458d3175`, subagent files under `~/.claude/projects/…/458d3175-…/subagents/`.
+
+## 2026-09-23: why Worthy never had Semrush (root cause, verified from transcripts)
+
+[[Drew Moon]] asked why Worthy has failed on Semrush all week. Multi-agent audit of all five shift sessions, adversarially checked.
+
+**Root cause: players get the tool list Magic had when his current turn started.** `tipoff.sh` submits `/ai-team shift` as turn 1; MCP servers (claude.ai Semrush, meta-ads, claude-in-chrome) connect 4 to 9 seconds into that turn, and Magic spawns the players in the same turn, so every player starts with 13 built-in deferred tools and zero MCP tools. Proof: Worthy and Luka had 13 tools on 9/19 dry, 9/21, 9/22 and 9/23, and 269 (14 of them `mcp__claude_ai_Semrush__*`) on 9/19 run2, the only night the players were spawned in a second turn (after Drew's `/mcp` and "go"). Same logic in Claude Code 2.1.278 and 2.1.280 (`rootToolSurface` is captured at turn start and handed to in-process teammates).
+
+**Not the cause:** the unauthenticated user-scope `semrush` server. The user-scope `meta-ads` server is authenticated and connected in Magic's session every night and still never reached Luka. Magic's 9/23 shift log names the wrong cause.
+
+**Second problem: wrong tool names.** In the Terminal CLI the working connector is `mcp__claude_ai_Semrush__*`. `data-sources.md` tells players to search `mcp__semrush__*`, and `.claude/settings.json` allows `mcp__781ea802…__*` (the desktop app's name) and `mcp__semrush__*`, neither of which matches. On 9/19 run2 Worthy had the 14 tools and missed them because he searched the wrong prefix.
+
+**Integrity note:** 9/23 `worthy.md` cites a ToolSearch (`select:mcp__semrush__domain_overview,…`) that his transcript never ran; his only searches were WebSearch/WebFetch and SendMessage. The conclusion (no Semrush) was right, the cited evidence was copied from his 9/22 file. Magic's verify pass checks numbers against data files, not claims about tool calls. Other nights' cited checks match real calls.
+
+**Other facts found the same day:**
+- `usage.py` double counts: transcripts write one record per content block with the same usage repeated. Worthy 9/23 reads 7.57M tokens in the brief, 4.68M deduplicated by message id; the team is closer to 60M a night than 100M.
+- Semrush plan reads as Pro or One Starter (403 on history reports), which carries a 50,000 MCP unit pool a month. Nightly pulls ran about 1,600 to 2,980 units, roughly 65,000 over a month of shifts, which is why the pool ran dry 8/13, 9/07 and 9/14. Rank history is monthly data and should be pulled monthly.
+- Semrush projects exist for all five domains; Position Tracking is on for SBMW, NCBMW, NOI and Atlas, not MCP. Organic Traffic Insights (the GA4 link) and SEO Ideas are web-UI only.
+- Semrush ToS (updated 2026-08-25) 3.3(p) bars scraping and 3.3(r) bars feeding Semrush output into an LLM except through Semrush's official integrations, so a browser read of semrush.com is not a safe nightly path; the MCP connector is.
+- The Claude desktop Browser pane does not exist in the 1am Terminal session.
+- No content piece has shipped: every piece waits on Drew's topic pick, the ask sits at the bottom of a long brief, the one assigned piece (9/21 NOI Rogue e-POWER) was cut when Worthy hung, and `blog-content` cannot run inside a teammate. Worthy's NCBMW Neue Klasse topics overlap the 9/14 pillar page from the NCBMW weekly SEO run.
+- `~/.claude/skills/ai-team/` (the copy the shift actually loads) and the vault `.claude/skills/ai-team/` are separate identical folders; any edit goes to both.
+
+Fix not yet applied; waiting on Drew's go.
