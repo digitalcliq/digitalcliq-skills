@@ -62,7 +62,7 @@ Any bare mention of `javascript_tool`, `navigate`, or `tabs_*` elsewhere in this
 
 ## Step 1: Parse arguments
 
-Tokens are client codes (case-insensitive): `sbmw`, `mcp` (aliases: mcpeek, mcpeeks), `noi` (alias: nissan), `all` = all three. Optional `YYYY-MM-DD` overrides run date (default today). Unknown token: list valid codes and stop. Multiple clients run sequentially. Run type is derived by the scripts: day <= 12 = anchor, day > 12 = pulse; a late-fired scheduled run is fine, snapshots are date-keyed.
+Tokens are client codes (case-insensitive): `sbmw`, `mcp` (aliases: mcpeek, mcpeeks), `noi` (alias: nissan), `all` = all three. Optional `YYYY-MM-DD` overrides run date (default today). Unknown token: list valid codes and stop. Multiple clients: see the concurrency rule in Step 2. Run type is derived by the scripts: day <= 12 = anchor, day > 12 = pulse; a late-fired scheduled run is fine, snapshots are date-keyed.
 
 **Model year rule (never hardcode):** track configured models at whatever model years appear in NEW inventory; during changeover keep both years. Never filter to a literal year.
 
@@ -74,7 +74,9 @@ For the client + 3 competitors, spawn one subagent per **server**-mode dealer an
 
 Each agent prompt contains, verbatim: the dealer block(s) from `config/clients.json` (name, url, platform, notes, fetch mode, role), the client's `models` array, the paths `$SKILL`, `$DATA`, `$STATE` (for recheck_urls.py), and the instruction *"Read `$SKILL/references/dealer-agent-brief.md` and follow it exactly. Write `$DATA/{dealer-slug}/fragment.json` (slug = lowercase name, non-alnum → `-`). Reply with only the ≤15-line summary the brief specifies."*
 
-Run server agents in parallel (background), the browser agent alongside them (it is the long pole, ~4-8 min/dealer; it drives the Claude Browser per the Browser Surface Order above, own tab, `tabId` on every call). Wait for all. Read only their summaries. An agent that died or wrote no fragment: note it, do NOT re-crawl in the main loop; one respawn attempt max, then the dealer is `failed`.
+Run server agents in parallel (background), the browser agent alongside them (it is the long pole, ~4-8 min/dealer; it drives the browser per the Browser Surface Order above, own tab, `tabId` on every call). Wait for all. Read only their summaries. An agent that died or wrote no fragment: note it, do NOT re-crawl in the main loop; one respawn attempt max, then the dealer is `failed`.
+
+**Concurrency rule across clients (clarified 2026-09-20).** The browser is the ONLY shared resource. Exactly ONE browser agent may be alive at a time, across all clients, start to finish. Everything else may overlap: launch the server-mode agents for ALL requested clients at once, and run the browser agents one client after another alongside them. On a 3-client run that is ~10 browser dealers at 4-8 min each, so serialising the server agents too adds nothing but wall clock. Each client's merge/diff/render still happens only after that client's own agents have finished, and each client writes to its own `$DATA` and `$STATE`, so there is no cross-talk. Crawl politeness is per site and is unaffected: two agents never touch the same domain.
 
 > [!warning] Crawl politeness is a hard rule (a 10-worker crawl coincided with mcpeeks.com going down 2026-07-26). The scripts and JS enforce pacing/breakers; agents are instructed to stop on breaker trips. Never override.
 
@@ -84,10 +86,22 @@ Run server agents in parallel (background), the browser agent alongside them (it
 python3 "$SKILL/scripts/merge_extract.py" --config "$SKILL/config/clients.json" --client {CODE} \
   --date {date} --data "$DATA" --out "$DATA/extract_{CODE}_{date}.json"
 python3 "$SKILL/scripts/snapshot_diff.py" --extract "$DATA/extract_{CODE}_{date}.json" \
-  --state "$STATE" --out "$DATA/analysis_{CODE}_{date}.json"
+  --state "$STATE" --recheck-dir "$DATA" --out "$DATA/analysis_{CODE}_{date}.json"
 ```
 
-merge_extract owns model canonicalization, numeric coercion, VIN dedup, error rollup (exit 1 = the CLIENT dealer failed: still ship, but lead the final message with that). snapshot_diff owns date-keyed snapshots, first-seen registry, deltas vs the correct compare run, delisted VINs (failed crawls never fake delistings), DOM floors, 120-day movement, min-price matrix, effective-cost lease ranking ((DAS + pmt × (term−1)) / term), Summary bullets, and the baseline "data logging began" note. Read only their printed summaries.
+> [!warning] `--recheck-dir` is NOT optional
+> It points at the run `$DATA` dir holding each `{dealer-slug}/recheck.txt`. Omit it and the
+> rechecked-URL set is empty, so the delist gate matches nothing and the report claims ZERO
+> delistings for every client while saying nothing is wrong. It shipped that way until
+> 2026-09-20. If a dealer agent did not leave a `recheck.txt` in its slug dir, regenerate them
+> all before this step (they come from state, no crawling needed):
+> `python3 "$SKILL/scripts/recheck_urls.py" --state "$STATE" --dealer "{Name}" > "$DATA/{slug}/recheck.txt"`
+> Sanity check the printed `delisted_rows` against what the agents reported. A dealer showing
+> most of its rechecked stock gone in one cycle now raises a DATA-QUALITY WARNING in the
+> analysis errors: treat that as a crawl that forgot to emit rows for still-live units until
+> proven otherwise, never as real movement.
+
+merge_extract owns model canonicalization, numeric coercion, VIN dedup, error rollup (exit 1 = the CLIENT dealer failed: still ship, but lead the final message with that). snapshot_diff owns date-keyed snapshots, first-seen registry, deltas vs the correct compare run, delisted VINs (only a VIN whose page was actually re-checked this run, at a dealer whose crawl is `ok` or `partial`; `failed` crawls never fake delistings), DOM floors, 120-day movement, min-price matrix, effective-cost lease ranking ((DAS + pmt × (term−1)) / term), Summary bullets, and the baseline "data logging began" note. Read only their printed summaries.
 
 ## Step 4: Workbook + validation
 
