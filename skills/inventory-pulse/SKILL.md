@@ -112,6 +112,19 @@ python3 "$VAULT/.claude/skills/post_flight.py" "$VAULT/outputs/DigitalCLIQ_Inven
 
 Tabs: Summary, Lease Offers, Finance Offers, Inventory Movement, Min Price Matrix, VIN Detail, Run Log. post_flight failure: fix the generator, regenerate once, else STOP and show Drew the validator output. Then the render gate + QA gate below.
 
+> [!warning] Do not render this xlsx with `render_check.py` directly
+> Its xlsx path tries an Excel AppleScript export that HANGS on this machine (confirmed again
+> 2026-09-20; it eventually falls through, but every reviewer agent burns ~75s finding out).
+> Call the PIL fallback in the same module instead, and pass this command to the QA agent:
+> ```bash
+> python3 -c "import sys; sys.path.insert(0,'$VAULT/Resources/design-system/templates'); \
+>   import render_check as rc; print(rc.xlsx_pil_preview('<file.xlsx>','<outdir>','<stem>'))"
+> ```
+> The PIL preview drops embedded images, merged-cell spans and wrapping, so it CANNOT be used
+> to judge the logo, merged-block fit or clipping. Verify those against the unzipped OOXML
+> (`xl/media/`, `mergeCells`, `row_dimensions` heights) plus real font metrics. This is why
+> clipping findings must say whether they were seen in pixels or computed.
+
 ## Step 5: Google Sheet in the client's Drive folder
 
 1. Copy the validated xlsx to the mounted folder (create the subfolder if missing); poll `ls` until stable, then ~30s.
@@ -154,4 +167,4 @@ Runs AFTER the deliverable is generated and post_flight.py passes, BEFORE filing
 2. **Spawn the `deliverable-reviewer` agent** (fresh eyes, it did not write the report). Pass in the prompt: the absolute path(s) of the finished deliverable file(s), the manifest path, and any skill-specific checks from this SKILL.md. It renders every page, reads them all, cross-checks figures against the manifest, and reviews tone/copy.
 3. **Auto-fix every finding** in the source generator or data (never by hand-editing the output), re-render, and re-run the agent once. Max 2 review passes. If CRITICAL or MAJOR findings remain after pass 2, the ship is BLOCKED: report the remaining findings to Drew verbatim instead of presenting the file as done.
 4. The run summary MUST include a **QA line**: what the reviewer caught and what was fixed, or "QA: clean on first pass (N pages read, M figures verified)". Never silently skip the gate; if the agent could not run, say so explicitly in the delivery message.
-5. **Inventory Pulse specific**: run this gate on the staging `.xlsx` BEFORE the Google Sheets conversion/upload, the xlsx is what render_check.py can read; never upload an unreviewed file to the client Drive folder.
+5. **Inventory Pulse specific**: run this gate on the staging `.xlsx` BEFORE the Google Sheets conversion/upload; never upload an unreviewed file to the client Drive folder. Put the `xlsx_pil_preview` command from Step 4 in the reviewer's prompt verbatim, along with the note that the fallback drops images/merges so the logo and clipping must be checked against the OOXML. Without it the agent tries `render_check.py`, stalls, and rediscovers this every run.
