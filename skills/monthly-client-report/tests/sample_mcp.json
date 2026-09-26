@@ -107,9 +107,9 @@
     "state": "California",
     "headline": "California new-vehicle registrations rose modestly in Q2 2026, with trucks and SUVs outpacing the segment.",
     "stats": [
-      {"stat": "CA new-vehicle registrations (YoY)", "value": "+3.1%", "source": "CNCDA, Q2 2026"},
-      {"stat": "Avg transaction price (truck)", "value": "$58,400", "source": "Cox Automotive"},
-      {"stat": "CA incentive spend (avg)", "value": "$3,250/unit", "source": "Edmunds"}
+      {"stat": "CA new-vehicle registrations (YoY)", "value": "+3.1%", "source": "CNCDA, Q2 2026", "published": "2026-05-12", "kind": "actual", "scope": "state", "vault_ref": "Intelligence/market/auto-trends/Market-Read.md#Headline numbers"},
+      {"stat": "Avg transaction price (truck)", "value": "$58,400", "source": "Cox Automotive", "published": "2026-05-10", "kind": "actual", "scope": "segment", "url": "https://www.coxautoinc.com/market-insights/", "latest_release": true},
+      {"stat": "CA incentive spend (avg)", "value": "$3,250/unit", "source": "Edmunds", "published": "2026-05", "kind": "actual", "scope": "state", "vault_ref": "Intelligence/market/auto-trends/Market-Read.md#Headline numbers"}
     ],
     "narrative": [
       "Truck demand in Southern California stayed resilient despite rate pressure, which favors McPeek's RAM-heavy mix.",

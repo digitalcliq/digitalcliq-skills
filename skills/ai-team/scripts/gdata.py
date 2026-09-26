@@ -12,7 +12,9 @@ Commands:
   auth [--gsc]                           one-time browser consent (Drew runs this); --gsc adds Search Console
   status                                 token + per-property access check
   ga4 --store SBMW --start D --end D --dims a,b --metrics x,y [--limit N]
-  ga4-nightly [--date D] --out DIR       standard nightly pull, all stores, with flags. Also writes the
+  ga4-nightly [--date D] --out DIR       standard nightly pull, all stores, with flags. Channel flags
+                                         compare flag_date (the day before the target, the last complete
+                                         day); the target day's own counts are preliminary. Also writes the
                                          organic landing sections seo_join.py reads (last 28 and prior 28
                                          days ending on the target date, AI engine sources excluded)
   gsc-sites                              Search Console properties this login can read
@@ -108,8 +110,8 @@ ORGANIC_NON_AI_FILTER = {"andGroup": {"expressions": [
 KEY_EVENTS_ONLY = {"filter": {"fieldName": "keyEvents",
                               "numericFilter": {"operation": "GREATER_THAN", "value": {"doubleValue": 0}}}}
 
-# A channel is flagged when the target day moves this far from its trailing
-# 4-week same-weekday average AND the average is big enough to matter.
+# A channel is flagged when the flag day (the last complete day, see cmd_ga4_nightly) moves this
+# far from its trailing 4-week same-weekday average AND the average is big enough to matter.
 FLAG_PCT = 25.0
 FLAG_MIN_AVG_SESSIONS = 20.0
 
@@ -285,7 +287,7 @@ def ga4_report(store, start, end, dims, metrics, limit=1000, dim_filter=None, or
 
 def compute_channel_flags(daily_rows, target):
     """daily_rows: [{date: YYYYMMDD, sessionDefaultChannelGroup, sessions, keyEvents}].
-    Compares the target date to the trailing 4 same-weekday dates."""
+    Compares the given date (ga4-nightly passes flag_date) to the trailing 4 same-weekday dates."""
     tkey = target.strftime("%Y%m%d")
     prior_keys = [(target - dt.timedelta(days=7 * i)).strftime("%Y%m%d") for i in range(1, 5)]
     by = {}
@@ -328,12 +330,23 @@ def cmd_ga4(args):
 
 def cmd_ga4_nightly(args):
     target = dt.date.fromisoformat(args.date) if args.date else pacific_today() - dt.timedelta(days=1)
+    # Channel flags compare the last COMPLETE day, not the target. The 1 AM pull sees the target
+    # day while GA4 is still processing it, so it always reads low (9/24 re-pull: SBMW 808 at 1 AM
+    # vs 1,328 final, NCBMW 286 vs 557) and every channel looked "down". The day before the target
+    # matched the final numbers exactly. target_date stays the target: health.py and value_line.py
+    # read it, and the target day's counts are still reported, labeled preliminary.
+    flag_date = target - dt.timedelta(days=1)
+    # Preliminary when the target ended within the last day (every default run). A --date pull of an
+    # older day (Monday's Friday and Saturday) is already final: 9/23 pulled at 1 AM 9/25 matched final.
+    preliminary = (pacific_today() - target).days <= 1
     os.makedirs(args.out, exist_ok=True)
     d = lambda n: (target - dt.timedelta(days=n)).isoformat()
     t = target.isoformat()
-    summary = {"target_date": t, "weekday": target.strftime("%A"), "stores": {}}
+    summary = {"target_date": t, "target_preliminary": preliminary, "flag_date": flag_date.isoformat(),
+               "weekday": target.strftime("%A"), "flag_weekday": flag_date.strftime("%A"), "stores": {}}
     for store in GA4_PROPERTIES:
         pack = {"store": store, "property_id": GA4_PROPERTIES[store], "target_date": t,
+                "target_preliminary": preliminary, "flag_date": flag_date.isoformat(),
                 "pulled_at": dt.datetime.now().isoformat(timespec="seconds"), "errors": []}
 
         def grab(key, fn):
@@ -346,13 +359,14 @@ def cmd_ga4_nightly(args):
         daily = []
 
         def _daily():
-            rows = ga4_report(store, d(28), t, ["date", "sessionDefaultChannelGroup"],
+            # 29 days back so flag_date (target - 1) still has its four prior same-weekday days.
+            rows = ga4_report(store, d(29), t, ["date", "sessionDefaultChannelGroup"],
                               ["sessions", "engagedSessions", "keyEvents"], limit=2000)
             daily.extend(rows)
             return [r for r in rows if r["date"] >= (target - dt.timedelta(days=6)).strftime("%Y%m%d")]
 
         grab("channel_daily_last7", _daily)
-        pack["channel_flags"] = compute_channel_flags(daily, target) if daily else None
+        pack["channel_flags"] = compute_channel_flags(daily, flag_date) if daily else None
         grab("source_medium_last7", lambda: ga4_report(
             store, d(6), t, ["sessionSourceMedium"],
             ["sessions", "engagedSessions", "engagementRate", "keyEvents"], 40, order_metric="sessions"))

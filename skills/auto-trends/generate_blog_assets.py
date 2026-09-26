@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Automotive Market Trend Report — blog + distribution assets
-Developed by DigitalCLIQ — Digital Strategy & Development
+Automotive Market Trend Report: blog + distribution assets
+Developed by DigitalCLIQ, Digital Strategy & Development
 
 Reads the SAME research JSON the PDF is built from and emits the companion
 assets for the monthly publishing cycle:
@@ -45,6 +45,152 @@ def slugify(s):
     return re.sub(r"-{2,}", "-", s)
 
 
+# ── text helpers ──────────────────────────────────────────────
+# Every shortened string this file writes (meta description, JSON-LD, excerpt,
+# email lead, LinkedIn hook, archive index) goes through _clip. The old version
+# cut on a word and bolted on a period, which shipped "the longest such streak
+# since.", "incentives fell to 6.5% of." and "while making." (that last one
+# reverses the sentence's meaning in the archive index).
+
+# Tokens whose trailing period is NOT a sentence end.
+_ABBREV = {"vs", "approx", "est", "no", "inc", "co", "corp", "ltd", "jan", "feb",
+           "mar", "apr", "jun", "jul", "aug", "sep", "sept", "oct", "nov", "dec",
+           "mr", "ms", "mrs", "dr", "st", "fig", "e.g", "i.e"}
+
+_END_RE = re.compile(
+    r"[.!?][\"')\]”’]*(?=\s+[\"'(“‘$0-9A-Z]|\s*$)")
+
+_DANGLE = {"and", "or", "but", "with", "of", "to", "for", "at", "in", "on",
+           "the", "a", "an", "that", "which", "while", "as", "by", "from", "is",
+           "are", "was", "were", "than", "into", "over", "under", "against",
+           "its", "their", "your", "since"}
+
+
+def _squash(text):
+    return " ".join(str(text or "").split())
+
+
+def _sentence_ends(text):
+    """Offsets just past each real sentence end. A period after an initialism
+    ("U.S."), a lone capital ("J.") or a known abbreviation ("vs.") is not an
+    end; decimals never match because an end needs whitespace or end-of-text
+    after it. Sentences may end on an acronym ("of ATP.", "the SAAR.")."""
+    ends = []
+    for m in _END_RE.finditer(text):
+        i = m.start()
+        if text[i] == ".":
+            w = re.search(r"(\S*)$", text[:i]).group(1).lstrip("(\"'“‘")
+            if (w.lower() in _ABBREV
+                    or re.fullmatch(r"(?:[A-Za-z]\.)+[A-Za-z]", w)
+                    or re.fullmatch(r"[A-Z]", w)):
+                continue
+        ends.append(m.end())
+    return ends
+
+
+def _first_sentence(text, min_len=30):
+    """The first complete sentence, uncapped. A very short opener ("Volume
+    held.") takes the next sentence with it so the result can stand alone."""
+    text = _squash(text)
+    for e in _sentence_ends(text):
+        if e >= min_len:
+            return text[:e].strip()
+    return text
+
+
+def _clip_words(text, n):
+    """Word-boundary cut to <= n chars ending in an ellipsis, so a truncation
+    always reads as one. Never ends on a dangling function word or an open
+    parenthesis, and never ends in a bare period."""
+    text = _squash(text)
+    if len(text) <= n:
+        return text
+    cut = text[:max(n - 1, 1)]
+    if not text[len(cut)].isspace():
+        sp = cut.rfind(" ")
+        if sp > 0:
+            cut = cut[:sp]
+    words = cut.split()
+    while len(words) > 3 and words[-1].lower().strip(",;:.()") in _DANGLE:
+        words.pop()
+    cut = " ".join(words).rstrip(",;:.-( ")
+    if cut.count("(") > cut.count(")"):
+        cut = cut[:cut.rfind("(")].rstrip(",;:.-( ")
+    return cut + "…"
+
+
+def _clip(text, n, min_len=30):
+    """Shorten to <= n chars. Returns whole sentences (the last complete
+    sentence end inside the limit, when that keeps at least ~30 chars);
+    otherwise a word cut ending in an ellipsis. Never a word plus '.' that was
+    not a sentence end in the source."""
+    text = _squash(text)
+    if len(text) <= n:
+        return text
+    fit = [e for e in _sentence_ends(text) if e <= n]
+    if fit and fit[-1] >= min_len:
+        return text[:fit[-1]].strip()
+    return _clip_words(text, n)
+
+
+def _join_fit(items, sep, n):
+    """Join whole items while they fit in n chars. Only the first item is ever
+    clipped, and only when it alone is too long."""
+    out = []
+    for it in items:
+        it = _squash(it)
+        if not it:
+            continue
+        if len(sep.join(out + [it])) <= n:
+            out.append(it)
+        else:
+            break
+    if not out and items:
+        return _clip(items[0], n)
+    return sep.join(out)
+
+
+def _end_stop(s):
+    s = _squash(s)
+    return s if not s or s[-1] in ".!?:" else s + "."
+
+
+# Source extraction mirrors generate_trends_report.extract_src (Form 1 and
+# Form 2) so the Market-Read tables and the PDF stat cards cite the same source.
+# It is kept local, not imported, so this script never depends on the state of
+# the PDF generator. One fix on top: a source that starts with or contains an
+# initialism ("U.S. Bureau of Labor Statistics", "J.D. Power") used to split at
+# the initialism's dot, leaving "... U.S" in the caption and "Bureau of Labor
+# Statistics" as the source.
+_INITIALISM = r"(?:[A-Z]\.){2,}"
+_SRC_SENTENCE = re.compile(
+    r"(?:(?<=\.)|^)\s*("
+    rf"(?:(?<![A-Za-z]){_INITIALISM}\s*)?"
+    rf"[A-Z](?:(?<![A-Za-z.]){_INITIALISM}|[^.]){{3,90}}?,\s*"
+    r"(?:[A-Z][a-z]+\s+\d{1,2}\s+\d{4}"
+    r"|[A-Z][a-z]+\s+\d{4}"
+    r"|Q[1-4]\s*\d{4}"
+    # Trailing qualifier: "Hedges & Company, 2026 forecast."
+    r"|\d{4})(?:\s+[a-z][a-z ]{2,20})?)\s*\.?\s*$")
+
+
+def extract_src(detail):
+    """Split a metric detail into (caption_without_source, SOURCE).
+    Form 1: trailing parenthetical, "... (Cox Automotive, Sept 8 2026)."
+    Form 2: trailing citation sentence, "... Cox Automotive, September 8 2026."
+    Returns (detail, "") when neither form is present."""
+    if not detail:
+        return "", ""
+    d = _squash(detail)
+    m = re.search(r"\(([^()]+)\)\s*\.?\s*$", d)
+    if m:
+        return d[:m.start()].strip().rstrip(",;. "), m.group(1).strip()
+    m = _SRC_SENTENCE.search(d)
+    if m:
+        return d[:m.start()].strip().rstrip(",;. "), m.group(1).strip()
+    return d, ""
+
+
 def _period(meta):
     if meta.get("period_label"):
         return meta["period_label"]
@@ -78,6 +224,38 @@ def _all_metrics(data):
     return out
 
 
+def _seo(data):
+    seo = data.get("seo")
+    return seo if isinstance(seo, dict) else {}
+
+
+def meta_description(data):
+    """Google snippet: seo.meta_description when the research JSON carries
+    one, otherwise whole sentences of the overview inside 160 chars, otherwise
+    a word cut with an ellipsis."""
+    own = _squash(_seo(data).get("meta_description", ""))
+    if own:
+        return own
+    return _clip(data.get("executive_summary", {}).get("overview", ""), 160)
+
+
+def jsonld_description(data):
+    """Article JSON-LD description: seo.meta_description when present,
+    otherwise the overview's first full sentence with no length cap. Answer
+    engines quote this field, so it must never end mid-clause."""
+    own = _squash(_seo(data).get("meta_description", ""))
+    if own:
+        return own
+    return _first_sentence(data.get("executive_summary", {}).get("overview", ""))
+
+
+def excerpt(data):
+    own = _squash(_seo(data).get("excerpt", ""))
+    if own:
+        return own
+    return _clip(data.get("executive_summary", {}).get("overview", ""), 200)
+
+
 # ── blog article ──────────────────────────────────────────────
 def _key_numbers_table(data):
     """Numbers table high on the page. Answer engines lift tables verbatim, so
@@ -89,11 +267,7 @@ def _key_numbers_table(data):
             rows.append((s.get("value", ""), s.get("label", ""), s.get("source", "")))
     else:
         for key, m in _all_metrics(data)[:6]:
-            detail = m.get("detail", "")
-            src = ""
-            mt = re.search(r"\(([^()]+)\)\s*\.?\s*$", detail.strip())
-            if mt:
-                src = mt.group(1).strip()
+            _, src = extract_src(m.get("detail", ""))
             rows.append((m.get("value", ""), m.get("label", ""), src))
     if not rows:
         return ""
@@ -122,13 +296,18 @@ def _key_numbers_table(data):
 def _section_html(sec, label, region):
     """One content section. H2 is phrased as a question because that is the
     shape answer engines match against user prompts."""
-    title = sec.get("headline") or sec.get("section_title") or label.title()
+    heading = sec.get("headline") or sec.get("section_title") or ""
+    # New vehicle keeps its summary under national.summary; reading only the
+    # top-level key shipped an empty "<strong>Headline.</strong> </p>" lead.
+    summary = _squash(sec.get("summary") or sec.get("national", {}).get("summary", ""))
     q = f"What is happening in {label}?"
     parts = [f'<h2 id="{slugify(label)}">{esc(q)}</h2>']
-    if sec.get("headline") or sec.get("section_title"):
-        parts.append(f'<p><strong>{esc(title)}.</strong> {esc(sec.get("summary", ""))}</p>')
-    elif sec.get("summary"):
-        parts.append(f'<p>{esc(sec["summary"])}</p>')
+    if heading and summary:
+        parts.append(f'<p><strong>{esc(_end_stop(heading))}</strong> {esc(summary)}</p>')
+    elif heading:
+        parts.append(f'<h3>{esc(heading)}</h3>')
+    elif summary:
+        parts.append(f'<p>{esc(summary)}</p>')
 
     mets = _metrics(sec)
     if mets:
@@ -231,7 +410,7 @@ def build_blog_html(data, pdf_filename=None, canonical_url=""):
     ex = data.get("executive_summary", {})
 
     title = f"{region} Automotive Market Trends: {period}"
-    description = _clip(ex.get("overview", ""), 155)
+    description = jsonld_description(data)
 
     body = [f'<h1>{esc(title)}</h1>']
     body.append(
@@ -340,13 +519,6 @@ def build_blog_html(data, pdf_filename=None, canonical_url=""):
 """
 
 
-def _clip(text, n):
-    text = (text or "").strip().replace("\n", " ")
-    if len(text) <= n:
-        return text
-    return text[:n].rsplit(" ", 1)[0].rstrip(",;:.") + "."
-
-
 # ── LinkedIn + email ──────────────────────────────────────────
 def build_linkedin_post(data):
     """Drafts the LinkedIn copy in DigitalCLIQ voice: direct, data-backed, dry,
@@ -394,15 +566,42 @@ def build_linkedin_post(data):
     return post, comment
 
 
+# The report email goes to GMs and partners at competing stores and at more
+# than one DigitalCLIQ client. The 2026-09-10 send put all 14 addresses in CC,
+# so every recipient saw every other store's contacts. Client contacts never
+# cross clients, so the kit states the BCC rule on every run.
+EMAIL_SEND_NOTE = "Send as BCC: this list spans competing stores."
+
+# Title per Context/operator.md ("President, DigitalCLIQ").
+EMAIL_SIGNATURE = "Drew Moon\nPresident, DigitalCLIQ\ndrewmoon@digitalcliq.com"
+
+
+def _data_month(meta):
+    """The month the figures describe: the calendar month before the run date
+    (the September 9 edition reports August). Drew titles the send by it."""
+    import datetime
+    try:
+        d = datetime.date.fromisoformat(meta.get("generation_date", ""))
+    except Exception:
+        return ""
+    return (d.replace(day=1) - datetime.timedelta(days=1)).strftime("%B")
+
+
 def build_email(data):
+    """The email Drew actually sends: the PDF attached, no link placeholder,
+    one message to a BCC list (so no per-recipient first name)."""
     meta = data.get("metadata", {})
     region = meta.get("region", "Southern California")
     period = _period(meta)
     ex = data.get("executive_summary", {})
-    subject = f"{region} auto market, {period}: what changed"
-    body = f"""Hi {{first_name}},
+    title = _squash(meta.get("report_title") or "Automotive Market Trend Report")
+    if not title.lower().startswith("the "):
+        title = f"The {title}"
+    month = _data_month(meta) or _squash(meta.get("period_label", ""))
+    subject = f"{title} ({month})" if month else title
+    body = f"""Hi all,
 
-Our {period} {region} market report is out.
+Our {period} {region} market report is out. Full report: PDF attached.
 
 {_clip(ex.get('overview', ''), 320)}
 
@@ -410,19 +609,15 @@ The short version:
 
 """
     for t in (ex.get("key_trends") or [])[:4]:
-        body += f"  . {t}\n"
+        body += f"- {_squash(t)}\n"
     body += f"""
-Full report here: [BLOG POST URL]
-
 New and used vehicle sales, service and fixed operations, and parts, with 6 and
 12 month outlooks. Every figure is sourced and dated.
 
 If you want the read on what this means for your store specifically, reply and
 we will walk it through.
 
-Drew Moon
-Founder, DigitalCLIQ
-drewmoon@digitalcliq.com
+{EMAIL_SIGNATURE}
 """
     return subject, body
 
@@ -434,7 +629,7 @@ def build_publishing_kit(data, pdf_filename, blog_filename):
     ex = data.get("executive_summary", {})
     title = f"{region} Automotive Market Trends: {period}"
     slug = slugify(f"{region}-auto-market-trends-{period}")
-    desc = _clip(ex.get("overview", ""), 155)
+    desc = meta_description(data)
 
     post, comment = build_linkedin_post(data)
     subject, email_body = build_email(data)
@@ -466,7 +661,7 @@ Deliverables: `{pdf_filename}` (PDF) and `{blog_filename}` (blog HTML).
 | Title | {title} |
 | URL slug | {slug} |
 | Meta description | {desc} |
-| Excerpt | {_clip(ex.get('overview', ''), 200)} |
+| Excerpt | {excerpt(data)} |
 | Tags | Automotive, Market Research, Dealership, {region} |
 | Category | Market Intelligence |
 | OG image | Page 2 of the PDF exported as PNG |
@@ -500,6 +695,11 @@ posts with outbound links in the body, so the blog URL goes in the first comment
 
 ## 3. Email
 
+**{EMAIL_SEND_NOTE}** Address it to yourself and put every recipient in BCC,
+never To or CC.
+
+**Attach:** `{pdf_filename}`
+
 **Subject:** {subject}
 
 ```
@@ -512,7 +712,7 @@ posts with outbound links in the body, so the blog URL goes in the first comment
 - [ ] PDF uploaded to Squarespace, download link swapped into the post
 - [ ] JSON-LD injected and validated (search.google.com/test/rich-results)
 - [ ] LinkedIn document post live, blog URL in first comment
-- [ ] Email sent
+- [ ] Email sent BCC with the PDF attached
 - [ ] Research JSON archived to `Intelligence/market/auto-trends/`
 """
 
@@ -521,12 +721,10 @@ posts with outbound links in the body, so the blog URL goes in the first comment
 def _fmt_metric_rows(metrics):
     rows = []
     for m in metrics:
-        detail = (m.get("detail", "") or "").strip()
-        src = ""
-        mt = re.search(r"\(([^()]+)\)\s*\.?\s*$", detail)
-        if mt:
-            src = mt.group(1).strip()
-            detail = detail[:mt.start()].strip().rstrip(",;. ")
+        # Both citation forms. The parenthetical-only regex left 34 of the
+        # September Source cells blank because those details end in a
+        # sentence-form citation ("... CNCDA, July 20 2026.").
+        detail, src = extract_src(m.get("detail", "") or "")
         rows.append(f"| {m.get('label','')} | **{m.get('value','')}** | {detail} | {src} |")
     return rows
 
@@ -677,10 +875,10 @@ def build_archive_index(archive_dir):
             continue
         ex = d.get("executive_summary", {})
         tl = _clip(ex.get("throughline") or ex.get("overview", ""), 150)
-        figs = " · ".join(
-            f"{s.get('value','')} {s.get('label','')}"
-            for s in (ex.get("headline_stats") or [])[:3])
-        L.append(f"| `{mo}` | {tl} | {_clip(figs, 220)} |")
+        figs = _join_fit(
+            [f"{s.get('value','')} {s.get('label','')}"
+             for s in (ex.get("headline_stats") or [])[:3]], " · ", 220)
+        L.append(f"| `{mo}` | {tl} | {figs} |")
     L.append("")
     L.append(f"{len(months)} month(s) archived. "
              f"Deltas become meaningful from the second month onward.")

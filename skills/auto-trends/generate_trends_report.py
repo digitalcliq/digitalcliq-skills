@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 """
-Automotive Market Trend Report — Visual PDF Generator (v2)
-Developed by DigitalCLIQ — Digital Strategy & Development
+Automotive Market Trend Report: Visual PDF Generator (v2)
+Developed by DigitalCLIQ: Digital Strategy & Development
 
 Rebuilt per Resources/design-system/Design-System.md: hand-authored HTML+CSS
 rendered to PDF, using the canonical component library (stat cards, stat bands,
 callout bars, icon/numbered lanes, comparison cards, ghost numerals, running
-furniture). NEVER reportlab for narrative reports — it cannot hit the spec and
+furniture). NEVER reportlab for narrative reports: it cannot hit the spec and
 produces the wall-of-text output Drew has repeatedly flagged.
 
-Pipeline: WeasyPrint if importable, else Chrome headless --print-to-pdf
-(the design-system documented fallback). Fonts (Dosis + Roboto Slab) are
-embedded via @font-face from the vault archive so rendering is self-contained.
+Engine: Chrome headless --print-to-pdf (180 s timeout; stderr surfaces in the
+error). WeasyPrint runs ONLY when AUTO_TRENDS_ENGINE=weasyprint: it is not
+loadable on Drew's Mac (no libgobject/pango), and installing it would silently
+switch engines and reflow layouts tuned on Chrome. Fonts (Dosis + Roboto Slab)
+are embedded via @font-face from the vault archive so rendering is
+self-contained.
+
+Claims: build_pdf() runs validate_claims.py on the data first (WARN-ONLY for the
+October 2026 run: problems print to stderr, the render continues; set
+AUTO_TRENDS_CLAIMS=strict to stop on errors) and writes <stem>.facts.json next
+to the PDF from the structured claims.
 
 Usage:
     python3 generate_trends_report.py <json_path> <output_pdf> [logo_path]
@@ -38,26 +46,52 @@ def esc(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+# Kept identical to generate_blog_assets.py so the PDF and the blog cite the
+# same source text (initialisms such as "U.S." and "J.D." stay whole).
+_INITIALISM = r"(?:[A-Z]\.){2,}"
+
+_SRC_SENTENCE = re.compile(
+    r"(?:(?<=\.)|^)\s*("
+    rf"(?:(?<![A-Za-z]){_INITIALISM}\s*)?"
+    rf"[A-Z](?:(?<![A-Za-z.]){_INITIALISM}|[^.]){{3,90}}?,\s*"
+    r"(?:[A-Z][a-z]+\s+\d{1,2}\s+\d{4}"
+    r"|[A-Z][a-z]+\s+\d{4}"
+    r"|Q[1-4]\s*\d{4}"
+    # Trailing qualifier: "Hedges & Company, 2026 forecast."
+    r"|\d{4})(?:\s+[a-z][a-z ]{2,20})?)\s*\.?\s*$")
+
+
 def extract_src(detail):
     """Pull the trailing (Source) citation off a metric detail for the stat
     card's source line; return (caption_without_source, SOURCE)."""
     if not detail:
         return "", ""
-    m = re.search(r"\(([^()]+)\)\s*\.?\s*$", detail.strip())
+    d = detail.strip()
+    # Form 1: trailing parenthetical, "... (Cox Automotive, Sept 8 2026)."
+    m = re.search(r"\(([^()]+)\)\s*\.?\s*$", d)
     if m:
-        src = m.group(1).strip()
-        cap = detail[:m.start()].strip().rstrip(",;. ")
-        return cap, src
-    return detail.strip(), ""
+        return d[:m.start()].strip().rstrip(",;. "), m.group(1).strip()
+    # Form 2: trailing sentence-form citation, "... Cox Automotive, September 8
+    # 2026." Without this the caption fell through to a hard mid-word character
+    # cut, which is how cards shipped reading "AGAINST 27 IN AU" and "OEM SUP".
+    # A citation sentence carries a comma and closes on a year, month-year or
+    # quarter, which is what separates it from an ordinary trailing sentence.
+    m = _SRC_SENTENCE.search(d)
+    if m:
+        return d[:m.start()].strip().rstrip(",;. "), m.group(1).strip()
+    return d, ""
 
 
 def num_class(value):
     """Pick a size class so a long stat value stays on ONE line. Wrapping is
     what knocked card labels out of alignment across a row."""
+    # Thresholds tightened: at the old cut "6.5% of ATP" and "OEM +4.21%" still
+    # rendered wide enough to run under the decorative cursor mark and touch the
+    # card's right edge.
     n = len(str(value))
-    if n > 12:
+    if n > 9:
         return "num xs"
-    if n > 8:
+    if n > 7:
         return "num sm"
     return "num"
 
@@ -69,12 +103,21 @@ def stat_card(value, label, src_line):
             f'<div class="cap">{esc(label)}</div>{src_html}</div>')
 
 
+def card_source(m):
+    """Source line for a stat card: the detail's trailing citation, else the
+    metric's structured `source` field, else NOTHING. The old fallback printed
+    the caption itself in the source slot ("2026'S STRONGEST MONTH, ABOVE
+    FORECAST" on the 9/5 edition), which reads as a citation and is not one.
+    A missing source is now an empty slot plus a validate_claims.py warning."""
+    _cap, src = extract_src(m.get("detail", ""))
+    return src or str(m.get("source") or "").strip()
+
+
 def stat_grid(metrics, limit=4):
     cards = []
     for m in metrics[:limit]:
-        cap, src = extract_src(m.get("detail", ""))
         # prefer the label as the caption, keep the extracted source line
-        cards.append(stat_card(m.get("value", ""), m.get("label", ""), src or cap[:60]))
+        cards.append(stat_card(m.get("value", ""), m.get("label", ""), card_source(m)))
     return f'<div class="statgrid">{"".join(cards)}</div>'
 
 
@@ -118,9 +161,14 @@ def oem_table(highlights, period_label="Current-period read", limit=6, detail_ch
     return f'<table class="providers">{"".join(rows)}</table>'
 
 
-def lanes(items):
+def lanes(items, body_chars=230):
+    """Lane cards for the executive summary. `body_chars` is a real constraint,
+    not a nicety: this page is fixed height and lanes are the last block on it,
+    so an untrimmed body pushed the bottom row off the page and Chrome clipped
+    it mid-sentence."""
     cells = []
     for i, (head, body) in enumerate(items, 1):
+        body = _trim(body, body_chars) if body else body
         body_html = f'<p>{esc(body)}</p>' if body and body.strip() else ""
         cells.append(f'<div class="lane"><div class="n">{i}</div>'
                      f'<h4>{esc(head)}</h4>{body_html}</div>')
@@ -140,7 +188,7 @@ def split_lead(text):
         return s[:1].upper() + s[1:] if s else s
 
     text = (text or "").strip()
-    for sep in [": ", " — ", " - "]:
+    for sep in [": ", " \u2014 ", " - "]:
         if sep in text:
             head, body = text.split(sep, 1)
             head = head.strip()
@@ -168,11 +216,14 @@ def split_lead(text):
     return head, cap(body)
 
 
-def compare_columns(risks, opps, item_chars=250):
+def compare_columns(risks, opps, item_chars=210, per_col=3):
+    """Risk/opportunity columns. Capped at 3 items per column, not 4: this page
+    now carries a 12-month lane row as well as the 6-month one, and at 4x250
+    the columns printed over the running footer."""
     # Untrimmed items overflowed the column past the page bottom and printed
     # over the footer, so each bullet is capped at a sentence boundary.
     def col(title, cls, items):
-        lis = "".join(f'<li>{esc(_trim(x, item_chars))}</li>' for x in items[:4])
+        lis = "".join(f'<li>{esc(_trim(x, item_chars))}</li>' for x in items[:per_col])
         return (f'<div class="cmpcol {cls}"><div class="cmphead">{esc(title)}</div>'
                 f'<ul>{lis}</ul></div>')
     return (f'<div class="compare">{col("Risks to Monitor", "risk", risks)}'
@@ -208,8 +259,9 @@ def build_html(data):
     # top 3 implications as lanes
     # Four lanes, not three: an odd count left half the bottom row of this page
     # empty.
-    imp = [split_lead(x) for x in so.get("short_term", [])[:2]] + \
-          [split_lead(x) for x in so.get("medium_term", [])[:2]]
+    # Both from short_term: mixing lists here made exec-summary item 2 and
+    # strategic-page item 2 two different recommendations.
+    imp = [split_lead(x) for x in so.get("short_term", [])[:2]]
     exec_lanes = lanes(imp)
 
     page_exec = (f'<div class="page interior">{furniture(1, total_pages, region)}'
@@ -218,8 +270,10 @@ def build_html(data):
 
     # ---- Page 3: New Vehicle ----
     nv_out = phase_cards([
-        ("6-Month Outlook", _trim(nv.get("outlook_6mo", ""), 420)),
-        ("12-Month Outlook", _trim(nv.get("outlook_12mo", ""), 420)),
+        # 300, not 420: this page also carries a six-row OEM table and a
+        # regional callout, so a 420-char outlook printed over the footer.
+        ("6-Month Outlook", _trim(nv.get("outlook_6mo", ""), 300)),
+        ("12-Month Outlook", _trim(nv.get("outlook_12mo", ""), 300)),
     ])
     nv_region_call = callout(f"{region.upper()}:",
                              _trim(nv.get("regional", {}).get("summary", ""), 460))
@@ -278,15 +332,18 @@ def build_html(data):
                # leaving roughly 30% of this page dead below the outlook cards.
                f'{stat_grid(pt.get("metrics", [])[4:8], 4) if len(pt.get("metrics", [])) > 4 else ""}'
                f'{pt_call}{pt_ev}'
-               f'{phase_cards([("6-Month Outlook", _trim(pt.get("outlook_6mo", ""), 380)), ("12-Month Outlook", _trim(pt.get("outlook_12mo", ""), 380))])}</div>')
+               f'{phase_cards([("6-Month Outlook", _trim(pt.get("outlook_6mo", ""), 470)), ("12-Month Outlook", _trim(pt.get("outlook_12mo", ""), 470))])}</div>')
 
     # ---- Page 7: Strategic Outlook ----
     short_lanes = lanes([split_lead(x) for x in so.get("short_term", [])[:4]])
+    medium_lanes = lanes([split_lead(x) for x in so.get("medium_term", [])[:2]])
     cmp_cols = compare_columns(so.get("risks", []), so.get("opportunities", []))
     page_so = (f'<div class="page interior">{furniture(6, total_pages, region)}'
                f'{sec_head("05", "Part 05 · Strategic Outlook", "What DigitalCLIQ does with this")}'
                f'<div class="minihead">Near-term moves (next 6 months)</div>'
-               f'{short_lanes}{cmp_cols}</div>')
+               f'{short_lanes}'
+               f'<div class="minihead">Medium-term positioning (next 12 months)</div>'
+               f'{medium_lanes}{cmp_cols}</div>')
 
     # ---- Page 8: Sources ----
     src_items = "".join(f'<li>{esc(s)}</li>' for s in data.get("sources", []))
@@ -311,7 +368,7 @@ def build_html(data):
           <div class="cmail">drewmoon@digitalcliq.com</div>
         </div>
       </div>
-      <svg class="cursor" viewBox="0 0 100 100"><path d="M12 4 L88 58 L52 62 L68 96 L54 100 L40 68 L14 88 Z" fill="#000" opacity="0.9" transform="rotate(-12 50 50)"/></svg>
+      <svg class="cursor" viewBox="0 0 100 100"><path d="M12 4 L88 58 L52 62 L68 96 L54 100 L40 68 L14 88 Z" fill="#6B9DD4" opacity="0.75" transform="rotate(-12 50 50)"/></svg>
       <div class="pillars">Innovative &nbsp;|&nbsp; Clean &nbsp;|&nbsp; Minimalist &nbsp;|&nbsp; Bold &nbsp;|&nbsp; Resourceful</div>
     </div>'''
 
@@ -325,7 +382,7 @@ def build_html(data):
         <div class="subtitle">New and used vehicle sales, service and fixed operations, and parts:
         where the {esc(region)} market sits in {esc(_period(meta))}, and where it is heading over the next 6 and 12 months.</div>
       </div>
-      <svg class="cursor" viewBox="0 0 100 100"><path d="M12 4 L88 58 L52 62 L68 96 L54 100 L40 68 L14 88 Z" fill="#000" opacity="0.9" transform="rotate(-12 50 50)"/></svg>
+      <svg class="cursor" viewBox="0 0 100 100"><path d="M12 4 L88 58 L52 62 L68 96 L54 100 L40 68 L14 88 Z" fill="#6B9DD4" opacity="0.75" transform="rotate(-12 50 50)"/></svg>
       <div class="prepared"><b>Prepared by DigitalCLIQ.</b> &nbsp;Digital Strategy &amp; Development. &nbsp;{esc(date_disp)}</div>
       <div class="pillars">Innovative &nbsp;|&nbsp; Clean &nbsp;|&nbsp; Minimalist &nbsp;|&nbsp; Bold &nbsp;|&nbsp; Resourceful</div>
     </div>'''
@@ -337,8 +394,9 @@ def build_html(data):
 
 # ── helpers ───────────────────────────────────────────────────
 def _mk_metric(value, label, src):
+    src_html = f'<div class="src">{src}</div>' if src else ""
     return (f'<div class="stat">{CURSOR_SVG}<div class="{num_class(value)}">{value}</div>'
-            f'<div class="cap">{label}</div><div class="src">{src}</div></div>')
+            f'<div class="cap">{label}</div>{src_html}</div>')
 
 
 def _period(meta):
@@ -402,9 +460,10 @@ def _exec_stat_grid(headline_stats, data):
             if not mets:
                 continue
             m = mets[0]
-            cap, src = extract_src(m.get("detail", ""))
+            # Same rule as stat_grid: a real citation or an empty slot, never
+            # a caption cut to fit (was a bare cap[:60] mid-word slice).
             cards.append(_mk_metric(esc(m.get("value", "")), esc(m.get("label", "")),
-                                    esc(src or cap[:60]).upper()))
+                                    esc(card_source(m)).upper()))
     if not cards:
         return ""
     return f'<div class="statgrid">{"".join(cards)}</div>'
@@ -415,6 +474,20 @@ def _find_metric(metrics, keyword):
         if keyword.lower() in m.get("label", "").lower():
             return m
     return None
+
+
+def _clip_words(text, n):
+    """Cut to <= n chars on a WORD boundary. The stat-card caption fallback used
+    a bare slice, which shipped captions ending mid-word ("... AGAINST 27 IN
+    AU"). Never cuts inside a word; adds an ellipsis when it actually cut."""
+    text = (text or "").strip()
+    if len(text) <= n:
+        return text
+    cut = text[:n]
+    sp = cut.rfind(" ")
+    if sp > n * 0.5:
+        cut = cut[:sp]
+    return cut.rstrip(",;:. ") + "\u2026"
 
 
 def _trim(text, n):
@@ -433,6 +506,20 @@ def _trim(text, n):
     # boundaries and forced a mid-clause word cut instead.
     for m in re.finditer(r"(?<![A-Z])[.!?]\s+(?=[A-Z0-9$])", window):
         end = m.start()
+    # Second, permissive pass. The strict lookbehind above rejects ANY period
+    # preceded by a capital, to skip "U.S.", but that also rejects sentences
+    # that legitimately end on an acronym, which this domain produces constantly
+    # ("...now carry the P&L.", "...invest in F&I.", "...trading in an EV.").
+    # Overshooting a real boundary sent the text to the word-cut fallback and
+    # shipped a fragment ("For a Southern California dealer, two cost inputs.").
+    # Here a period counts as a boundary unless the token before it is a DOTTED
+    # abbreviation (a period within the preceding two characters, "U.S."), which
+    # is the pattern the strict guard was actually aimed at.
+    if end < int(n * 0.40):
+        for m in re.finditer(r"[.!?]\s+(?=[A-Z0-9$])", window):
+            if "." in window[max(0, m.start() - 2):m.start()]:
+                continue
+            end = m.start()
     # Prefer ending on a complete sentence even if that costs some length. A
     # word-boundary cut silently changes meaning ("step-down on Canada" when the
     # source said "Canada and Mexico"), which is worse than a shorter card.
@@ -606,30 +693,101 @@ ol.sources li{font-family:'Roboto Slab',serif;font-size:10.5px;line-height:1.5;c
 </body></html>"""
 
 
+CHROME_TIMEOUT = 180  # seconds; a stuck headless Chrome used to hang the run
+
+
 def render_pdf(html_path, output_path):
-    """WeasyPrint if available, else Chrome headless --print-to-pdf."""
-    try:
-        import weasyprint  # noqa
-        weasyprint.HTML(filename=html_path).write_pdf(output_path)
+    """Chrome headless --print-to-pdf. WeasyPrint only when explicitly asked
+    for with AUTO_TRENDS_ENGINE=weasyprint (it cannot load on Drew's Mac, and
+    the layouts are tuned on Chrome). Every failure raises a RuntimeError that
+    names the engine and carries the captured stderr."""
+    engine = os.environ.get("AUTO_TRENDS_ENGINE", "chrome").strip().lower() or "chrome"
+    if engine == "weasyprint":
+        try:
+            import weasyprint  # noqa
+            weasyprint.HTML(filename=html_path).write_pdf(output_path)
+        except Exception as e:
+            raise RuntimeError(f"PDF render failed (engine: weasyprint, requested via "
+                               f"AUTO_TRENDS_ENGINE): {e}") from e
         return "weasyprint"
-    except Exception:
-        pass
+    if engine != "chrome":
+        raise RuntimeError(f"Unknown AUTO_TRENDS_ENGINE {engine!r}; use chrome or weasyprint.")
     chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     if not os.path.exists(chrome):
         chrome = shutil.which("google-chrome") or shutil.which("chromium")
     if not chrome:
-        raise RuntimeError("No PDF renderer: WeasyPrint not importable and Chrome not found.")
-    subprocess.run([
-        chrome, "--headless", "--disable-gpu", "--no-pdf-header-footer",
-        "--run-all-compositor-stages-before-draw", "--virtual-time-budget=3000",
-        f"--print-to-pdf={output_path}", f"file://{html_path}",
-    ], check=True, capture_output=True)
+        raise RuntimeError("PDF render failed (engine: chrome): Chrome not found.")
+    try:
+        subprocess.run([
+            chrome, "--headless", "--disable-gpu", "--no-pdf-header-footer",
+            "--run-all-compositor-stages-before-draw", "--virtual-time-budget=3000",
+            f"--print-to-pdf={output_path}", f"file://{html_path}",
+        ], check=True, capture_output=True, timeout=CHROME_TIMEOUT)
+    except subprocess.TimeoutExpired as e:
+        err = (e.stderr or b"").decode("utf-8", "replace")[-2000:] if isinstance(
+            e.stderr, (bytes, bytearray)) else str(e.stderr or "")[-2000:]
+        raise RuntimeError(f"PDF render failed (engine: chrome): timed out after "
+                           f"{CHROME_TIMEOUT}s. stderr: {err.strip() or '(none)'}") from e
+    except subprocess.CalledProcessError as e:
+        err = (e.stderr or b"").decode("utf-8", "replace")[-2000:] if isinstance(
+            e.stderr, (bytes, bytearray)) else str(e.stderr or "")[-2000:]
+        raise RuntimeError(f"PDF render failed (engine: chrome): exit {e.returncode}. "
+                           f"stderr: {err.strip() or '(none)'}") from e
+    if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+        raise RuntimeError(f"PDF render failed (engine: chrome): no PDF written at "
+                           f"{output_path}")
     return "chrome"
+
+
+def run_claims_check(data, output_path=None):
+    """validate_claims.py on the data, printed to stderr. WARN-ONLY unless
+    AUTO_TRENDS_CLAIMS=strict. Writes <stem>.facts.json next to the PDF when an
+    output path is given. Returns the report dict (None if the checker itself
+    could not load, which is reported and never blocks the render)."""
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import validate_claims as vc
+    except Exception as e:  # never let the checker's own absence stop a render
+        print(f"claims check: NOT RUN ({e})", file=sys.stderr)
+        return None
+    try:
+        rep = vc.validate_claims(data)
+        print(vc.format_report(rep), file=sys.stderr)
+        if output_path:
+            facts = os.path.splitext(output_path)[0] + ".facts.json"
+            vc.write_facts(data, facts, rep)
+            print(f"facts manifest written: {facts}", file=sys.stderr)
+    except Exception as e:  # a checker bug must not block the October render
+        print(f"claims check: CRASHED ({type(e).__name__}: {e}); render continues, "
+              f"write the facts manifest by hand", file=sys.stderr)
+        return None
+    if rep["errors"]:
+        if vc.strict_mode():
+            raise SystemExit(f"claims check failed ({len(rep['errors'])} error(s)); "
+                             f"AUTO_TRENDS_CLAIMS=strict")
+        print("claims check is WARN-ONLY this cycle: fix the data (add the missing "
+              "source/url/published, correct period or kind) and re-run.", file=sys.stderr)
+    return rep
+
+
+def validate_data(data):
+    """(is_valid, errors). Structure plus ERROR-class claim problems; see
+    validate_claims.py. Kept here because tests/validate_skill.py imports it."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import validate_claims as vc
+    return vc.validate_data(data)
+
+
+def validate_claims(data):
+    """Full claims report dict; see validate_claims.py."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import validate_claims as vc
+    return vc.validate_claims(data)
 
 
 def build_pdf(json_path, output_path, logo_path=None):
     # Logos must resolve from the canonical brand-assets paths. A missing logo
-    # fails loudly (Design-System rule) — never a silent broken image.
+    # fails loudly (Design-System rule), never a silent broken image.
     for logo in (LOGO_WHITE, LOGO_COLOR):
         if not os.path.exists(logo):
             raise RuntimeError(
@@ -637,6 +795,7 @@ def build_pdf(json_path, output_path, logo_path=None):
                 f"Restore Resources/brand-assets/ before generating.")
     with open(json_path) as f:
         data = json.load(f)
+    run_claims_check(data, output_path)
     html = build_html(data)
     with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False,
                                      dir=os.path.dirname(output_path) or ".") as fh:

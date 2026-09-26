@@ -8,9 +8,11 @@ No browser. No CAPTCHA solving. No logins. If a source is missing, say "no data 
 
 `GD ga4-nightly --out outputs/ai-team/{date}/data` writes one `ga4_{STORE}.json` per store and prints a summary with flagged channels. Default target date is yesterday Pacific. On a Monday shift also run it with `--date` for Friday and Saturday.
 
-Each file holds: `channel_flags` (target day vs trailing 4-week same-weekday average, flag at 25% with a 20-session floor), `channel_daily_last7`, `source_medium_last7` and `_prior7`, `key_events_by_channel_last7` and `_prior7`, `landing_pages_last7`, `paid_campaigns_last7`, `ai_engine_referrals_last28`, and `errors`.
+Each file holds: `channel_flags` (the last complete day, `flag_date`, which is the day before `target_date`, vs its trailing 4-week same-weekday average, flag at 25% with a 20-session floor), `channel_daily_last7`, `source_medium_last7` and `_prior7`, `key_events_by_channel_last7` and `_prior7`, `landing_pages_last7`, `paid_campaigns_last7`, `ai_engine_referrals_last28`, and `errors`.
 
 It also writes `ga4_organic_{STORE}.json` (added 2026-09-23) for Worthy's GA4 match: `organic_landing_last28` and `_prior28` (landing page x campaign, Organic Search minus AI engines), `organic_landing_events_last28`, `ai_referrals_by_landing_last28`, and `organic_windows`. Kobe does not need to read it; it is large.
+
+**Why the flags skip the target day (changed 2026-09-26).** The 1 AM pull reads the target day while GA4 is still processing it, so that day always reads low and every channel looked "down": a read-only re-pull of 2026-09-24 showed SBMW 808 sessions at 1 AM against 1,328 final and NCBMW 286 against 557, while the day before matched the final count exactly at all five stores. So `channel_flags` always compare `flag_date` (on a Monday the Friday, Saturday and default pulls flag Thursday, Friday and Saturday, and Tuesday's shift flags Sunday, so every day is flagged once). `target_preliminary` is true when the target is yesterday (every default run) and false on an older `--date` pull, which is already final; when it is true, the target day's own counts (in `channel_daily_last7` and the 7-day sections) are reported as "preliminary, GA4 finalizes in 24 to 48 hours". `target_date` itself is unchanged (health.py, value_line.py and seo_join.py read it). The tradeoff: a real channel drop is flagged one night later, but the flags are real.
 
 Ad hoc: `GD ga4 --store NOI --start 2026-09-10 --end 2026-09-16 --dims sessionCampaignName --metrics sessions,keyEvents`.
 
@@ -78,7 +80,7 @@ Spend (for cost per lead and cost per sale), Google Sheets:
 | MCP | 1Qd4CwwHsiE-hAEYuW-1IR0KHgJ-xFUQEuBMctj3Q3xk |
 | NOI | none found yet, say so |
 
-Benchmarks: NADA close-rate logic from the `score-leads` and `compare-weeks` skills.
+Benchmarks: close-rate benchmarks come from the `score-leads` skill's `reference/nada_benchmarks.json`, `close_rate_benchmarks.categories` (per source type and brand tier, for example website leads, luxury 0.12). Cite that file and the category's own `source`, and say "estimate" where its `support` flag says so. (Corrected 2026-09-26: the earlier line also credited a second skill that holds no benchmark logic.)
 
 ## Meta Ads (Luka)
 
@@ -140,6 +142,20 @@ Google Trends and OEM press rooms via WebFetch (`defuddle` is not installed on t
 ## CARS web watch (Magic)
 
 `python3 .claude/skills/ai-team/scripts/cars_watch.py --rotation` uses the cars-act-check skill's own crawler and machine rules (3 workers, 0.7 s pacing, circuit breaker) with caps of 400 URLs and 8 minutes, plus two watch rules (W01 rebates inside the advertised price, W02 price-gating buttons). Output goes to `outputs/ai-team/{date}/data/cars_{STORE}/` (`summary.md`, `run.json`); it never touches `Projects/{CODE}/cars-act-state/` or Drive, and the full `/cars-act-check` run (browser pass, retention zip, PDF) stays something Drew starts. Measured on NOI 2026-09-23: 399 URLs in 5.5 minutes, no blocks. SBMW (sterlingbmw.com) returns Cloudflare 403 to plain fetches, so the desktop scheduled task `cars-watch-sbmw-browser` (Drew approved 2026-09-23; Mondays about 12:20 AM, Claude Browser, up to 12 public pages) writes Monday's SBMW run before the shift; Magic's Monday rotation sees it and reports it instead of re-crawling. If the desktop app was closed at that hour, the task runs on next launch and Monday reports "blocked" plus the newest browser run from the last 7 days. NCBMW is scanned every Tuesday by plain fetch. CHC is covinahillschevrolet.com (from the CHC context log; the README has no domain).
+
+## Client dashboards (Magic, added 2026-09-26)
+
+The three client dashboards are Apps Script web apps: each `/exec` endpoint returns the JSON the store's GM sees. `python3 .claude/skills/ai-team/scripts/dash_check.py outputs/ai-team/{date}` reads all three with one plain HTTPS GET each (no login, no browser, it follows Apps Script's redirect) and writes `data/dashboards.json`: a status per store, every stale signal with its fix and how many days it has been open, a ready "Missing tonight" line, and the fields for one aging ask. It never opens or writes a Sheet. Exit 2 means a dashboard did not answer ("no dashboard data since {date}"). Endpoints come from the morning-coffee skill's `references/sources.md`; the script's `DASHBOARDS` table and this one change together.
+
+| Store | Dashboard | Endpoint (plain GET) | Backing Sheet (Drew's fix) |
+|---|---|---|---|
+| SBMW | Sterling BMW | `https://script.google.com/macros/s/AKfycbxVJugSl93A9egpeeXymBMEzBv6M5yWMxs-Prn-VEP-MM0ragBhWDP0xdKXDlAl_ijgJQ/exec` | `1Ki2RjJUc4AN4A-ZFgqNLQpENDySVjgULR4xG6UTSpCU` |
+| NCBMW | New Century BMW | `https://script.google.com/macros/s/AKfycbwdi91LD8vFv5A3PDCJQ4BIm4TWkzDWei49G_dCf0fnxfMucDHORapSKtLcnoQ9aMpyWA/exec` | `1JJcHIC1253Dtpp50OGIRhgNCw-g-DqRgkETIJa8okAE` |
+| MCP | McPeek CDJR | `https://script.google.com/macros/s/AKfycbxswEKhEK-Sr98XkVe_mmFs8SqyQlsaGfzNXIAfuH2EatFJixHtUnX3nfhyqFoKPRjl/exec` | `12vhp5FyujzOpCVcIspPszmhbLxy3FwnsjJ4UxKbFXpA` |
+
+Signals: RED when the CRM source says the CRM tab is empty or carries a `CHECK:` note, when leads month to date are 0 after the 3rd, or when a CRM headline card or a paid vendor block names a month before the last closed month. AMBER when an SEO card names a month before the last closed month, when the SEO months end before the last closed month or were never built, or when the dashboard's `updated` stamp is more than 3 days old. The gross "estimate" wording is by design and never flagged; the top-level `seoMonth` is blank on all three by design and never read.
+
+This is a dashboard freshness check, not a measurement rule: it never feeds `health.py` or the Measurement health block, so a stale paste never blocks a store's valid GA4 and Ads numbers. Its lines go under Missing tonight.
 
 ## Rulebook (Magic)
 

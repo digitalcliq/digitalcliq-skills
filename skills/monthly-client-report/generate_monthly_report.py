@@ -4,18 +4,33 @@ DigitalCLIQ Monthly Client Report generator.
 
 JSON -> branded PDF via the canonical design-system pipeline: hand-authored
 HTML + CSS (Resources/design-system/Design-System.md tokens + component
-library) rendered by WeasyPrint when importable, else Chrome headless
---print-to-pdf (the documented fallback). Never reportlab: it cannot hit
-the spec.
+library) rendered by Chrome headless --print-to-pdf. Chrome is the declared
+engine: the layout constants below are calibrated to Chrome, and WeasyPrint
+cannot load on this Mac (missing libgobject), so it is not tried. Never
+reportlab: it cannot hit the spec.
 
 Layout: canonical dark cover (cover-portrait.html recipe) + tight 2-3 light
 interior pages with running furniture, section headers (eyebrow / H2 /
 accent rule / ghost numeral), stat cards, callout bars, comparison columns,
 and checklist rows. Sections render in order and gracefully OMIT when a
-block is missing or flagged available:false — no empty boxes.
+block is missing or flagged available:false: no empty boxes.
 
 Usage:
     python3 generate_monthly_report.py <data.json> <out.pdf> <logo.png>
+
+Environment (all optional):
+    MCR_CHROME          path to the Chrome binary (default: the macOS app,
+                        then google-chrome / chromium on PATH)
+    MCR_CHROME_TIMEOUT  seconds before a hung Chrome is killed (default 180).
+                        Call the generator with a Bash timeout above this.
+    MCR_STRICT=1        turn the soft checks (em dashes, regional sourcing)
+                        into hard fails. Off by default until the October
+                        2026 reports ship; see _warn().
+
+Hard fails (exit 1, nothing rendered): gmail address, missing or blank
+metadata.client_name / metadata.month_label, missing brand font or logo,
+Chrome timeout / error / no PDF written. Soft checks print "WARN:" lines to
+stderr and the build continues; the last stdout line counts them.
 
 Brand: Digital Blue #405FAB, Sky Blue #6B9DD4, Navy Deep/Base/Lift
 #070A15/#10162A/#151E37, Warm Grey #949592, Callout Tint #EDF2F9, borders
@@ -25,6 +40,8 @@ by explicit text (deltas, verdicts, labels); color is a palette treatment
 only (Sky Blue family = strong, Warm Grey = weak, Digital Blue = emphasis).
 Only drewmoon@digitalcliq.com may appear; gmail is banned.
 """
+import calendar
+import datetime
 import json
 import math
 import os
@@ -62,10 +79,41 @@ CPL_HALF = 46           # ~chars per line, half-column body text
 LINE_H = 17
 SHEAD_H = 58            # section header (single-line title)
 
+EM_DASH = "\u2014"      # Rule 14: never in a deliverable. En dash stays legal.
+
+
+def _env_int(name, default):
+    try:
+        return max(1, int(os.environ.get(name, "") or default))
+    except ValueError:
+        return default
+
+
+CHROME_TIMEOUT = _env_int("MCR_CHROME_TIMEOUT", 180)
+STRICT = os.environ.get("MCR_STRICT", "").strip() == "1"
+
+_WARNINGS = []
+
 
 def _fail(msg):
     print(f"ERROR: {msg}", file=sys.stderr)
     sys.exit(1)
+
+
+def _warn(msg):
+    """Soft check: print to stderr and keep building.
+
+    October 2026 safety: the em-dash and regional-sourcing checks are new, so
+    they warn instead of blocking a GM report at the last step. main() turns
+    them into one hard fail when MCR_STRICT=1 (the planned default once the
+    October reports ship and the content is clean)."""
+    _WARNINGS.append(msg)
+    print(f"WARN: {msg}", file=sys.stderr)
+
+
+def _note(msg):
+    """Informational only; never counted, never blocks, even under strict."""
+    print(f"NOTE: {msg}", file=sys.stderr)
 
 
 def _guard_email(blob):
@@ -73,6 +121,56 @@ def _guard_email(blob):
     if "digitalcliq@gmail.com" in json.dumps(blob).lower():
         _fail("digitalcliq@gmail.com found in report data. Only "
               "drewmoon@digitalcliq.com may appear in deliverables.")
+
+
+def _check_metadata(d):
+    """client_name and month_label print on the cover, the running header and
+    the Wins title. A blank one would ship a generic or empty cover, and a
+    null one crashed the old build at the last step, so fail up front."""
+    if not isinstance(d, dict):
+        _fail("data json must be an object with a 'metadata' block")
+    m = d.get("metadata")
+    if not isinstance(m, dict):
+        _fail("data json missing 'metadata'")
+    for key in ("client_name", "month_label"):
+        v = m.get(key)
+        if not isinstance(v, str) or not v.strip():
+            _fail(f"metadata.{key} is missing, blank or not text (got {v!r}). "
+                  "Set it from client_registry.json before rendering; the "
+                  "report never falls back to a generic name.")
+
+
+def _walk_strings(node, path="$"):
+    """Yield (json_path, text) for every string value AND every dict key.
+    Keys matter: data_table() prints the first row's keys as headers."""
+    if isinstance(node, str):
+        yield path, node
+    elif isinstance(node, dict):
+        for k, v in node.items():
+            if isinstance(k, str):
+                yield f"{path}.{k} (key)", k
+            yield from _walk_strings(v, f"{path}.{k}")
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            yield from _walk_strings(v, f"{path}[{i}]")
+
+
+def _guard_style(d):
+    """Rule 14: no em dash (U+2014) anywhere in the client copy.
+
+    Walks the parsed values, because json.dumps() escapes the character to
+    \\u2014 and a substring test on the dump never fires. WARN only for now
+    (see _warn). Returns the offending JSON paths."""
+    hits = []
+    for path, text in _walk_strings(d):
+        i = text.find(EM_DASH)
+        if i < 0:
+            continue
+        hits.append(path)
+        snippet = text[max(0, i - 40):i + 40].replace(EM_DASH, "[U+2014]")
+        _warn(f"em dash at {path}: \"...{snippet}...\". Rule 14: rewrite "
+              "with a comma, colon or period before this ships.")
+    return hits
 
 
 def esc(s):
@@ -97,7 +195,7 @@ def _est_lines(text, cpl):
     return max(1, math.ceil(len(_plain(text)) / cpl))
 
 
-# ---------- fonts (hard error when missing — never substitute) ----------
+# ---------- fonts (hard error when missing, never substitute) ----------
 def _font_faces():
     faces = [
         ("Dosis", "Dosis-Medium.ttf", 500),
@@ -179,11 +277,54 @@ def callout(text, ctype="info", cpl=CPL_FULL):
     return html, _est_lines(text, cpl - 6) * LINE_H + 27
 
 
+def _text_list(v):
+    """Normalize a list-of-text field. A bare string becomes a one-item list
+    (iterating it would print one character per line), {text} dicts yield
+    their text, and blank or null entries drop out."""
+    if v is None:
+        return []
+    if not isinstance(v, (list, tuple)):
+        v = [v]
+    out = []
+    for x in v:
+        if isinstance(x, dict):
+            x = x.get("text", "")
+        if x is None:
+            continue
+        x = str(x)
+        if x.strip():
+            out.append(x)
+    return out
+
+
+def _insight_list(items):
+    """Accept [{text, type}], plain strings in the list, a bare string, or a
+    single dict. Strings become {text, type: info}. Blank entries drop out so
+    no empty callout box renders."""
+    if items is None:
+        return []
+    if not isinstance(items, (list, tuple)):
+        items = [items]
+    out = []
+    for it in items:
+        if isinstance(it, dict):
+            text = it.get("text", "")
+            ctype = it.get("type", "info") or "info"
+        elif it is None:
+            continue
+        else:
+            text, ctype = it, "info"
+        if text is None or not str(text).strip():
+            continue
+        out.append({"text": str(text), "type": ctype})
+    return out
+
+
 def insights(items, cpl=CPL_FULL):
-    """items: [{text, type}] -> stacked callout bars."""
+    """items: [{text, type}] (or plain strings) -> stacked callout bars."""
     html, h = "", 0
-    for it in items or []:
-        c, ch = callout(it.get("text", ""), it.get("type", "info"), cpl)
+    for it in _insight_list(items):
+        c, ch = callout(it["text"], it["type"], cpl)
         html += c
         h += ch
     return html, h
@@ -341,8 +482,8 @@ def _reputation_col(r, num):
         k, kh = kpi_row(kpis, limit=3)
         html += k
         h += kh
-    pos = r.get("themes_positive") or []
-    neg = r.get("themes_negative") or []
+    pos = _text_list(r.get("themes_positive"))
+    neg = _text_list(r.get("themes_negative"))
     if pos:
         bl, bh = body_line("; ".join(pos), "What customers praise:", cpl=CPL_HALF)
         html += bl
@@ -357,8 +498,245 @@ def _reputation_col(r, num):
     return html, h
 
 
+# ---------- regional stats: dates, labels and sourcing checks ----------
+_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+_MON_RE = (r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?")
+# A source string already carries a date when it names a year or a quarter.
+_HAS_DATE = re.compile(r"\b(19|20)\d{2}\b|\bQ[1-4]\b|\bH[12]\b", re.I)
+
+
+def _month_end(y, m):
+    return datetime.date(y, m, calendar.monthrange(y, m)[1])
+
+
+def _parse_published(s):
+    """-> (date, label) or (None, None). The date is the END of the period
+    named (lenient for the staleness check); the label is what prints in the
+    Source column: 'Jul 2026', 'Q2 2026', 'H1 2026' or '2026'."""
+    if s is None:
+        return None, None
+    s = str(s).strip()
+    if not s:
+        return None, None
+    m = re.match(r"^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?", s)
+    if m:
+        y, mo = int(m.group(1)), int(m.group(2))
+        if not 1 <= mo <= 12:
+            return None, None
+        try:
+            dt = (datetime.date(y, mo, int(m.group(3))) if m.group(3)
+                  else _month_end(y, mo))
+        except ValueError:
+            return None, None
+        return dt, f"{_MON[mo - 1]} {y}"
+    m = re.match(r"^Q([1-4])\s*(\d{4})$|^(\d{4})\s*Q([1-4])$", s, re.I)
+    if m:
+        q = int(m.group(1) or m.group(4))
+        y = int(m.group(2) or m.group(3))
+        return _month_end(y, q * 3), f"Q{q} {y}"
+    m = re.match(r"^H([12])\s*(\d{4})$|^(\d{4})\s*H([12])$", s, re.I)
+    if m:
+        half = int(m.group(1) or m.group(4))
+        y = int(m.group(2) or m.group(3))
+        return _month_end(y, half * 6), f"H{half} {y}"
+    m = re.match(rf"^{_MON_RE}\s*(\d{{1,2}})?,?\s*(\d{{4}})$", s, re.I)
+    if m:
+        mo = [x.lower() for x in _MON].index(m.group(1).lower()) + 1
+        y = int(m.group(3))
+        try:
+            dt = (datetime.date(y, mo, int(m.group(2))) if m.group(2)
+                  else _month_end(y, mo))
+        except ValueError:
+            return None, None
+        return dt, f"{_MON[mo - 1]} {y}"
+    m = re.match(r"^(\d{4})$", s)
+    if m:
+        y = int(m.group(1))
+        return datetime.date(y, 12, 31), str(y)
+    return None, None
+
+
+def _add_label(text, label):
+    """'Avg price (truck)' -> 'Avg price (truck, segment)'; 'X' -> 'X (segment)'."""
+    t = str(text or "").rstrip()
+    if not t:
+        return f"({label})"
+    if t.endswith(")"):
+        return f"{t[:-1]}, {label})"
+    return f"{t} ({label})"
+
+
+def _regional_rows(stats):
+    """Indicator / Value / Source rows for the Market Context table.
+
+    Source prints 'source, published' when the stat carries a published date
+    and the source text has no date of its own. Forecasts are labeled as
+    forecasts, and segment-scope stats say so, so a segment figure never
+    reads as the client's brand or the whole state."""
+    rows = []
+    for s in stats or []:
+        if not isinstance(s, dict):
+            rows.append({"Indicator": str(s), "Value": "", "Source": ""})
+            continue
+        stat = str(s.get("stat", "") or "")
+        value = str(s.get("value", "") or "")
+        source = str(s.get("source", "") or "").strip()
+        published = s.get("published")
+        if published and not _HAS_DATE.search(source):
+            _, label = _parse_published(published)
+            label = label or str(published).strip()
+            source = f"{source}, {label}" if source else label
+        if (str(s.get("kind", "")).lower() == "forecast"
+                and "forecast" not in value.lower()
+                and "forecast" not in stat.lower()):
+            value = _add_label(value, "forecast")
+        if (str(s.get("scope", "")).lower() == "segment"
+                and "segment" not in stat.lower()):
+            stat = _add_label(stat, "segment")
+        rows.append({"Indicator": stat, "Value": value, "Source": source})
+    return rows
+
+
+# Program / rebate advice the GM could act on. After 10/1 a wrong line is
+# CARS Act exposure (Aug NCBMW recommended MyFirstEV, which BMW is not in).
+_REBATE_RE = re.compile(
+    r"\brebates?\b|\btax[\s-]*credits?\b|\bmy\s*first\s*ev\b"
+    r"|\$\s?\d[\d,]*(?:\.\d+)?\s*k?\s*(?:off\b|cash\s*back|bonus\s*cash)",
+    re.I)
+_SOFT_RE = re.compile(r"\bincentives?\b|\bprograms?\b", re.I)
+# Not "outlook": CNCDA's quarterly actuals ship as "California Auto Outlook".
+_FORECASTY = re.compile(r"\bforecast|\bprojected\b|\bprojection", re.I)
+_BRAND_ALIASES = {
+    "cdjr": ["cdjr", "chrysler", "dodge", "jeep", "ram", "stellantis"],
+    "chevrolet": ["chevrolet", "chevy"],
+    "harley-davidson": ["harley-davidson", "harley"],
+}
+
+
+def _brand_eligible(elig, brand):
+    """True when an eligibility record says client_brand_listed: true and
+    names a price cap. SKILL.md Agent D records ({program,
+    client_brand_listed, cap, models_checked, url, published}) carry no
+    participant list; when a record does carry `participants`, the client's
+    brand must be in it, so a wrong flag cannot pass (BMW vs MyFirstEV)."""
+    brand = str(brand or "").strip().lower()
+    if not brand:
+        return False
+    names = _BRAND_ALIASES.get(brand, [brand])
+    items = elig if isinstance(elig, list) else [elig]
+    for e in items:
+        if not isinstance(e, dict) or e.get("client_brand_listed") is not True:
+            continue
+        cap = e.get("cap")
+        if cap is None or not str(cap).strip():
+            continue
+        parts = e.get("participants")
+        if parts is None:
+            return True
+        if isinstance(parts, str):
+            parts = re.split(r"[,;/]", parts)
+        parts = [str(p).strip().lower() for p in parts]
+        if any(re.search(rf"\b{re.escape(n)}\b", p)
+               for n in names for p in parts):
+            return True
+    return False
+
+
+def _validate_regional(rg, brand="", run_date=None):
+    """Sourcing checks on the Market Context block. WARN only (see _warn);
+    returns the warning strings so tests can inspect them.
+
+    - every stat names a vault_ref (Market-Read.md#section) or a url
+    - every stat has a published date; web stats older than 45 days need
+      latest_release: true (vault stats are refreshed monthly, so exempt)
+    - every stat says kind: actual | forecast
+    - rebate / tax-credit / MyFirstEV / $-off wording needs an eligibility
+      object whose participant list includes the client's brand
+    'incentive' and 'program' only print a NOTE."""
+    run_date = run_date or datetime.date.today()
+    found = []
+
+    def warn(msg):
+        found.append(msg)
+        _warn(f"regional: {msg}")
+
+    if not isinstance(rg, dict):
+        return found
+    stats = rg.get("stats") or []
+    if not isinstance(stats, list):
+        warn("stats is not a list; nothing to check")
+        stats = []
+    for i, s in enumerate(stats):
+        if not isinstance(s, dict):
+            warn(f"stats[{i}] is not an object {{stat, value, source, "
+                 "published, kind, scope, vault_ref|url}")
+            continue
+        source = str(s.get("source", "") or "").strip()
+        name = f"stats[{i}] ('{s.get('stat', '')}', {source or 'no source'})"
+        problems = []
+        vault_ref = str(s.get("vault_ref", "") or "").strip()
+        url = str(s.get("url", "") or "").strip()
+        if not vault_ref and not url:
+            problems.append("no vault_ref or url (cite the Market-Read.md "
+                            "section or the page the number came from)")
+        if not source:
+            problems.append("no named source")
+        published = s.get("published")
+        pub_date, _ = _parse_published(published)
+        if not published or not str(published).strip():
+            problems.append("no published date")
+        elif pub_date is None:
+            problems.append(f"published '{published}' is not a date this "
+                            "check can read (use YYYY-MM-DD, YYYY-MM, "
+                            "'Jul 2026' or 'Q2 2026')")
+        elif url and not vault_ref and not s.get("latest_release"):
+            age = (run_date - pub_date).days
+            if age > 45:
+                problems.append(f"published {age} days before this run "
+                                f"({published}); use a newer release or set "
+                                "latest_release: true after checking it is "
+                                "still the latest")
+        kind = str(s.get("kind", "") or "").strip().lower()
+        if kind not in ("actual", "forecast"):
+            blob = " ".join(str(s.get(k, "")) for k in ("stat", "value",
+                                                        "source"))
+            if _FORECASTY.search(blob):
+                problems.append(f"reads like a forecast but kind is "
+                                f"'{kind or 'missing'}'; set kind: forecast")
+            else:
+                problems.append("no kind (actual | forecast)")
+        elif kind == "actual" and _FORECASTY.search(str(s.get("stat", ""))):
+            problems.append("says forecast/projected but kind is actual")
+        if problems:
+            warn(f"{name}: " + "; ".join(problems))
+
+    texts = [("headline", rg.get("headline"))]
+    texts += [(f"narrative[{i}]", n)
+              for i, n in enumerate(_text_list(rg.get("narrative")))]
+    texts += [(f"stats[{i}]", f"{s.get('stat', '')} {s.get('value', '')}")
+              for i, s in enumerate(stats) if isinstance(s, dict)]
+    eligible = _brand_eligible(rg.get("eligibility"), brand)
+    for where, text in texts:
+        if not text:
+            continue
+        text = str(text)
+        m = _REBATE_RE.search(text)
+        if m and not eligible:
+            warn(f"{where} names a rebate / tax credit / program offer "
+                 f"('{m.group(0).strip()}') but regional.eligibility does not "
+                 f"list {brand or 'the client brand'} as a participant with a "
+                 "price cap. Cut the line or verify eligibility first "
+                 "(CARS Act exposure after 10/1).")
+        elif not m and _SOFT_RE.search(text):
+            _note(f"regional {where} mentions an incentive or program; "
+                  f"confirm it applies to {brand or 'this client'} before "
+                  "it reads as advice")
+    return found
+
+
 def _regional_col(rg, num):
-    html, h = sec_head(num, "NADA · Economy",
+    html, h = sec_head(num, "Market · Economy",
                        f"Market Context: {rg.get('state', 'Region')}", half=True)
     if rg.get("headline"):
         _, bh = body_line(rg["headline"], cpl=CPL_HALF)
@@ -366,12 +744,11 @@ def _regional_col(rg, num):
         h += bh
     stats = rg.get("stats")
     if stats:
-        rows = [{"Indicator": s.get("stat", ""), "Value": s.get("value", ""),
-                 "Source": s.get("source", "")} for s in stats]
+        rows = _regional_rows(stats if isinstance(stats, list) else [stats])
         t, th = data_table(rows, half=True)
         html += t
         h += th
-    for n in rg.get("narrative", []) or []:
+    for n in _text_list(rg.get("narrative")):
         bl, bh = body_line(n, cpl=CPL_HALF)
         html += bl
         h += bh
@@ -401,8 +778,8 @@ def build_wins(d, num):
     w = d.get("wins")
     if not w:
         return None
-    items = w.get("items") or []
-    challenges = w.get("challenges") or []
+    items = _text_list(w.get("items"))
+    challenges = _text_list(w.get("challenges"))
     if not items and not challenges:
         return None
     client = d["metadata"].get("client_name", "Client")
@@ -632,24 +1009,135 @@ p.body b{font-family:'Dosis',sans-serif;font-weight:700;font-size:11.5px;color:v
 </body></html>"""
 
 
-# ---------- rendering (WeasyPrint -> Chrome headless fallback) ----------
-def render_pdf(html_path, output_path):
+# ---------- rendering (Chrome headless, the declared engine) ----------
+def _find_chrome():
+    env = os.environ.get("MCR_CHROME", "").strip()
+    if env:
+        if os.path.isfile(env) and os.access(env, os.X_OK):
+            return env
+        found = shutil.which(env)
+        if found:
+            return found
+        _fail(f"MCR_CHROME is set to {env!r}, which is not an executable.")
+    mac = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    if os.path.exists(mac):
+        return mac
+    for name in ("google-chrome", "google-chrome-stable", "chromium",
+                 "chromium-browser"):
+        found = shutil.which(name)
+        if found:
+            return found
+    _fail("Chrome not found. Install Google Chrome or set MCR_CHROME to its "
+          "binary. (WeasyPrint is not a fallback: it cannot load on this Mac "
+          "and the layout is calibrated to Chrome.)")
+
+
+def _tail(raw, n=12):
+    """Last n non-blank lines of Chrome's stderr, for the error message."""
+    if not raw:
+        return "(Chrome printed nothing to stderr)"
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8", "replace")
+    lines = [ln for ln in raw.strip().splitlines() if ln.strip()]
+    return "\n".join(lines[-n:]) or "(Chrome printed nothing to stderr)"
+
+
+def _kill_tree(proc):
+    """Kill Chrome's renderer / GPU / utility children first (they reparent
+    once the browser process dies), then the browser itself. Chrome stays in
+    our process group on purpose: if the caller kills the generator first
+    (the Bash tool's default timeout is 120s), a group kill still reaches it."""
+    pkill = shutil.which("pkill")
+    if pkill:
+        try:
+            subprocess.run([pkill, "-KILL", "-P", str(proc.pid)],
+                           stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, timeout=5)
+        except (OSError, subprocess.SubprocessError):
+            pass
     try:
-        import weasyprint  # noqa
-        weasyprint.HTML(filename=html_path).write_pdf(output_path)
-        return "weasyprint"
-    except Exception:
+        proc.kill()
+    except OSError:
         pass
-    chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-    if not os.path.exists(chrome):
-        chrome = shutil.which("google-chrome") or shutil.which("chromium")
-    if not chrome:
-        _fail("No PDF renderer: WeasyPrint not importable and Chrome not found.")
-    subprocess.run([
+
+
+def _pdf_ok(path, need_eof=False):
+    try:
+        size = os.path.getsize(path)
+    except OSError:
+        return False
+    if size == 0:
+        return False
+    with open(path, "rb") as fh:
+        if fh.read(5) != b"%PDF-":
+            return False
+        if need_eof:
+            fh.seek(max(0, size - 2048))
+            return b"%%EOF" in fh.read()
+    return True
+
+
+def render_pdf(html_path, output_path, timeout=None):
+    """Chrome --print-to-pdf with a hard timeout (MCR_CHROME_TIMEOUT, default
+    180s). Fails loudly, with Chrome's last stderr lines, on a timeout, a
+    non-zero exit, or a missing / empty / non-PDF file. Chrome writes to a
+    temp file beside the target that is moved into place only on success, so
+    a failed run can never leave last month's PDF looking freshly built."""
+    timeout = CHROME_TIMEOUT if timeout is None else timeout
+    chrome = _find_chrome()
+    out_dir = os.path.dirname(output_path) or "."
+    fd, tmp_pdf = tempfile.mkstemp(prefix=".mcr_render_", suffix=".pdf",
+                                   dir=out_dir)
+    os.close(fd)
+    os.unlink(tmp_pdf)  # Chrome must create it, or the size check is moot
+    cmd = [
         chrome, "--headless", "--disable-gpu", "--no-pdf-header-footer",
         "--run-all-compositor-stages-before-draw", "--virtual-time-budget=3000",
-        f"--print-to-pdf={output_path}", f"file://{html_path}",
-    ], check=True, capture_output=True)
+        f"--print-to-pdf={tmp_pdf}", f"file://{html_path}",
+    ]
+    try:
+        # stderr goes to a file, not a pipe: a lingering Chrome child holding
+        # a pipe open would otherwise stall us until the timeout.
+        with tempfile.TemporaryFile() as errf:
+            proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL,
+                                    stdout=subprocess.DEVNULL, stderr=errf)
+            timed_out = False
+            try:
+                rc = proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                _kill_tree(proc)
+                try:
+                    proc.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    pass
+                rc = None
+            errf.seek(0)
+            err = errf.read()
+        if timed_out:
+            if _pdf_ok(tmp_pdf, need_eof=True):
+                _warn(f"Chrome wrote a complete PDF but did not exit within "
+                      f"{timeout}s; killed it and kept the PDF. Open the PDF "
+                      "and check every page before shipping.")
+            else:
+                _fail(f"Chrome did not finish the PDF within {timeout}s and "
+                      f"was killed ({chrome}). Last stderr lines:\n{_tail(err)}")
+        elif rc != 0:
+            _fail(f"Chrome exited with code {rc} ({chrome}). Last stderr "
+                  f"lines:\n{_tail(err)}")
+        elif not os.path.exists(tmp_pdf) or os.path.getsize(tmp_pdf) == 0:
+            _fail(f"Chrome exited 0 but wrote no PDF (missing or 0 bytes) "
+                  f"({chrome}). Last stderr lines:\n{_tail(err)}")
+        elif not _pdf_ok(tmp_pdf):
+            _fail(f"Chrome wrote a file that is not a PDF ({chrome}). Last "
+                  f"stderr lines:\n{_tail(err)}")
+        os.replace(tmp_pdf, output_path)
+    finally:
+        if os.path.exists(tmp_pdf):
+            try:
+                os.unlink(tmp_pdf)
+            except OSError:
+                pass
     return "chrome"
 
 
@@ -659,27 +1147,40 @@ def main():
     data_path, out_path, logo_path = sys.argv[1:4]
     if not os.path.exists(logo_path):
         _fail(f"logo not found: {logo_path}")
-    # Interior furniture uses the full-color logo on white — canonical path
+    # Interior furniture uses the full-color logo on white: canonical path
     # only, and a missing logo fails loudly (Design-System rule).
     if not os.path.exists(LOGO_COLOR):
         _fail(f"DigitalCLIQ color logo missing at canonical path: {LOGO_COLOR}. "
               "Restore Resources/brand-assets/ before generating.")
-    with open(data_path) as f:
+    out_dir = os.path.dirname(os.path.abspath(out_path)) or "."
+    if not os.path.isdir(out_dir):
+        _fail(f"output folder does not exist: {out_dir}")
+    with open(data_path, encoding="utf-8") as f:
         d = json.load(f)
     _guard_email(d)
-    if "metadata" not in d:
-        _fail("data json missing 'metadata'")
+    _check_metadata(d)
+
+    # Soft checks: WARN and keep going (October 2026 safety, see _warn).
+    _guard_style(d)
+    rg = d.get("regional")
+    if isinstance(rg, dict) and rg.get("available"):
+        _validate_regional(rg, d["metadata"].get("brand") or "")
+    if STRICT and _WARNINGS:
+        _fail(f"MCR_STRICT=1 and {len(_WARNINGS)} warning(s) above. Fix the "
+              "report data, then re-run.")
 
     html = build_html(d, os.path.abspath(logo_path))
-    out_dir = os.path.dirname(os.path.abspath(out_path)) or "."
     with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False,
-                                     dir=out_dir) as fh:
+                                     dir=out_dir, encoding="utf-8") as fh:
         fh.write(html)
         html_path = fh.name
     try:
         engine = render_pdf(html_path, os.path.abspath(out_path))
         print(f"PDF generated via {engine}")
         print(f"OK wrote {out_path}")
+        if _WARNINGS:
+            print(f"{len(_WARNINGS)} WARNING(S) on stderr: fix them in the "
+                  "report data and re-render before this ships.")
     finally:
         try:
             os.unlink(html_path)

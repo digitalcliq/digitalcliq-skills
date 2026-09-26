@@ -1,0 +1,337 @@
+{
+  "metadata": {
+    "report_title": "Automotive Market Trend Report",
+    "region": "Southern California",
+    "generation_date": "2026-03-01",
+    "date_range_6mo": "March 2026 - August 2026",
+    "date_range_12mo": "March 2026 - February 2027",
+    "period_label": "February 2026",
+    "fixture_note": "SYNTHETIC test fixture for tests/validate_skill.py. Figures, publishers and example.com links are illustrative only; never cite them."
+  },
+  "executive_summary": {
+    "overview": "The U.S. automotive market enters spring 2026 on a trajectory of modest contraction, with new-vehicle sales projected at 15.8 million units.",
+    "key_trends": [
+      "New-vehicle SAAR softens to 14.9M in January 2026",
+      "Average transaction prices near $50,000",
+      "Manheim Used Vehicle Value Index rises to 210.5"
+    ],
+    "hero": {
+      "value": "15.8M units",
+      "caption": "Full-year 2026 new-vehicle sales forecast of 15.8 million units. The year opens softer than 2025.",
+      "source": "Cox Automotive",
+      "url": "https://example.com/auto-trends-fixture/hero",
+      "published": "2026-01-28",
+      "period": "2026",
+      "kind": "forecast"
+    },
+    "headline_stats": [
+      {
+        "value": "14.9M",
+        "label": "January 2026 new-vehicle SAAR",
+        "source": "Cox Automotive, February 2026",
+        "url": "https://example.com/auto-trends-fixture/hs0",
+        "published": "2026-02-03",
+        "period": "2026-01",
+        "kind": "actual"
+      },
+      {
+        "value": "210.5",
+        "label": "Manheim Used Vehicle Value Index, January 2026",
+        "source": "Cox Automotive, February 2026",
+        "url": "https://example.com/auto-trends-fixture/hs1",
+        "published": "2026-02-06",
+        "period": "2026-01",
+        "kind": "actual"
+      },
+      {
+        "value": "12.8 yrs",
+        "label": "Average light-vehicle age, U.S. fleet at the start of 2025",
+        "source": "S&P Global Mobility, May 2025",
+        "url": "https://example.com/auto-trends-fixture/hs2",
+        "published": "2025-05-21",
+        "period": "2024",
+        "kind": "actual"
+      },
+      {
+        "value": "$238.8B",
+        "label": "Projected 2026 U.S. aftermarket size",
+        "source": "Auto Care Association, December 2025",
+        "url": "https://example.com/auto-trends-fixture/hs3",
+        "published": "2025-12-10",
+        "period": "2026",
+        "kind": "forecast"
+      }
+    ],
+    "throughline": "Volume softens while service demand holds, so fixed operations carries the store through 2026."
+  },
+  "new_vehicle_sales": {
+    "section_title": "New Vehicle Sales Trends",
+    "national": {
+      "summary": "U.S. new-vehicle sales opened 2026 with a January SAAR of 14.9 million units.",
+      "metrics": [
+        {
+          "label": "January 2026 SAAR",
+          "value": "14.9M units",
+          "trend": "down",
+          "detail": "4.1% decline YoY (Cox Automotive, February 2026).",
+          "source": "Cox Automotive",
+          "url": "https://example.com/auto-trends-fixture/nv0",
+          "published": "2026-02-03",
+          "period": "2026-01",
+          "kind": "actual"
+        },
+        {
+          "label": "Full-Year Sales Forecast",
+          "value": "15.8M - 16.0M",
+          "trend": "down",
+          "detail": "1.5-2.4% decline from 2025 (Cox Automotive, January 2026).",
+          "source": "Cox Automotive",
+          "url": "https://example.com/auto-trends-fixture/nv1",
+          "published": "2026-01-28",
+          "period": "2026",
+          "kind": "forecast"
+        },
+        {
+          "label": "Average Transaction Price",
+          "value": "~$50,000",
+          "trend": "up",
+          "detail": "All-time high (Kelley Blue Book, February 2026).",
+          "source": "Kelley Blue Book",
+          "url": "https://example.com/auto-trends-fixture/nv2",
+          "published": "2026-02-10",
+          "period": "2026-01",
+          "kind": "actual"
+        }
+      ]
+    },
+    "oem_highlights": [
+      {
+        "brand": "Toyota",
+        "detail": "Dominant market leader with 2.52M units sold in 2025."
+      },
+      {
+        "brand": "BMW",
+        "detail": "Record-high U.S. sales for the third consecutive year."
+      },
+      {
+        "brand": "Nissan",
+        "detail": "Stabilizing sales with new leadership team."
+      },
+      {
+        "brand": "Stellantis",
+        "detail": "Sales declined 3% to 1.26M units in 2025."
+      }
+    ],
+    "regional": {
+      "summary": "California's new vehicle market rose 3.3% to 1.81 million registrations in 2025.",
+      "metrics": [
+        {
+          "label": "CA 2025 Registrations",
+          "value": "1.81M units",
+          "trend": "up",
+          "detail": "+3.3% YoY (CNCDA California Auto Outlook, February 2026).",
+          "source": "CNCDA California Auto Outlook",
+          "url": "https://example.com/auto-trends-fixture/nr0",
+          "published": "2026-02-12",
+          "period": "2025",
+          "kind": "actual"
+        },
+        {
+          "label": "SoCal ZEV Share",
+          "value": "22.2%",
+          "trend": "down",
+          "detail": "Declining from 2024 peak (CNCDA California Auto Outlook, February 2026).",
+          "source": "CNCDA California Auto Outlook",
+          "url": "https://example.com/auto-trends-fixture/nr1",
+          "published": "2026-02-12",
+          "period": "2025-Q4",
+          "kind": "actual"
+        }
+      ]
+    },
+    "outlook_6mo": "Near-term support from easing interest rates and strong tax refund activity.",
+    "outlook_12mo": "Market will navigate USMCA renegotiations and evolving tariff policy."
+  },
+  "used_vehicle_sales": {
+    "section_title": "Used Vehicle Sales Trends",
+    "summary": "The used vehicle market entered 2026 with strong momentum.",
+    "metrics": [
+      {
+        "label": "Manheim Index",
+        "value": "210.5",
+        "trend": "up",
+        "detail": "Highest since September 2023 (Cox Automotive, February 2026).",
+        "source": "Cox Automotive",
+        "url": "https://example.com/auto-trends-fixture/uv0",
+        "published": "2026-02-06",
+        "period": "2026-01",
+        "kind": "actual"
+      },
+      {
+        "label": "Total Inventory",
+        "value": "2.18M vehicles",
+        "trend": "up",
+        "detail": "3% higher than year ago (Cox Automotive, February 2026).",
+        "source": "Cox Automotive",
+        "url": "https://example.com/auto-trends-fixture/uv1",
+        "published": "2026-02-12",
+        "period": "2026-01",
+        "kind": "actual"
+      },
+      {
+        "label": "Average Listing Price",
+        "value": "$25,533",
+        "trend": "up",
+        "detail": "Up 1%+ YoY (Cox Automotive, February 2026).",
+        "source": "Cox Automotive",
+        "url": "https://example.com/auto-trends-fixture/uv2",
+        "published": "2026-02-12",
+        "period": "2026-01",
+        "kind": "actual"
+      }
+    ],
+    "regional": {
+      "summary": "Southern California's used market reflects strong demand.",
+      "metrics": [
+        {
+          "label": "Used EV Prices",
+          "value": "Softening",
+          "trend": "down",
+          "detail": "Faster depreciation than ICE (Cox Automotive, February 2026).",
+          "source": "Cox Automotive",
+          "url": "https://example.com/auto-trends-fixture/ur0",
+          "published": "2026-02-12",
+          "period": "2026-01",
+          "kind": "actual"
+        }
+      ]
+    },
+    "outlook_6mo": "Wholesale values expected to continue upward through spring.",
+    "outlook_12mo": "Used vehicle prices projected to appreciate modestly."
+  },
+  "fixed_ops": {
+    "section_title": "Service & Fixed Operations Trends",
+    "summary": "Fixed operations is the critical profit anchor for dealerships in 2026.",
+    "metrics": [
+      {
+        "label": "Average Vehicle Age",
+        "value": "~13 years",
+        "trend": "up",
+        "detail": "Record high (S&P Global Mobility, May 2025).",
+        "source": "S&P Global Mobility",
+        "url": "https://example.com/auto-trends-fixture/fo0",
+        "published": "2025-05-21",
+        "period": "2024",
+        "kind": "actual"
+      },
+      {
+        "label": "ELR Gap",
+        "value": "$175 door / ~$140 effective",
+        "trend": "flat",
+        "detail": "Closing the gap is free profit (NADA Data, April 2025).",
+        "source": "NADA Data",
+        "url": "https://example.com/auto-trends-fixture/fo1",
+        "published": "2025-04-15",
+        "period": "2024",
+        "kind": "actual"
+      },
+      {
+        "label": "Open Service Bays",
+        "value": "6,000 nationwide",
+        "trend": "up",
+        "detail": "Technician shortage impact (TechForce Foundation, January 2026).",
+        "source": "TechForce Foundation",
+        "url": "https://example.com/auto-trends-fixture/fo2",
+        "published": "2026-01-20",
+        "period": "2025",
+        "kind": "estimate"
+      }
+    ],
+    "ev_readiness": "Over 300,000 EVs expected to return from lease in 2026.",
+    "technician_market": "Technician shortage remains the most acute operational challenge.",
+    "outlook_6mo": "Fixed operations profitability will strengthen.",
+    "outlook_12mo": "Fixed operations will cement its role as primary profit driver.",
+    "hero": {
+      "value": "~13 years",
+      "caption": "The average vehicle on the road is about 13 years old. Older cars need more service, which keeps bays full.",
+      "source": "S&P Global Mobility",
+      "url": "https://example.com/auto-trends-fixture/fohero",
+      "published": "2025-05-21",
+      "period": "2024",
+      "kind": "actual"
+    }
+  },
+  "parts": {
+    "section_title": "Parts Trends",
+    "summary": "U.S. automotive aftermarket projected to grow to $238.8 billion in 2026.",
+    "metrics": [
+      {
+        "label": "Aftermarket Size Forecast",
+        "value": "$238.8B",
+        "trend": "up",
+        "detail": "Growing at 4.12% CAGR (Auto Care Association, December 2025).",
+        "source": "Auto Care Association",
+        "url": "https://example.com/auto-trends-fixture/pt0",
+        "published": "2025-12-10",
+        "period": "2026",
+        "kind": "forecast"
+      },
+      {
+        "label": "E-Commerce Share",
+        "value": "~40%",
+        "trend": "up",
+        "detail": "Up from 25% in 2021 (Hedges & Company, January 2026).",
+        "source": "Hedges & Company",
+        "url": "https://example.com/auto-trends-fixture/pt1",
+        "published": "2026-01-15",
+        "period": "2025",
+        "kind": "estimate"
+      },
+      {
+        "label": "OEM Parts Share",
+        "value": "56-61%",
+        "trend": "flat",
+        "detail": "Aftermarket growing faster (Auto Care Association, December 2025).",
+        "source": "Auto Care Association",
+        "url": "https://example.com/auto-trends-fixture/pt2",
+        "published": "2025-12-10",
+        "period": "2025",
+        "kind": "estimate"
+      }
+    ],
+    "oem_vs_aftermarket": "OEM supply chains account for 56-61% of parts revenue.",
+    "ev_impact": "EVs require fewer routine maintenance components.",
+    "outlook_6mo": "Parts demand supported by aging vehicle fleet.",
+    "outlook_12mo": "U.S. aftermarket expected to grow steadily toward $240B+."
+  },
+  "strategic_outlook": {
+    "section_title": "Strategic Outlook",
+    "short_term": [
+      "Capitalize on spring tax refund season",
+      "Aggressively pursue fixed operations revenue growth"
+    ],
+    "medium_term": [
+      "Build hybrid vehicle inventory and marketing strategies",
+      "Invest in technician recruitment programs"
+    ],
+    "risks": [
+      "Tariff escalation could add $2,000-$5,000 to vehicle prices",
+      "Interest rate volatility constraining affordability"
+    ],
+    "opportunities": [
+      "Off-lease EV surge creating new used segment",
+      "Fixed operations as profit center"
+    ]
+  },
+  "sources": [
+    "Auto Care Association, December 2025",
+    "CNCDA California Auto Outlook, February 2026",
+    "Cox Automotive, February 2026",
+    "Cox Automotive, January 2026",
+    "Hedges & Company, January 2026",
+    "Kelley Blue Book, February 2026",
+    "NADA Data, April 2025",
+    "S&P Global Mobility, May 2025",
+    "TechForce Foundation, January 2026"
+  ]
+}

@@ -1,6 +1,6 @@
 # Morning brief template (Magic fills this)
 
-Written for a busy owner reading on a phone at 6am, in Magic's own voice: a teammate telling Drew what happened overnight, not a report generator. Every number carries its date range in words. Nothing unverified is stated as fact. No tables, no pipes, no lane listed when it has nothing to say. Never em dashes.
+Written for a busy owner reading on a phone at 6am, in Magic's own voice: a teammate telling Drew what happened overnight, not a report generator. Every number carries its date range in words. GA4 counts for the target day are preliminary (the 1 AM pull runs before GA4 finishes counting): label them "preliminary, GA4 finalizes in 24 to 48 hours" wherever one is quoted, and remember traffic flags describe the day before, the last complete day (`flag_date` in `ga4_{STORE}.json`). Nothing unverified is stated as fact. No tables, no pipes, no lane listed when it has nothing to say. Never em dashes.
 
 ```
 ## AI Team Brief, {weekday} {date}
@@ -22,6 +22,7 @@ Morning Drew. {One or two sentences: the night in a nutshell and the single thin
 - **{Players} on {store}:** {the question}. {What each side found, one sentence each.} {The answer, or "still open".} {The move.}
 
 ### Store by store
+GA4 for {target date} is preliminary, GA4 finalizes in 24 to 48 hours; traffic flags below are for {flag date}, the last complete day.
 **[[MCP]]** {Two to four sentences. Traffic, paid search, paid social, organic, CRM, but only what moved and why it matters.}
 **[[NOI]]** …
 **[[SBMW]]** …
@@ -41,6 +42,7 @@ Morning Drew. {One or two sentences: the night in a nutshell and the single thin
 
 ### Missing tonight
 - {Store}: no {source} since {date}.
+- {STORE} dashboard: {RED | AMBER}, {first seen tonight | open n days}. {What the GM sees that is stale}. Fix: {the fix, e.g. "paste the current Momentum Lead Source Report into the SBMW dashboard Sheet"}. (one line per flagged store, from `brief_lines` in `data/dashboards.json`; nothing when all three are GREEN)
 
 **GM notes drafted for your edit (Fridays):** {paths, or "none this week" with the reason}. Nothing was sent.
 

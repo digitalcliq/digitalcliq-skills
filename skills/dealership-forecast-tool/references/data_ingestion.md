@@ -1,59 +1,45 @@
 # Data Ingestion Reference
 
-## E-Commerce Lead CSV Parsing
+## CRM Lead Reports
 
 ### Expected Columns
 ```
 lead_provider, total_leads, total_invalid_leads, total_first_provider, total_dups, total_sales
 ```
+Column names differ by CRM (VinSolutions, Momentum, Focus, Tekion, DealerSocket). Map each report's columns to these names once, show Drew the mapping, and record the CRM, the report name and the lead column in the facts file `definitions` block.
 
-### Month Identification Strategy
+**Good Leads** = `total_leads - total_dups - total_invalid_leads`. Close rate is always Sales / Good Leads, the same definition score-leads uses, so one store never gets two close rates.
 
-Lead CSV files are NOT labeled by month. The file names are typically system-generated timestamps (e.g., `E-Commerce_Summary_2026_02_27_19_33.csv`). To determine which file corresponds to which month:
+### Which month is each file?
 
-1. **Primary Method — Campaign Date Codes**: Many lead providers include date-coded campaign names. Look for patterns like:
-   - `_MMDD` at the end of provider names (e.g., `Golf24_BMW Championship_0820` → August 20)
-   - `Southern24_StPeteBoatShow_0118` → January 18
-   - `Tennis24_BNP Paribas Open_0304` → March 4
-   
-2. **Secondary Method — File Order**: Files uploaded in sequence usually correspond to Jan→Dec. The timestamp suffixes (`__1_`, `__2_`, etc.) indicate upload order.
+Read the period start and end dates from each report's header (most CRM exports print "Date Range", "From / To" or a period line above the table). If a file has no period in its header, ask Drew for it. Never infer a month from campaign names inside provider names, and never from file names or upload order.
 
-3. **Validation**: After mapping, verify:
-   - 12 files per year
-   - No duplicate months
-   - Lead volumes roughly match expected seasonal patterns (March/April peaks, July trough for most dealers)
+Validation after mapping:
+- one file per month, no duplicate months, no gaps in the window;
+- every file covers exactly one calendar month (a partial month is labelled partial and kept out of the forecast training data);
+- the data window (first and last month) goes into `definitions.data_window` and prints on page one.
 
-### Month Mapping Code Pattern
-```python
-# Build mapping by examining dated providers in each file
-for f in files:
-    df = pd.read_csv(f)
-    dated_providers = [p for p in df['lead_provider'] 
-                       if any(c.isdigit() for c in str(p)[-4:])]
-    # Extract MMDD codes and assign month
-```
+**Always confirm the month mapping with Drew before modeling.**
 
-### CRITICAL: Always confirm mapping with the user before proceeding.
-
-## Budget CSV Parsing
+## Budget File Parsing
 
 ### Structure
-Budget files use a personal finance template with these characteristics:
-- Row 0: Headers (Categories, Jan, Feb, ... Dec, Total, Average)
-- Category header rows: Column 0 has category name, Column 2 has "Monthly totals:"
-- Vendor rows: Column 0 is empty, Column 2 has vendor name
-- Dollar values: Formatted as `$X,XXX` strings
-- Notes column (last): May contain useful context about vendor changes
+Drew's budget sheets (SBMW, NCBMW) use a category layout:
+- Row 0: headers (Categories, Jan ... Dec, Total, Average)
+- Category header rows: column 0 has the category name, column 2 has "Monthly totals:"
+- Vendor rows: column 0 empty, column 2 has the vendor name
+- Dollar values as `$X,XXX` strings
+- Notes column (last): may explain vendor changes; read it
 
-### Relevant Categories
-Only these categories contain marketing spend:
-- **3rd Party Leads**: CarGurus, TrueCar, Costco, Edmunds, AutoTrader, CARFAX, Cars.com, LotLinx, etc.
-- **Digital Media**: PPC, Social media, Conquest emails, Factory programs
-- **Traditional Media**: Automotive Mastermind, Data Clover, Radio, TV
-- **Misc**: Gubagoo, Call tracking, Website hosting, Epsilon mailers
-- **Events**: Sponsorships, golf tournaments, galas
+### Which categories count
+Keep marketing categories only, for example:
+- **3rd Party Leads**: CarGurus, TrueCar, Costco, Edmunds, AutoTrader, CARFAX, Cars.com, LotLinx
+- **Digital Media**: PPC, social, conquest email, factory programs
+- **Traditional Media**: Automotive Mastermind, Data Clover, radio, TV
+- **Misc**: Gubagoo, call tracking, website hosting, mailers
+- **Events**: sponsorships
 
-All other categories (Everyday, Gifts, Health, Home, Insurance, Pets, Technology, Transportation, Travel, Utilities) are empty template rows — skip them.
+Ignore any category that is not marketing. Show Drew the categories kept and dropped.
 
 ### Dollar Parsing
 ```python
@@ -63,25 +49,42 @@ def parse_dollar(s):
     return int(str(s).replace('$', '').replace(',', '').strip())
 ```
 
-### Co-Op Reimbursements
-Look for a "Co Op Reimbursements" row after the spend totals. This is money BMW reimburses the dealer — note it but analyze GROSS spend for ROI calculations (dealers make spending decisions based on gross, not net).
+### OEM Co-op Reimbursement
+Look for a co-op reimbursement row below the spend totals. This is OEM co-op reimbursement: note it, and set `coop.present` in the facts file. Analyze GROSS spend for ROI (dealers decide on gross). Label spend "(net)" only when a co-op row exists and the figure really is net of it.
 
 ## Vendor Name Mapping
 
-Budget vendor names and lead provider names won't match exactly. Use this fuzzy mapping approach:
+Budget vendor names and CRM provider names never match exactly. Match on keywords, case-insensitive, in this order:
 
-| Budget Vendor | Lead Provider Matches |
+| Budget Vendor | CRM Provider Matches |
 |---|---|
+| Credit App (own row, checked first) | Any provider containing "credit app" or "credit application" |
 | CarGurus | CarGurus, CarGurus Reengagement, CarGurus - Autolist, CarGurus - Digital Deal, CarGurus Pre-Qualified |
 | TrueCar | Any provider containing "TrueCar" |
 | Costco | Costco Auto Program |
 | Edmunds | Edmunds, Edmunds CarCode |
 | AutoTrader | Any provider containing "AutoTrader" |
-| CARFAX/CarFax | Any provider containing "CARFAX" or "CarFax" |
+| CARFAX | Any provider containing "CARFAX" or "CarFax" |
 | Cars.com | Cars.Com, Cars.com Phone |
 | Gubagoo (Virtual Retailing) | Gubagoo - Virtual Retailing |
 | Gubagoo (Chat) | Gubagoo - Chat |
-| DealerInspire/Website | Any provider containing "Dealer Inspire" or "Dealer Website" |
-| LotLinx | NO lead provider match — VIN-specific ads don't generate CRM leads |
+| Website platform | Any provider containing "Dealer Inspire" or "Dealer Website" (after the credit-app row has taken its sources) |
+| LotLinx | No CRM match: VIN-level ads do not create CRM leads (UNMEASURED) |
 
-For any dealership, build the mapping dynamically by searching for keyword matches between budget vendor names and lead provider names.
+The "Credit App" row is matched before the website so credit applications never inflate the website vendor. It carries a neutral label because it prints on the GM's copy. The operational-source checkpoint (`roi_methodology.md`) then asks Drew whether to keep or exclude it.
+
+For other stores, build the mapping the same way from keyword matches between budget vendor names and CRM provider names.
+
+### Vendor Matching Loop (MATCHED / POSSIBLE / UNMATCHED)
+
+After the rollup, classify every budget line against the CRM sources before any CPL or CPS is calculated:
+
+- **MATCHED**: high-confidence match (keyword hit, more than 80% lead-volume overlap). Proceed.
+- **POSSIBLE**: low-confidence match (partial name, under 50% overlap, or several candidates). Ask Drew: "I matched [budget line] to [CRM source]. Confidence: low. Confirm?"
+- **UNMATCHED**: no CRM source found. Ask Drew: "No CRM data found for [budget line]. Map it to an existing source, or flag it as UNMEASURED?"
+
+Loop until every budget line is MATCHED or UNMEASURED. A POSSIBLE match Drew does not confirm becomes UNMEASURED.
+
+## Filing
+
+The finished workbook, its `.facts.json` and its `.forecast.json` sidecar are staged in `outputs/` and filed to `Projects/{CODE}/deliverables/` (Rule 18). Input files stay where Drew dropped them.
