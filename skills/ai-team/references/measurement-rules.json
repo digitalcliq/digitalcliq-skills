@@ -1,0 +1,360 @@
+{
+  "version": "2026-09-23",
+  "about": "Measurement Health rules for scripts/health.py. One nightly red, amber, or green per store for tracking integrity, so broken numbers stay out of the brief and client reports. Grounded in Intelligence/processes/ga4-conversion-integrity.md and Kobe's findings of 2026-09-19 to 2026-09-23. Edit thresholds here, never in the script. Templates use {field} names the script fills; a field it does not know stays as written.",
+  "colors": {
+    "red": "The numbers named in 'blocks' are wrong tonight. They never go into the brief as fact or into any client-facing claim. Use CRM leads and state the measurement issue (SOP section 4 warning).",
+    "amber": "The raw total is wrong but a clean subset exists. Quote only what the detail line allows, with the caveat, never the raw total. Fix inside the week.",
+    "green": "No integrity rule tripped. Numbers may be quoted with their date range.",
+    "grey": "A core GA4 check could not run tonight (section missing or errored). Say which, never assume green.",
+    "no_data": "No ga4_{STORE}.json tonight. Say 'no data since {date}'."
+  },
+  "state": {
+    "file": "outputs/ai-team/ledgers/health-state.json",
+    "clear_after_clean_nights": 2,
+    "days_broken": "Calendar days from first_seen (or the documented known_since in open_cases, whichever is earlier) to last_seen, inclusive. A night with missing input neither advances nor clears a rule. A rule clears after clear_after_clean_nights clean evaluations in a row; cleared_on is the first clean night."
+  },
+  "stores": [
+    "SBMW",
+    "NCBMW",
+    "NOI",
+    "MCP",
+    "ATLAS"
+  ],
+  "event_classes": {
+    "about": "Applied to GA4 event names and Google Ads conversion action names, case-insensitive, in this order: page_view, then lead, then soft. Anything else is 'other' and is never counted as a non-lead.",
+    "page_view": "page_?view|pageview|screen_view|view_item|_visit$|^visit_|(^|[_ ])(vdp|vlp|srp)([_ ]|$)|about[_ ]?us|website visits",
+    "lead": "submit|submission|lead|call|phone|chat|sms|text_?us|appointment|contact_us|order|purchase|credit|trade|store visit",
+    "soft": "engagement|start|scroll|click|view|open|video|download|subscri|direction|hover|impression|menu",
+    "gbp_campaign": "googlemybusiness|google_my_business|(^|[_-])gmb|gbp|listing",
+    "paid_campaign": "vla|cpc|ppc|pmax|performance[ _-]?max|paid|shopping|(^|[_ -])display|remarketing|retarget|(^|[_ -])dsa([_ -]|$)|(^|[_ -])sem([_ -]|$)|adwords|google[_ -]?ads"
+  },
+  "inputs": {
+    "ga4": "data/ga4_{STORE}.json from gdata.py ga4-nightly: channel_daily_last7, key_events_by_channel_last7 and _prior7, source_medium_last7 and _prior7, landing_pages_last7, target_date, errors",
+    "ga4_organic": "data/ga4_organic_{STORE}.json from gdata.py ga4-nightly (written since 2026-09-23): organic_landing_last28, organic_windows",
+    "ads_meta": "data/{STORE}_ads_meta.json: the Ads export 'meta' tab (last_run, per-tab status). health.py reads it itself on the shift date when it is missing.",
+    "ads_conversions": "data/{STORE}_conversions_by_action_7d.txt or .json (Shaq's dump, either format) or the same tab read by health.py on the shift date",
+    "search_order": "the shift's data/ folder first, then any run*/data/ folder of the same shift",
+    "ads_export_sheets": {
+      "source": ".claude/skills/ai-team/references/data-sources.md, Google Ads table",
+      "MCP": "1BOTg4rKHz3P99EOGbNBK_ZCoN1YPJHeX6kP58XIqh0c",
+      "NOI": "1C9bf6Ede7xbeDzK2gLlQ4L0MoVeQfRoogrFRNx1FN-U",
+      "ATLAS": "19l16Y6Sn3817ScpxhsEHRKdW4r-iy0vXNmj_JEnvaPE"
+    }
+  },
+  "baselines": {
+    "NCBMW": {
+      "key_event_rate_7d": 0.17,
+      "since": "2026-09-01",
+      "source": "Intelligence/processes/ga4-conversion-integrity.md section 5: key-event rate collapsed from about 17% to 1.3% since about 2026-09-01",
+      "note": "If GTM history shows the 9/1 change was a deliberate un-marking of a soft event, the 17% was the inflated number: lower this baseline (or delete it) and KEY_EVENT_COLLAPSE clears."
+    }
+  },
+  "open_cases": [
+    {
+      "store": "MCP",
+      "rules": [
+        "KEY_EVENT_RATE_HIGH",
+        "NON_LEAD_KEY_EVENTS"
+      ],
+      "since": "2026-08-30",
+      "qualifier": "at least",
+      "source": "ga4-conversion-integrity.md section 5: key-event over-count, at least 2026-08-30"
+    },
+    {
+      "store": "NCBMW",
+      "rules": [
+        "KEY_EVENT_COLLAPSE"
+      ],
+      "since": "2026-09-01",
+      "qualifier": "about",
+      "source": "ga4-conversion-integrity.md section 5: key-event rate collapse, about 2026-09-01"
+    }
+  ],
+  "rules": [
+    {
+      "id": "KEY_EVENT_RATE_HIGH",
+      "check": "ke_rate_high",
+      "core": true,
+      "description": "Store-wide key events per session. The SOP's healthy dealer range is about 2 to 6%; above 20% means a high-frequency event is marked as a key event and the number is noise. A single day above 100% catches a fresh break the same night.",
+      "reads": {
+        "file": "data/ga4_{STORE}.json",
+        "sections": [
+          "channel_daily_last7"
+        ]
+      },
+      "params": {
+        "red_rate_7d": 0.2,
+        "red_rate_target_day": 1.0,
+        "amber_rate_7d": 0.1,
+        "min_sessions_7d": 200,
+        "min_sessions_target_day": 30
+      },
+      "severity": {
+        "red": "7-day rate above red_rate_7d, or the target day above red_rate_target_day",
+        "amber": "7-day rate above amber_rate_7d"
+      },
+      "blocks": [
+        "GA4 conversions (key events)"
+      ],
+      "why": "MCP ran 310% to 506% a day from 9/12 to 9/22 (481 key events on 149 sessions on 9/22). Every other store sits between 4% and 9% over 7 days, so 20% has wide headroom.",
+      "board": "Website conversions are {rate7} of visits, {k7} on {s7} ({window}); {tday} alone {kt} on {st}",
+      "gm": "The website records more conversions than visits, which means routine page views are being counted as leads. Do not quote its conversion number; use CRM leads until DigitalCLIQ fixes the setting.",
+      "tech": "GA4 Admin > Key events: un-mark every page-view style event (listed under NON_LEAD_KEY_EVENTS); keep form submit, call, chat, text. Annotate the change date and re-baseline 90 days before any month-over-month comparison (SOP section 2)."
+    },
+    {
+      "id": "KEY_EVENT_COLLAPSE",
+      "check": "ke_collapse",
+      "core": true,
+      "description": "Real lead events stopped firing. Two tests, worst wins: (1) the 7-day key-event rate against a documented baseline in 'baselines'; (2) lead-class key events per session this week against the prior week (sessions from the top-40 source/medium tables in both weeks, so the ratio compares like with like).",
+      "reads": {
+        "file": "data/ga4_{STORE}.json",
+        "sections": [
+          "channel_daily_last7",
+          "key_events_by_channel_last7",
+          "key_events_by_channel_prior7",
+          "source_medium_last7",
+          "source_medium_prior7"
+        ]
+      },
+      "params": {
+        "red_fraction_of_baseline": 0.25,
+        "amber_fraction_of_baseline": 0.5,
+        "red_drop_wow": 0.6,
+        "amber_drop_wow": 0.4,
+        "min_prior_lead_events": 30
+      },
+      "severity": {
+        "red": "rate below red_fraction_of_baseline of the baseline, or lead rate down red_drop_wow or more week over week",
+        "amber": "below amber_fraction_of_baseline, or down amber_drop_wow or more"
+      },
+      "blocks": [
+        "GA4 conversions (key events)"
+      ],
+      "why": "NCBMW ran 1.4% to 1.7% over 7 days on every night 9/19 to 9/23 against the SOP's 17% pre-9/1 rate. No store's clean lead-event rate is above 2% (SBMW and NOI sit near 1%), so an absolute floor would flag the healthy stores first; the collapse has to be judged against the store's own history. Largest week-over-week drop seen: NCBMW 49% on 9/19 (43 vs 90 lead events), MCP 34% on 9/21 on 21 vs 39 events.",
+      "board": "Website leads collapsed: {finding}",
+      "detail": "Website leads collapsed: {finding_all}",
+      "gm": "The website stopped recording most of its leads. Visits look normal; the lead counter does not. Lead numbers for this store come from the CRM until the tracking is repaired.",
+      "tech": "Find the break date in the key-event trend, check the GTM container publish history and any template or form-vendor change on that date, then submit a test lead and watch GA4 DebugView: no event means a broken trigger, an event with no key event means the marking was lost (SOP section 3). If the drop was a deliberate un-marking, update baselines.{store} in measurement-rules.json."
+    },
+    {
+      "id": "NON_LEAD_KEY_EVENTS",
+      "check": "non_lead_key_events",
+      "core": true,
+      "description": "Share of 7-day key events that are page views (page_view class) or soft actions such as form starts and clicks (soft class). Classes come from 'event_classes'.",
+      "reads": {
+        "file": "data/ga4_{STORE}.json",
+        "sections": [
+          "key_events_by_channel_last7"
+        ]
+      },
+      "params": {
+        "red_share": 0.9,
+        "amber_share": 0.1,
+        "min_non_lead_events": 10
+      },
+      "severity": {
+        "red": "non-lead share at or above red_share (almost nothing counted is a lead)",
+        "amber": "non-lead share at or above amber_share"
+      },
+      "blocks": [
+        "GA4 conversions (key events)"
+      ],
+      "why": "MCP 99% (new_VLP_visit, used_VLP_visit, new_VDP_visit and lowercase twins). SBMW 73% to 79% (schedule_service_page_view, 290 of 397 on Sep 16 to 22). NOI 72% to 80% (asc_form_engagement, a form start, 54 of 71). Amber, not red, below 90% because the submit and call events underneath check out (SBMW's matched Nick's CRM prospects on 9/22).",
+      "board": "{top_plain} counted as conversions, {share} of {total} ({window})",
+      "gm": "The website counts actions that are not leads ({class_plain}) as conversions, so its total runs about {inflation} the real number. Only finished forms and calls should count.",
+      "tech": "GA4 Admin > Key events: un-mark {non_lead_events}. Until then quote only {lead_events}, deduped for any DUPLICATE_LEAD_EVENTS pair, never the raw key-event total."
+    },
+    {
+      "id": "DUPLICATE_LEAD_EVENTS",
+      "check": "duplicate_lead_events",
+      "core": true,
+      "description": "Two different lead or unclassified key events with the same 7-day total and the same count in every channel: one submission firing two tags.",
+      "reads": {
+        "file": "data/ga4_{STORE}.json",
+        "sections": [
+          "key_events_by_channel_last7"
+        ]
+      },
+      "params": {
+        "min_total": 10,
+        "require_channel_match": true
+      },
+      "severity": {
+        "amber": "any matching pair at or above min_total"
+      },
+      "blocks": [
+        "GA4 form lead count"
+      ],
+      "why": "SBMW form_submit and generate_lead matched channel for channel every night (29/29, 29/29, 34/34, 40/40). Below the floor and not flagged: NOI asc_form_submission = asc_form_submission_sales (6, 6, 5, 4) and MCP all_forms_pixel_web = form_submissions_all (8, 4).",
+      "board": "One form counted twice: {pairs} ({window})",
+      "gm": "One web form appears to be counted twice under two names, so form leads look double what they are.",
+      "tech": "{pairs}: same total and same count in every channel over {window}, one submit firing two tags. In GTM find the second tag on the same trigger; keep one as the key event and un-mark the other."
+    },
+    {
+      "id": "LANDING_PAGE_LOAD_TRIGGER",
+      "check": "landing_page_load_trigger",
+      "core": true,
+      "description": "Landing page rows (7 days, top 40 by sessions) where key events reach or pass sessions at a 100% engagement rate (a key event fires on page load, and a key event marks the session engaged), or pass twice the sessions (multi-fire). When the store's key events are mostly non-lead, the page view already flagged by NON_LEAD_KEY_EVENTS explains the shape, so this rule stays clean with a note and re-checks the page once that is fixed.",
+      "reads": {
+        "file": "data/ga4_{STORE}.json",
+        "sections": [
+          "landing_pages_last7",
+          "key_events_by_channel_last7"
+        ]
+      },
+      "params": {
+        "min_sessions": 30,
+        "min_engagement": 0.99,
+        "multi_fire_ratio": 2.0,
+        "red_share_of_key_events": 0.25,
+        "explained_by_non_lead_share": 0.5
+      },
+      "severity": {
+        "red": "flagged rows carry red_share_of_key_events or more of the store's key events",
+        "amber": "flagged rows carry less"
+      },
+      "blocks": [
+        "GA4 conversions (key events)"
+      ],
+      "why": "ATLAS /contact: 192 generate_lead on 167 sessions at exactly 100% engagement (Sep 16 to 22), 73% of the store's key events, while every other ATLAS page converts in single digits. generate_lead is ATLAS's only key event, so there is no clean subset. SBMW's /service/schedule-service/ (72 on 33) and MCP's home page (1,327 on 305) show the same shape but are explained by their page-view key events, so they are not double counted here.",
+      "board": "{page} records a lead on page load, {ke} on {sessions} visits ({window})",
+      "gm": "A page on the site records a lead the moment someone opens it, before they fill anything in, so the site's lead count is mostly page visits.",
+      "tech": "Key events at or above sessions at 100% engagement on {page} means the trigger is page load or page view, not form success. Move the trigger to the form's success event or thank-you page, confirm in DebugView, annotate the date (SOP sections 2 and 3)."
+    },
+    {
+      "id": "NOTSET_ORGANIC_LANDING",
+      "check": "notset_organic_landing",
+      "core": false,
+      "description": "Share of 28-day Organic Search sessions (AI engines excluded) whose landing page is '(not set)'.",
+      "reads": {
+        "file": "data/ga4_organic_{STORE}.json",
+        "sections": [
+          "organic_landing_last28",
+          "organic_windows"
+        ]
+      },
+      "params": {
+        "amber_share": 0.12,
+        "min_sessions": 100
+      },
+      "severity": {
+        "amber": "share at or above amber_share with at least min_sessions"
+      },
+      "blocks": [
+        "GA4 organic landing-page numbers"
+      ],
+      "why": "NCBMW 403 of 2,137 organic sessions (18.9%, 28 days to 9/22). The other four stores run 3.5% to 7.4%.",
+      "board": "{share} of Google organic visits have no landing page, {notset} of {total} ({window})",
+      "gm": "A large share of Google organic visits arrive without the landing page recorded, so page-by-page SEO reporting is incomplete. Totals are fine.",
+      "tech": "'(not set)' landing means the session's first hit was not a page_view: a late Google tag, consent mode, events after a session timeout, or server-side hits. Check the GA4 config tag fires first (Initialization trigger) on every template in GTM preview."
+    },
+    {
+      "id": "PAID_CAMPAIGN_IN_ORGANIC",
+      "check": "paid_campaign_in_organic",
+      "core": false,
+      "description": "Organic Search sessions (28 days) carrying a paid-looking campaign name ('paid_campaign' pattern), Google Business Profile campaigns excluded ('gbp_campaign' pattern).",
+      "reads": {
+        "file": "data/ga4_organic_{STORE}.json",
+        "sections": [
+          "organic_landing_last28",
+          "organic_windows"
+        ]
+      },
+      "params": {
+        "min_sessions": 50,
+        "min_share": 0.05
+      },
+      "severity": {
+        "amber": "at least min_sessions and min_share of organic sessions"
+      },
+      "blocks": [
+        "GA4 organic vs paid channel split"
+      ],
+      "why": "NCBMW constellation_2026_bmwwr_vla (lowercase; the uppercase twin is tagged google / cpc) put 553 sessions, 26% of organic, into Organic Search over 28 days to 9/22. MCP's 'listings' and 'gbp' are Business Profile and correctly excluded.",
+      "board": "Paid campaign counted as organic: {campaigns}, {sessions} visits, {share} of organic ({window})",
+      "gm": "Visits from a paid Google campaign are being counted as free Google traffic, so organic looks bigger and paid looks smaller than they really are.",
+      "tech": "{campaigns} land in Organic Search: its tracking template sets a utm_medium other than cpc or overrides auto-tagging. Fix the final URL suffix (utm_medium=cpc) or rely on gclid; Worthy excludes these sessions from organic reads until then."
+    },
+    {
+      "id": "ADS_NON_LEAD_CONVERSIONS",
+      "check": "ads_non_lead_conversions",
+      "core": false,
+      "description": "Share of Google Ads primary conversions (metrics_conversions, 7 days) from actions that are not leads by 'event_classes' (store visits count as leads).",
+      "reads": {
+        "file": "data/{STORE}_conversions_by_action_7d.(txt|json)",
+        "sections": [
+          "conversions_by_action_7d"
+        ]
+      },
+      "params": {
+        "red_share": 0.6,
+        "amber_share": 0.4,
+        "min_conversions": 5
+      },
+      "severity": {
+        "red": "non-lead share at or above red_share",
+        "amber": "at or above amber_share"
+      },
+      "blocks": [
+        "Google Ads conversions"
+      ],
+      "why": "ATLAS counts one action, 'About Us' page views (9 on 9/19, 33 on 9/22), 100%. MCP runs 21% to 31% non-lead (map directions) and NOI 0%, both under the amber line.",
+      "board": "Google Ads counts {top_action} as its conversion, {share} of {total} ({window})",
+      "gm": "Google Ads is being told a page view is a conversion, so it reports and optimizes toward page visits, not leads. Ads conversion numbers for this store are not leads.",
+      "tech": "Google Ads > Goals > Conversions: set {non_lead_actions} to Secondary and make a real lead action Primary (calls from ads, form submit import). Resolve anything marked Misconfigured or Needs attention first (SOP section 4)."
+    },
+    {
+      "id": "ADS_EXPORT_STALE",
+      "check": "ads_export_stale",
+      "core": false,
+      "description": "Hours between the Ads export's meta last_run and the moment the meta tab was read, plus any export tab whose status is not ok.",
+      "reads": {
+        "file": "data/{STORE}_ads_meta.json",
+        "sections": [
+          "meta tab: last_run, tab status rows"
+        ]
+      },
+      "params": {
+        "amber_hours": 26,
+        "red_hours": 74
+      },
+      "severity": {
+        "red": "older than red_hours (three nights missed)",
+        "amber": "older than amber_hours, or a tab status not ok"
+      },
+      "blocks": [
+        "All Google Ads numbers"
+      ],
+      "why": "data-sources.md: a last_run older than 26 hours means the export is stale. The meta tab was never saved to a shift folder before this script, so the back-test cannot check it.",
+      "board": "Google Ads export last ran {last_run}, {age_h} hours before it was read{tab_note}",
+      "gm": "Last night's Google Ads numbers did not refresh, so any Ads figure for this store tonight is from an older day.",
+      "tech": "Open the ads_export.gs script in the account (Tools > Scripts), check run history and authorization, run it once by hand, then re-run health.py."
+    },
+    {
+      "id": "GA4_PULL_STALE",
+      "check": "ga4_pull_stale",
+      "core": false,
+      "description": "The GA4 file's target_date is older than the day before the shift, or the file lists pull errors.",
+      "reads": {
+        "file": "data/ga4_{STORE}.json",
+        "sections": [
+          "target_date",
+          "errors"
+        ]
+      },
+      "params": {
+        "max_lag_days": 1
+      },
+      "severity": {
+        "amber": "lag above max_lag_days, or any error in the file"
+      },
+      "blocks": [
+        "GA4 numbers dated as last night"
+      ],
+      "why": "Law 2: missing or old data is reported, never carried forward as current.",
+      "board": "GA4 file is stale or partial: {finding}",
+      "gm": "Tonight's website numbers are not from last night, so they may be out of date.",
+      "tech": "Re-run gdata.py ga4-nightly for the shift's target date and check its errors list: {finding}."
+    }
+  ]
+}

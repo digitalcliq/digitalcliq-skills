@@ -19,7 +19,7 @@ Skill material lives in five places, each with one role. Do not let copies drift
 | Root `Automotive Intelligence Skill/` and `Second Brain Optimizer Skill/` (git repo) | Editable source of truth for those skill packages. Edit here, then sync to the installed plugin copies. |
 | `anthropic-skills` plugin (Drew's Claude account) + `.claude/skills/second-brain-optimizer/` | Installed runtime. What actually executes when a `/{skill}` fires. |
 | `Skills/{skill-name}/` (this folder) | Vault-facing docs: catalogs, design notes, change logs, examples. Never runtime code. |
-| `~/Desktop/digitalcliq-skills` (git repo, private GitHub target `digitalcliq/digitalcliq-skills`) | Backup and share point for all 21 custom skills plus agents. `main` = runtime snapshot, `desktop-source` = 2026-09-23 snapshot of `~/Desktop/Skills`. Refresh with `sync.sh` after any skill change. |
+| `~/Desktop/digitalcliq-skills` (git repo, private GitHub target `digitalcliq/digitalcliq-skills`) | Backup and share point for all 22 custom skills (incl. automotive-intelligence) plus agents. `main` = runtime snapshot, `desktop-source` = 2026-09-23 snapshot of `~/Desktop/Skills`. Refresh with `sync.sh` after any skill change. |
 | Zip snapshots (`Skills.zip`, `outputs/second-brain-optimizer.zip`) | Disposable point-in-time backups, archived 2026-08-30. Never edit or restore from them without checking the live copies first. |
 
 ## Local doc folders
@@ -87,7 +87,7 @@ These skills depend on canonical vault content:
 - 2026-09-04: `mcpeeks-site-watch` deliverable moved from PDF to a GM-facing Excel workbook; notes folder added.
 - 2026-09-14: CNCDA CARS Act Compliance Guide v1.2 and Webinar FAQ folded into every compliance skill: `dealership-compliance-audit` (rules `CA-CARS-025` to `-040`, five new deterministic checks, judgment criteria 16 and 17, legal watch), `cars-act-check` (110 inspection points, corrected citations, rewritten law and first-communication references, policy and training templates), `mcpeeks-site-watch` (24 checks), `brand-check` (California CARS Act overlay), `social-media-manager` (CARS block). Vault source: [[Resources/automotive-guidelines/cncda-cars-act-guidance]]. A `cars-act-check` source copy now exists under `~/Desktop/Skills/skills/`.
 
-- 2026-09-23: all 21 custom skills backed up to a new git repo at `~/Desktop/digitalcliq-skills` with a `sync.sh` refresh script. Runtime copies on `main`, the drifted `~/Desktop/Skills` copy on `desktop-source`. The vault `.claude/skills/synced/` folder is a stale account download (dead Brain/Brain paths, missing fixes), never restore from it.
+- 2026-09-23: all 22 custom skills (automotive-intelligence added same day) backed up to a new git repo at `~/Desktop/digitalcliq-skills` with a `sync.sh` refresh script. Runtime copies on `main`, the drifted `~/Desktop/Skills` copy on `desktop-source`. The vault `.claude/skills/synced/` folder is a stale account download (dead Brain/Brain paths, missing fixes), never restore from it.
 ## Open Items
 
 - Workshop whether to consolidate `brand-check` + `dealership-compliance-audit` into one super-audit, or keep them split. (Any resulting work item goes to [[Notion]] TASKS, root Rule 11.)

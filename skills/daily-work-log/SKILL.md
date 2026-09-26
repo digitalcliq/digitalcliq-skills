@@ -55,7 +55,7 @@ If a source returns nothing or is not connected, record one line ("Slack: no act
 
 For every captured item, attribute it to a client using `references/client-routing.md` (email domain, store name, key person, project code, web domain). Group the day into buckets:
 
-- One bucket per client with activity (MCP, NCBMW, SBMW, NOI, CDHD, Atlas, FFLOW, etc.)
+- One bucket per client with activity (MCP, NCBMW, SBMW, NOI, Atlas, FFLOW, etc.)
 - **Internal / DigitalCLIQ** for agency ops, tooling, hiring, the vault itself.
 - **Personal** for anything not work. Never route personal content into a client file.
 

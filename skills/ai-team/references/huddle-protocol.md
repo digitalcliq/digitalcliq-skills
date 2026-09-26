@@ -26,7 +26,7 @@ Drew read the first dry run's channel and could not follow it: walls of numbers 
 - **Drew can cut in.** Drew may reply in any thread. Before you answer in a thread, read it (`slack.py read --thread <ts>`). Anything Drew said there outranks your plan; if it changes scope, tell Magic.
 - Aggregates only, never customer-level data, never Ads customer ids. The poster refuses phone numbers and emails.
 
-Commands: `python3 .claude/skills/ai-team/scripts/slack.py post --as kobe --text "..."` prints the `ts`. Reply with `--thread <ts>`. Long text: write it to a file in the shift folder and use `--file`.
+Commands: `python3 .claude/skills/ai-team/scripts/slack.py post --as kobe --text "..."` prints the `ts`. Reply with `--thread <ts>`. Long text, and anything with a dollar amount: write it to a file in the shift folder and use `--file` (the shell eats `$6,497` in `--text`; when slack.py refuses a `--text` post, resending with `--file` is expected, not a retry in another shape).
 
 ## How to huddle
 
@@ -66,4 +66,4 @@ Drew's example, and the most valuable conversation this team has. When Ads looks
 
 ## What Magic does with huddles
 
-Magic reads every huddle, re-checks the numbers both sides cited against the source files, and gives the brief a `Huddles` section: the question, what the players found, and the recommended move. Magic can also start a huddle by naming two players and the question.
+Magic reads every huddle, re-checks the numbers both sides cited against the source files, and gives the brief its "What the team worked out together" section: the question, what the players found, and the recommended move. Magic can also start a huddle by naming two players and the question.

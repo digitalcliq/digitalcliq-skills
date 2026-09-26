@@ -10,10 +10,10 @@ Keep this table in sync with `Projects/*/README.md` frontmatter. Codes are the f
 | NCBMW | New Century BMW | New Century, NCBMW, New Century Auto Group | newcenturybmw.com, newcenturyautogroup.com, newcenturyautos.com | Frank Lin (owner), Lennie (GSM), Dan, Sharon Wilhort | Automotive (BMW) |
 | SBMW | Sterling BMW | Sterling | sterlingbmw.com | Bob/Robert Wieland (service), Conrad, Wes, Eric D | Automotive (BMW) |
 | NOI | Nissan of Irvine | Nissan Irvine, NOI | nissanofirvine.com | Ron Campbell (GM/co-owner), Darlene Salazar | Automotive (Nissan) |
-| CDHD | Chuck Deluxe Harley-Davidson | Chuck Deluxe, CDHD | chuckdeluxe.com | Maria | Powersports (Harley-Davidson) |
+| CDHD | Chuck Deluxe Harley-Davidson (former client 2026-09-23; route only its offboarding money emails) | Chuck Deluxe, CDHD | chuckdeluxe.com | Maria | Powersports (Harley-Davidson) |
 | CHC | Covina Hills Chevy | Covina Hills, CHC | (confirm) | (confirm) | Automotive (Chevrolet) |
 | Atlas | Atlas Shippers International | Atlas, Atlas Shippers | atlasshippers.com | Marketing team | Logistics / balikbayan boxes |
-| KCC | Kasama Coffee Collective | Kasama, Kasama Coffee | (confirm) | (confirm) | Coffee / food service |
+| KCC | Kasama Coffee Collective (not active 2026-09-23) | Kasama, Kasama Coffee | (confirm) | (confirm) | Coffee / food service |
 | CCT | Cactus Craft | Cactus Craft | (confirm) | (confirm) | TBD |
 | DKD | DK's Donuts | DK's, DK Donuts | (confirm) | (confirm) | Food service |
 | MFK | Modern Filipino Kitchen | MFK | (confirm) | (confirm) | Food service |

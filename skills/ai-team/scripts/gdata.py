@@ -9,10 +9,15 @@ Secrets live OUTSIDE the vault in ~/.config/digitalcliq-ai-team/:
   google_token.json    written by `gdata.py auth`, chmod 600
 
 Commands:
-  auth                                   one-time browser consent (Drew runs this)
+  auth [--gsc]                           one-time browser consent (Drew runs this); --gsc adds Search Console
   status                                 token + per-property access check
   ga4 --store SBMW --start D --end D --dims a,b --metrics x,y [--limit N]
-  ga4-nightly [--date D] --out DIR       standard nightly pull, all stores, with flags
+  ga4-nightly [--date D] --out DIR       standard nightly pull, all stores, with flags. Also writes the
+                                         organic landing sections seo_join.py reads (last 28 and prior 28
+                                         days ending on the target date, AI engine sources excluded)
+  gsc-sites                              Search Console properties this login can read
+  gsc-nightly [--date D] --out DIR       gsc_{STORE}.json per store in GSC_SITES: page and page x query,
+                                         last 28 and prior 28 days ending 3 days before the target date
   sheet-tabs --id SHEET_ID
   sheet --id SHEET_ID --range 'Tab!A1:Z500'
   drive-find --name "CRM Drop"
@@ -20,6 +25,14 @@ Commands:
   drive-get --id FILE_ID --out PATH      Google Sheets export as .xlsx, others raw
   mail-ls [--days 3] [--query 'from:x']  CRM report emails under the Morning_CRM label
   mail-get --id MSG_ID --out DIR         save that email's attachments + text body to DIR
+
+Search Console setup (optional, never required by the other commands):
+  1. Enable "Google Search Console API" in the same Google Cloud project as google_client.json.
+  2. Drew runs `gdata.py auth --gsc` in a terminal. It asks for the usual scopes plus
+     webmasters.readonly and replaces google_token.json. Plain `auth` still asks for the usual scopes only.
+  3. Run `gdata.py gsc-sites`, then fill GSC_SITES below by hand (store code to siteUrl, exactly as listed).
+  Until step 2 is done, gsc-sites and gsc-nightly stop with "Search Console not authorized yet" and
+  everything else keeps working on the existing token.
 """
 import argparse
 import base64
@@ -51,6 +64,21 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
 ]
 
+# Search Console is opt-in: requested only by `auth --gsc`, never added to SCOPES,
+# so a token saved without it keeps working for everything else.
+GSC_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly"
+GSC_NOT_AUTHORIZED = ("Search Console not authorized yet: Drew runs "
+                      "python3 .claude/skills/ai-team/scripts/gdata.py auth --gsc")
+
+# Store code -> Search Console siteUrl, exactly as `gdata.py gsc-sites` lists it
+# (a URL-prefix property like "https://www.sterlingbmw.com/" or a domain property like
+# "sc-domain:sterlingbmw.com"). Empty until Drew runs auth --gsc and fills it by hand.
+GSC_SITES = {
+}
+GSC_PAGE_LIMIT = 500
+GSC_PAGE_QUERY_LIMIT = 1000
+GSC_LAG_DAYS = 3  # final Search Console data trails by about 3 days
+
 # Gmail label that Drew's filters put the scheduled CRM report emails under.
 CRM_LABEL = "Morning_CRM"
 
@@ -67,6 +95,18 @@ AI_SOURCE_REGEX = (
     "chatgpt|openai|perplexity|gemini|bard|copilot|claude|anthropic|"
     "you\\.com|phind|poe\\.com|meta\\.ai|deepseek|grok"
 )
+ORGANIC_KEYS = ("organic_windows", "organic_landing_last28", "organic_landing_prior28",
+                "organic_landing_events_last28", "ai_referrals_by_landing_last28")
+AI_SOURCE_FILTER = {"filter": {"fieldName": "sessionSource",
+                               "stringFilter": {"matchType": "PARTIAL_REGEXP", "value": AI_SOURCE_REGEX}}}
+# Organic Search sessions minus any AI engine source, so AI referrals are never counted twice.
+ORGANIC_NON_AI_FILTER = {"andGroup": {"expressions": [
+    {"filter": {"fieldName": "sessionDefaultChannelGroup",
+                "stringFilter": {"matchType": "EXACT", "value": "Organic Search"}}},
+    {"notExpression": AI_SOURCE_FILTER},
+]}}
+KEY_EVENTS_ONLY = {"filter": {"fieldName": "keyEvents",
+                              "numericFilter": {"operation": "GREATER_THAN", "value": {"doubleValue": 0}}}}
 
 # A channel is flagged when the target day moves this far from its trailing
 # 4-week same-weekday average AND the average is big enough to matter.
@@ -102,7 +142,8 @@ def _post_form(url, fields):
         die("token endpoint %s: %s" % (e.code, e.read().decode()[:400]))
 
 
-def cmd_auth(_args):
+def cmd_auth(args):
+    scopes = SCOPES + ([GSC_SCOPE] if getattr(args, "gsc", False) else [])
     client_id, client_secret = _load_client()
     state = secrets.token_urlsafe(16)
     got = {}
@@ -125,7 +166,7 @@ def cmd_auth(_args):
         "client_id": client_id,
         "redirect_uri": redirect,
         "response_type": "code",
-        "scope": " ".join(SCOPES),
+        "scope": " ".join(scopes),
         "access_type": "offline",
         "prompt": "consent",
         "state": state,
@@ -150,7 +191,7 @@ def cmd_auth(_args):
         die("Google returned no refresh token. Remove the app at myaccount.google.com/permissions and run auth again.")
     os.makedirs(CONFIG_DIR, exist_ok=True)
     with open(TOKEN_FILE, "w") as f:
-        json.dump({"refresh_token": tok["refresh_token"], "scopes": SCOPES,
+        json.dump({"refresh_token": tok["refresh_token"], "scopes": scopes,
                    "created": dt.datetime.now().isoformat()}, f)
     os.chmod(TOKEN_FILE, 0o600)
     print("Saved. Run `gdata.py status` to confirm every property answers.")
@@ -175,7 +216,20 @@ def access_token():
     })
     _ACCESS["token"] = tok["access_token"]
     _ACCESS["exp"] = dt.datetime.now() + dt.timedelta(seconds=int(tok.get("expires_in", 3000)) - 120)
+    _ACCESS["scope"] = tok.get("scope")  # space separated scopes Google actually granted, when it says
     return _ACCESS["token"]
+
+
+def granted_scopes():
+    """Scopes on the saved token: Google's refresh answer first, what `auth` saved as the fallback."""
+    access_token()
+    if _ACCESS.get("scope"):
+        return set(_ACCESS["scope"].split())
+    try:
+        with open(TOKEN_FILE) as f:
+            return set(json.load(f).get("scopes") or [])
+    except (OSError, ValueError):
+        return set()
 
 
 def api(url, payload=None, raw=False):
@@ -196,7 +250,8 @@ def api(url, payload=None, raw=False):
 
 # ---------------------------------------------------------------- GA4
 
-def ga4_report(store, start, end, dims, metrics, limit=1000, dim_filter=None, order_metric=None):
+def ga4_report(store, start, end, dims, metrics, limit=1000, dim_filter=None, order_metric=None,
+               metric_filter=None):
     prop = GA4_PROPERTIES.get(store.upper())
     if not prop:
         die("unknown store %s. Known: %s" % (store, ", ".join(GA4_PROPERTIES)))
@@ -208,6 +263,8 @@ def ga4_report(store, start, end, dims, metrics, limit=1000, dim_filter=None, or
     }
     if dim_filter:
         body["dimensionFilter"] = dim_filter
+    if metric_filter:
+        body["metricFilter"] = metric_filter
     if order_metric:
         body["orderBys"] = [{"metric": {"metricName": order_metric}, "desc": True}]
     res = api("https://analyticsdata.googleapis.com/v1beta/properties/%s:runReport" % prop, body)
@@ -319,9 +376,33 @@ def cmd_ga4_nightly(args):
             order_metric="sessions"))
         grab("ai_engine_referrals_last28", lambda: ga4_report(
             store, d(27), t, ["sessionSource"], ["sessions", "engagedSessions", "keyEvents"], 50,
-            dim_filter={"filter": {"fieldName": "sessionSource",
-                                   "stringFilter": {"matchType": "PARTIAL_REGEXP", "value": AI_SOURCE_REGEX}}},
-            order_metric="sessions"))
+            dim_filter=AI_SOURCE_FILTER, order_metric="sessions"))
+        # Organic landing pages for seo_join.py. sessionCampaignName separates Google Business
+        # Profile clicks (utm_campaign googlemybusiness, scgooglemybusiness, listings) from web results.
+        pack["organic_windows"] = {"last28": [d(27), t], "prior28": [d(55), d(28)]}
+        grab("organic_landing_last28", lambda: ga4_report(
+            store, d(27), t, ["landingPage", "sessionCampaignName"],
+            ["sessions", "engagedSessions", "keyEvents"], 500,
+            dim_filter=ORGANIC_NON_AI_FILTER, order_metric="sessions"))
+        grab("organic_landing_prior28", lambda: ga4_report(
+            store, d(55), d(28), ["landingPage", "sessionCampaignName"],
+            ["sessions", "engagedSessions", "keyEvents"], 500,
+            dim_filter=ORGANIC_NON_AI_FILTER, order_metric="sessions"))
+        grab("organic_landing_events_last28", lambda: ga4_report(
+            store, d(27), t, ["landingPage", "eventName"], ["keyEvents"], 500,
+            dim_filter=ORGANIC_NON_AI_FILTER, metric_filter=KEY_EVENTS_ONLY, order_metric="keyEvents"))
+        grab("ai_referrals_by_landing_last28", lambda: ga4_report(
+            store, d(27), t, ["sessionSource", "landingPage"], ["sessions", "engagedSessions", "keyEvents"], 200,
+            dim_filter=AI_SOURCE_FILTER, order_metric="sessions"))
+        # The organic sections are large (up to 500 rows each) and only seo_join.py reads them,
+        # so they go to their own file and Kobe's ga4_{STORE}.json stays the size it always was.
+        organic = {k: pack[k] for k in ("store", "target_date") if k in pack}
+        for k in ORGANIC_KEYS:
+            if k in pack:
+                organic[k] = pack.pop(k)
+        organic["errors"] = [e for e in pack["errors"] if any(k in str(e) for k in ORGANIC_KEYS)]
+        with open(os.path.join(args.out, "ga4_organic_%s.json" % store), "w") as f:
+            json.dump(organic, f, indent=1)
         path = os.path.join(args.out, "ga4_%s.json" % store)
         with open(path, "w") as f:
             json.dump(pack, f, indent=1)
@@ -345,6 +426,92 @@ def cmd_status(_args):
             print("GA4 %-6s ok   sessions %s = %s" % (store, y, rows[0]["sessions"] if rows else 0))
         except Exception as e:
             print("GA4 %-6s FAIL %s" % (store, str(e)[:200]))
+    if GSC_SCOPE in granted_scopes():
+        print("GSC        authorized, %d store(s) mapped in GSC_SITES" % len(GSC_SITES))
+    else:
+        print("GSC        not authorized (optional, nothing else needs it)")
+
+
+# ---------------------------------------------------------------- Search Console (optional)
+
+GSC_API = "https://www.googleapis.com/webmasters/v3/"
+
+
+def require_gsc():
+    if GSC_SCOPE not in granted_scopes():
+        die(GSC_NOT_AUTHORIZED)
+
+
+def gsc_api(url, payload=None):
+    try:
+        return api(url, payload)
+    except RuntimeError as e:
+        msg = str(e)
+        low = msg.lower()
+        if "http 403" in low and ("scope" in low or "insufficient" in low):
+            die(GSC_NOT_AUTHORIZED)
+        if "http 403" in low and ("service_disabled" in low or "has not been used" in low):
+            die("Search Console API is off in the Google Cloud project that owns google_client.json. "
+                "Drew enables \"Google Search Console API\" there, then reruns this command.")
+        raise
+
+
+def gsc_query(site, start, end, dims, limit):
+    body = {"startDate": start, "endDate": end, "dimensions": dims, "rowLimit": limit,
+            "dataState": "final", "type": "web"}
+    res = gsc_api(GSC_API + "sites/%s/searchAnalytics/query" % urllib.parse.quote(site, safe=""), body)
+    rows = []
+    for r in res.get("rows", []):
+        row = dict(zip(dims, r.get("keys", [])))
+        row["clicks"] = int(r.get("clicks", 0))
+        row["impressions"] = int(r.get("impressions", 0))
+        row["ctr"] = round(float(r.get("ctr", 0)), 4)
+        row["position"] = round(float(r.get("position", 0)), 2)
+        rows.append(row)
+    return rows
+
+
+def cmd_gsc_sites(_args):
+    require_gsc()
+    sites = gsc_api(GSC_API + "sites").get("siteEntry", [])
+    print(json.dumps({"sites": sites, "mapped": GSC_SITES,
+                      "note": "copy each store's siteUrl exactly into GSC_SITES in gdata.py"}, indent=1))
+
+
+def cmd_gsc_nightly(args):
+    require_gsc()
+    if not GSC_SITES:
+        die("GSC_SITES in gdata.py is empty: run gdata.py gsc-sites and map each store code to its siteUrl.")
+    target = dt.date.fromisoformat(args.date) if args.date else pacific_today() - dt.timedelta(days=1)
+    end = target - dt.timedelta(days=GSC_LAG_DAYS)
+    os.makedirs(args.out, exist_ok=True)
+    d = lambda n: (end - dt.timedelta(days=n)).isoformat()
+    windows = {"last28": [d(27), d(0)], "prior28": [d(55), d(28)]}
+    summary = {"target_date": target.isoformat(), "end_date": d(0), "windows": windows, "stores": {}}
+    for store, site in GSC_SITES.items():
+        pack = {"store": store, "site_url": site, "target_date": target.isoformat(), "end_date": d(0),
+                "windows": windows, "data_state": "final",
+                "pulled_at": dt.datetime.now().isoformat(timespec="seconds"), "errors": []}
+
+        def grab(key, fn):
+            try:
+                pack[key] = fn()
+            except Exception as e:  # keep going, never guess
+                pack[key] = None
+                pack["errors"].append("%s: %s" % (key, e))
+
+        grab("pages_last28", lambda: gsc_query(site, d(27), d(0), ["page"], GSC_PAGE_LIMIT))
+        grab("pages_prior28", lambda: gsc_query(site, d(55), d(28), ["page"], GSC_PAGE_LIMIT))
+        grab("page_query_last28", lambda: gsc_query(site, d(27), d(0), ["page", "query"], GSC_PAGE_QUERY_LIMIT))
+        grab("page_query_prior28", lambda: gsc_query(site, d(55), d(28), ["page", "query"], GSC_PAGE_QUERY_LIMIT))
+        path = os.path.join(args.out, "gsc_%s.json" % store.upper())
+        with open(path, "w") as f:
+            json.dump(pack, f, indent=1)
+        summary["stores"][store] = {"file": path, "errors": pack["errors"],
+                                    "pages_last28": len(pack.get("pages_last28") or []),
+                                    "clicks_last28": sum(r["clicks"] for r in pack.get("pages_last28") or [])}
+    json.dump(summary, sys.stdout, indent=1)
+    print()
 
 
 # ---------------------------------------------------------------- Sheets + Drive
@@ -420,9 +587,13 @@ def _walk_parts(part, out):
 
 
 def cmd_mail_ls(args):
-    q = "label:%s newer_than:%dd" % (CRM_LABEL, args.days)
+    if args.any_label and not args.query:
+        die("--any-label needs --query, so the search stays on report senders")
+    # --any-label drops the Morning_CRM label so senders the filter does not catch (BMW NA,
+    # Constellation for NCBMW) can be found; without it an extra --query only narrows the label.
+    q = ("newer_than:%dd" % args.days) if args.any_label else ("label:%s newer_than:%dd" % (CRM_LABEL, args.days))
     if args.query:
-        q += " " + args.query
+        q += " (%s)" % args.query
     res = api(GMAIL + "messages?maxResults=100&q=" + urllib.parse.quote(q))
     out = []
     for m in res.get("messages", []):
@@ -466,7 +637,10 @@ def cmd_mail_get(args):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("auth").set_defaults(fn=cmd_auth)
+    a = sub.add_parser("auth")
+    a.add_argument("--gsc", action="store_true",
+                   help="also ask for Search Console (webmasters.readonly); replaces the saved token")
+    a.set_defaults(fn=cmd_auth)
     sub.add_parser("status").set_defaults(fn=cmd_status)
     g = sub.add_parser("ga4")
     g.add_argument("--store", required=True)
@@ -480,6 +654,11 @@ def main():
     n.add_argument("--date")
     n.add_argument("--out", required=True)
     n.set_defaults(fn=cmd_ga4_nightly)
+    sub.add_parser("gsc-sites").set_defaults(fn=cmd_gsc_sites)
+    n = sub.add_parser("gsc-nightly")
+    n.add_argument("--date")
+    n.add_argument("--out", required=True)
+    n.set_defaults(fn=cmd_gsc_nightly)
     s = sub.add_parser("sheet-tabs")
     s.add_argument("--id", required=True)
     s.set_defaults(fn=cmd_sheet_tabs)
@@ -500,6 +679,8 @@ def main():
     s = sub.add_parser("mail-ls")
     s.add_argument("--days", type=int, default=3)
     s.add_argument("--query", help="extra Gmail search terms, e.g. from:drive.sterlingbmw.com")
+    s.add_argument("--any-label", action="store_true",
+                   help="search all mail, not just the Morning_CRM label (needs --query)")
     s.set_defaults(fn=cmd_mail_ls)
     s = sub.add_parser("mail-get")
     s.add_argument("--id", required=True)

@@ -3,7 +3,7 @@
 **Sources:** Harley-Davidson U.S. Motorcycle Minimum Advertised Price Policy (effective May 11, 2026)
 **Vault canonical reference:** `Resources/automotive-guidelines/harley-davidson-quick-reference.md` (page citations to source PDF)
 **Source PDF:** `Resources/automotive-guidelines/Harley Davidson Motorcycle MAP Policy.pdf`
-**Applies to:** Chuck Deluxe Harley-Davidson (CDHD), any new HD dealer client
+**Applies to:** any Harley-Davidson dealer client
 
 **Sibling human quick-reference:** `Resources/automotive-guidelines/harley-davidson-quick-reference.md` (update both together when OEM guidelines change).
 

@@ -10,7 +10,11 @@ No browser. No CAPTCHA solving. No logins. If a source is missing, say "no data 
 
 Each file holds: `channel_flags` (target day vs trailing 4-week same-weekday average, flag at 25% with a 20-session floor), `channel_daily_last7`, `source_medium_last7` and `_prior7`, `key_events_by_channel_last7` and `_prior7`, `landing_pages_last7`, `paid_campaigns_last7`, `ai_engine_referrals_last28`, and `errors`.
 
+It also writes `ga4_organic_{STORE}.json` (added 2026-09-23) for Worthy's GA4 match: `organic_landing_last28` and `_prior28` (landing page x campaign, Organic Search minus AI engines), `organic_landing_events_last28`, `ai_referrals_by_landing_last28`, and `organic_windows`. Kobe does not need to read it; it is large.
+
 Ad hoc: `GD ga4 --store NOI --start 2026-09-10 --end 2026-09-16 --dims sessionCampaignName --metrics sessions,keyEvents`.
+
+Search Console (optional, not authorized yet): `GD gsc-sites` and `GD gsc-nightly --out outputs/ai-team/{date}/data` write `gsc_{STORE}.json` once Drew enables the Search Console API in the Cloud project, runs `GD auth --gsc` himself, and fills `GSC_SITES` in gdata.py. Until then both commands stop with "Search Console not authorized yet"; nothing else depends on them.
 
 | Store | Property id |
 |---|---|
@@ -34,6 +38,8 @@ Each account runs `scripts/ads_export.gs` nightly into its own Google Sheet, fil
 
 Tabs: `meta`, `campaign_daily_30d`, `adgroup_7d`, `search_terms_7d`, `keywords_7d`, `conversions_by_action_7d`, `change_events_14d`, `ads_policy_issues`. Cost columns are already in dollars.
 
+All three accounts (MCP, NOI, ATLAS) run `ads_export_v2.gs` since 2026-09-23 (same tabs plus `ad_text_7d`; installed through Drew's Chrome on his go, no re-authorization needed) also write every enabled search ad in an enabled campaign and ad group with headlines, descriptions, pinned slots, final URL, approval, and 7-day delivery. `python3 .claude/skills/ai-team/scripts/ad_text_check.py --store ALL --out outputs/ai-team/{date}/data` scans it in one call; ATLAS gets federal citations only; responsive search ads only (Performance Max, vehicle listing ads, and promotion or callout assets are not covered yet).
+
 Shaq diagnoses and recommends. Nothing in any Ads account changes without Drew's explicit "go" in Slack, and never on the same night.
 
 ## CRM (Nick)
@@ -44,7 +50,7 @@ Shaq diagnoses and recommends. Nothing in any Ads account changes without Drew's
 |---|---|---|---|
 | SBMW | MomentumCRM | `DoNotReply@drive.sterlingbmw.com`, subject "Morning CRM Executive Summary Sterling BMW", PDF `executiveSnapshot_*.pdf`. Rescheduled 2026-09-17 to land between midnight and 1:00am. | Live |
 | NOI | VinSolutions | `reportscheduler@motosnap.com`, subject "Morning CRM NOI Lead Reports ROI", leads month to date. Scheduled 2026-09-17, test received 3:38pm that day. | Live |
-| NCBMW | Reynolds FOCUS | No FOCUS email (CAPTCHA on pull, Drew has no scheduling rights). Use BMW NA's `Edward.McRae@bmwna.com` emails instead: "Lead Conversion - {Mon} MTD", "{Mon} MTD RDRs" daily, and Constellation `reports@helloconstellation.com` weekly. These are NOT under the label; run `mail-ls --query "from:bmwna.com OR from:helloconstellation.com"` too. Drew may drop a FOCUS export in `CRM Drop/NCBMW` about weekly; when one appears, backfill the days it covers. | Partial, weekly CRM depth at best |
+| NCBMW | Reynolds FOCUS | No FOCUS email (CAPTCHA on pull, Drew has no scheduling rights). Use BMW NA's `Edward.McRae@bmwna.com` emails instead: "Lead Conversion - {Mon} MTD", "{Mon} MTD RDRs" daily, and Constellation `reports@helloconstellation.com` weekly. These are NOT under the label; run `GD mail-ls --days 3 --any-label --query "from:bmwna.com OR from:helloconstellation.com"` too. Without `--any-label` the query only searches inside the label and always comes back empty: that bug made NCBMW read as "no CRM data since 2026-09-17" for four shifts while BMW NA's Lead Conversion (9/22) and daily RDR mails (through 9/23) and Constellation's weekly report (9/22) were all arriving. Drew may drop a FOCUS export in `CRM Drop/NCBMW` about weekly; when one appears, backfill the days it covers. | Partial, weekly CRM depth at best |
 | MCP | Tekion | No Tekion email (Drew cannot schedule in Tekion; the store's Tekion admin has to). Drew may drop a Tekion export in `CRM Drop/MCP` about weekly (he is at the store Thursdays); when one appears, backfill the days it covers. | Weekly manual drop until the store schedules it |
 
 The month-to-date reports (SBMW, NOI) restate the whole month each night. Nick derives the day's numbers by comparing to the previous night's file in the prior shift folder; on the first night there is no daily delta, only MTD.
@@ -76,11 +82,11 @@ Benchmarks: NADA close-rate logic from the `score-leads` and `compare-weeks` ski
 
 ## Meta Ads (Luka)
 
-One ad account, the DigitalCLIQ Meta account (id in [[Context/connector-ids]], never written to Slack or the brief). Every client's paid social runs through it, so Luka splits it by store from campaign names. Access is the Meta Ads MCP, two ways: the user-scope server `meta-ads` (registered 2026-09-19, tool names `mcp__meta-ads__*`, so teammates load it from settings) or the claude.ai connector in the lead session. Confirmed 2026-09-19 from the desktop session: the connector lists `(MAIN)932166720307788`, business Digitalcliq, active and queryable. Luka reads that account only. The connector also shows an active `mcpeek ads` account owned by the McPeek Dodge business and a closed Nissan Irvine account; neither is in scope unless Drew says so. Tools are deferred until searched: run a ToolSearch for `select:mcp__meta-ads__ads_get_ad_accounts` before saying the connector is missing.
+One ad account, the DigitalCLIQ Meta account (id in [[Context/connector-ids]], never written to Slack or the brief). Every client's paid social runs through it, so Luka splits it by store from campaign names. Access is the user-scope Meta Ads MCP server `meta-ads` (registered 2026-09-19, authenticated, tool names `mcp__meta-ads__*`). The claude.ai Meta connector (`mcp__claude_ai_Meta_Ads__*`) has not appeared in the Terminal CLI since the morning of 2026-09-19; do not count on it. Confirmed 2026-09-19 from the desktop session: the connector lists `(MAIN)932166720307788`, business Digitalcliq, active and queryable. Luka reads that account only. The connector also shows an active `mcpeek ads` account owned by the McPeek Dodge business and a closed Nissan Irvine account; neither is in scope unless Drew says so. Tools are deferred until searched: run a ToolSearch for `select:mcp__meta-ads__ads_get_ad_accounts` before saying the connector is missing.
 
 Read-only tools, the only ones Luka calls: `ads_get_ad_accounts`, `ads_get_ad_entities`, `ads_insights_performance_trend`, `ads_insights_anomaly_signal`, `ads_insights_advertiser_context`, `ads_insights_industry_benchmark`, `ads_insights_auction_ranking_benchmarks`, `ads_get_creatives`, `ads_get_creative_ads`, `ads_get_ad_preview`, `ads_get_customconversions`, `ads_get_datasets`, `ads_get_dataset_quality`, `ads_get_dataset_stats`, `ads_get_errors`, `ads_get_opportunity_score`, `ads_account_get_activity_logs`, `ads_get_field_context`, `ads_get_help_article`. Every create, update, delete, activate, boost, and upload tool on that connector is denied in `.claude/settings.json`; a refusal is the guardrail, not a bug.
 
-Connector caveat (learned 2026-09-19 dry run): claude.ai connectors load in Magic's session and did not load in the teammate sessions (Worthy had no Semrush). If the Meta tools are not in your session, do not stop: tell Magic in Slack, and Magic runs the standard pull from its own session into `outputs/ai-team/{date}/data/meta_*.json` for you to read. Same rule for Worthy and Semrush.
+Connector caveat (root cause found 2026-09-23): players get the tool list from the start of Magic's current turn, and connectors load a few seconds after turn 1 begins, so every shift that spawned the team in turn 1 left all players with zero connector tools, whatever was signed in. SKILL.md now spawns the team on a later turn, and Magic runs `usage.py --tools` right after the spawn. If Luka still has no Meta tools, Magic pulls the standard set from the lead session into `outputs/ai-team/{date}/data/meta_*.json` (campaigns with status, budget, and ad set flight end dates; campaign insights for yesterday, last 7, and prior 7 days; delivery errors; activity log 14 days). Same rule for Worthy and Semrush.
 
 Call budget: 25 connector calls per shift. Pull campaign-level insights for all stores in one call where the tool allows, then drill only into what moved. Save every raw response to `outputs/ai-team/{date}/data/meta_*.json` so nobody re-pulls.
 
@@ -88,15 +94,52 @@ Context worth knowing: [[Nissan of Irvine|NOI]] weekend blast plus $800/mo Faceb
 
 ## SEO / GEO / AEO (Worthy)
 
-Semrush MCP (`domain_overview`, `organic_research`, `keyword_research`, `position_tracking`, `get_report_schema`, `execute_report`), reachable two ways: the user-scope server `semrush` (registered 2026-09-19 so teammates load it from settings; tool names `mcp__semrush__*`) or the claude.ai connector in the lead session.
+**Access (fixed 2026-09-23).** Semrush comes through the claude.ai connector, which the Terminal CLI names `mcp__claude_ai_Semrush__*` (`execute_report`, `get_report_schema`, `position_tracking`, `site_audit`, `projects`, `organic_research`, `keyword_research`). Tools are deferred: run ToolSearch `select:mcp__claude_ai_Semrush__execute_report,mcp__claude_ai_Semrush__get_report_schema` first. The user-scope server `semrush` (`mcp__semrush__*`) was never authenticated and only offers `authenticate`; ignore it. Every "no Semrush" night through 2026-09-23 had one cause: the players were spawned in Magic's first turn, before connectors load. SKILL.md now spawns them on a later turn.
 
-**Semrush ladder (Drew's rule, 2026-09-19). Work it top down, stop at the first rung that answers, and write which rung fed each number:**
-1. Tools are deferred until searched. Run a ToolSearch for `select:mcp__semrush__domain_overview` (and the claude.ai-prefixed name) before saying the connector is missing.
-2. Still nothing: post it in Slack and ask Magic. Magic runs the standard pulls from the lead session into `outputs/ai-team/{date}/data/semrush_*.json`.
-3. Magic has no connector either: Magic, and only Magic, opens semrush.com in Drew's already-signed-in Chrome (the lead session starts with `--chrome`), reads Domain Overview and the store's Position Tracking project, saves the figures with the page name and date to `data/semrush_manual_{STORE}.md`, and touches nothing else. Read only. If Chrome is not connected, Semrush is signed out, or a login or CAPTCHA appears, stop: nobody types a credential.
-4. Nothing worked: "no Semrush since {date}" in the data gaps, organic health is GA4-only that night. Credits are limited: at most 6 `execute_report` calls per store per shift, and none that repeat a pull already saved in a prior shift folder. Google Trends and OEM press rooms via web fetch (`defuddle parse <url> --md`). Search Console is not available yet.
+**Semrush ladder (Drew's rule, 2026-09-19, updated 2026-09-23). Stop at the first rung that answers and write which rung fed each number:**
+1. Worthy's own `mcp__claude_ai_Semrush__*` tools.
+2. `usage.py --tools` shows Worthy without Semrush: Magic pulls the nightly set below from the lead session into `outputs/ai-team/{date}/data/` and tells Worthy.
+3. Magic has no connector either: Magic, and only Magic, may read semrush.com in Drew's signed-in Chrome, read only, never a credential. Caution found 2026-09-23: Semrush's Terms of Service (updated 2026-08-25) section 3.3(p) bars scraping and 3.3(r) bars feeding Semrush content into an AI outside Semrush's official integrations, so this rung carries account risk; it has never been used, and Drew has been asked whether to retire it.
+4. Nothing worked: "no Semrush since {date}" under Data gaps; organic health is GA4-only that night.
 
-Radar backlog: `Intelligence/market/future-rank-radar.md`.
+**Unit budget.** The plan (Pro level; history reports return 403) carries about 50,000 API units a month, shared with every daytime Semrush use, and it ran dry on 2026-08-13, 09-07 and 09-14 when the shift pulled about 1,600 to 3,000 units a night. Caps: weeknights 500, plus 400 on a night Worthy drafts a picked topic (one question or related-keyword pull); Monday 4,000; rank history once a month (300). Never re-pull what a shift folder from the last 7 days already holds (`seo_join.py` finds it on its own). `tracking_position_organic` costs 100 units per ROW: on demand only, always `display_limit` 10 or less. Semrush data may not be cached longer than a month (ToS 3.3), so never carry a Semrush file forward past 30 days.
+
+**Recipes (verified 2026-09-23; units measured unless marked).** All through `execute_report` with `report` and `params`; check `get_report_schema` before changing a param.
+
+| When | Report | Params | Units |
+|---|---|---|---|
+| Nightly | `tracking_overview_organic` | `{"campaign_id":"<id>","url":"*.<domain>/*"}` per campaign below | 100 each, 400 |
+| Monday | `resource_organic`, brand terms excluded | `{"target":"<domain>","database":"us","display_limit":20,"display_sort":"traffic_desc","export_columns":["keyword","position","previous_position","volume","url","traffic","intent","position_type","timestamp"],"display_filter":[{"field":"keyword","operation":"contains","sign":"-","value":"<brand>"}]}` (one filter entry per brand term; entries combine as AND) | 10 per row, 200 per store |
+| Monday | `resource_organic`, lost keywords | same plus `"display_positions":"lost","display_sort":"volume_desc","display_limit":10` | 100 per store |
+| Monday | `resource_organic_unique` (top pages) | `{"target":"<domain>","database":"us","display_limit":15,"display_sort":"traffic_desc"}`, never `display_date` | 150 per store |
+| Monday | `site_audit` info | `{"id":<project_id>}` | about 100 (not yet measured) |
+| Monday, for topics | `phrase_questions` / `phrase_related` | `{"phrase":"<seed>","database":"us","display_limit":10,...}` one seed topic a week | 40 per row (published, not measured) |
+| Monthly (first Monday) | `resource_rank_history` | `{"target":"<domain>","database":"us","display_limit":6,"display_sort":"date_desc"}`, default columns | 60 per store |
+| On demand | `tracking_position_organic` | overview params plus `"display_limit":10` | 100 per row |
+
+Brand terms to exclude (misspellings included): SBMW "sterling", "stearling"; NCBMW "century", "centry"; NOI "nissan of irvine", "nissanofirvine" (not "irvine" alone: "nissan dealer irvine" is a non-brand term worth keeping); MCP "mcpeek"; ATLAS "atlas".
+
+**Position Tracking campaigns** (id format `{project_id}_{campaign_number}`; the API cannot list them, these came from Semrush's own emails):
+
+| Store | Project | campaign_id | Location | Note |
+|---|---|---|---|---|
+| SBMW | 24960897 | `24960897_3046666` | Orange County, CA, desktop | Only 10 keywords, loaded 2025-06-06; 6 do not rank. Needs a refresh by Drew. |
+| NCBMW | 29670819 | `29670819_5048343` | United States | |
+| NOI | 29776292 | `29776292_4882073` | Irvine, CA | 4 Nissan competitors tracked |
+| ATLAS | 25619865 | `25619865_3269620` | United States | |
+| MCP | 29478388 | none | | No Position Tracking campaign; Drew's call |
+
+**Files (so nobody re-pulls and `seo_join.py` can read them).** Write each response's `data` text exactly as returned (semicolon rows with the header line): `data/semrush_kw_{STORE}.csv` (the Monday non-brand `resource_organic`), `data/semrush_lost_{STORE}.csv`, `data/semrush_pages_{STORE}.csv`; JSON reports as `data/semrush_pt_{STORE}.json` (tracking overview), `data/semrush_audit_{STORE}.json`, `data/semrush_rank_history.json`, `data/semrush_ideas_{seed}.csv`.
+
+**GA4 match.** `python3 .claude/skills/ai-team/scripts/seo_join.py --date {date}` joins `ga4_organic_{STORE}.json` with the newest `semrush_kw_{STORE}.csv` from the last 7 days (the older `semrush_organic_positions.md` is the fallback) and `gsc_{STORE}.json` when it exists, per normalized landing page. It writes `data/seo_join_{STORE}.json` and `data/seo_join.md`, and prints which inputs were missing. Flags: `EST_NO_TRAFFIC`, `GA4_WIN_NO_KW`, `MOVE_MATCH`, `AEO_PROOF`, `LEAD_LEAK` (meanings in `.claude/agents/worthy.md`).
+
+**Web-UI-only Semrush features** (no API or connector report): Organic Traffic Insights (Semrush's own GA/GSC link), SEO Ideas, Topic Research, Keyword Strategy Builder. If Drew wants them in the team's work, he exports them to `01_Inbox/` and Worthy reads the file.
+
+Google Trends and OEM press rooms via WebFetch (`defuddle` is not installed on this machine). Radar backlog: `Intelligence/market/future-rank-radar.md`.
+
+## CARS web watch (Magic)
+
+`python3 .claude/skills/ai-team/scripts/cars_watch.py --rotation` uses the cars-act-check skill's own crawler and machine rules (3 workers, 0.7 s pacing, circuit breaker) with caps of 400 URLs and 8 minutes, plus two watch rules (W01 rebates inside the advertised price, W02 price-gating buttons). Output goes to `outputs/ai-team/{date}/data/cars_{STORE}/` (`summary.md`, `run.json`); it never touches `Projects/{CODE}/cars-act-state/` or Drive, and the full `/cars-act-check` run (browser pass, retention zip, PDF) stays something Drew starts. Measured on NOI 2026-09-23: 399 URLs in 5.5 minutes, no blocks. SBMW (sterlingbmw.com) returns Cloudflare 403 to plain fetches, so the desktop scheduled task `cars-watch-sbmw-browser` (Drew approved 2026-09-23; Mondays about 12:20 AM, Claude Browser, up to 12 public pages) writes Monday's SBMW run before the shift; Magic's Monday rotation sees it and reports it instead of re-crawling. If the desktop app was closed at that hour, the task runs on next launch and Monday reports "blocked" plus the newest browser run from the last 7 days. NCBMW is scanned every Tuesday by plain fetch. CHC is covinahillschevrolet.com (from the CHC context log; the README has no domain).
 
 ## Rulebook (Magic)
 
@@ -107,5 +150,7 @@ Order of authority: federal, then California, then OEM, stricter wins.
 
 ## Slack
 
-`python3 .claude/skills/ai-team/scripts/slack.py post --as {magic|kobe|shaq|luka|worthy|nick} --text "..." [--thread TS] [--tag-drew]`
-`python3 .claude/skills/ai-team/scripts/slack.py read --hours 24` (Drew's replies, "go" approvals, factory doc drops)
+`python3 .claude/skills/ai-team/scripts/slack.py post --as {magic|kobe|shaq|luka|worthy|nick} --file PATH [--thread TS] [--tag-drew]` (use `--file` for anything with a dollar amount: in `--text "..."` the shell eats `$6,497` into `,497`, and slack.py refuses the damaged text)
+`python3 .claude/skills/ai-team/scripts/slack.py read --hours 24` (Drew's replies, "go" approvals, factory doc drops; top-level posts only, add `--thread TS` for replies)
+`python3 .claude/skills/ai-team/scripts/slack.py picks --ledger outputs/ai-team/topics.json --apply` (tip-off: marks topics Drew tapped a checkmark on as picked)
+`python3 .claude/skills/ai-team/scripts/slack.py post-topics --ledger outputs/ai-team/topics.json` (after the brief: each new open topic as its own top-level message Drew can tap or reply "pick" under)

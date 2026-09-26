@@ -11,6 +11,10 @@ Morning Drew. {One or two sentences: the night in a nutshell and the single thin
 2. **…**
 3. **…**
 
+### Measurement health
+- {Store}: {RED | AMBER | GREEN}. {Top issue in plain words, with its dates}. Broken {n} days.
+(one line per store, straight from `data/health.md`; red numbers stay out of every claim below)
+
 ### Needs your call
 - {The question in a sentence. Who raised it. What happens if you say go, and what happens if you do not.}
 
@@ -24,18 +28,33 @@ Morning Drew. {One or two sentences: the night in a nutshell and the single thin
 **[[NCBMW]]** …
 **[[Atlas]]** …
 
-### On the radar (Worthy)
-- {The idea in a sentence}, {store}. Evidence: {source, date}. {verified | unverified}
+### Organic and content (Worthy)
+- {One or two sentences from the GA4 match: a ranking move GA4 confirms or contradicts, or a page Semrush expects traffic on that GA4 does not see.}
+- Content: {"Worthy drafted {topic} for {store}, compliance {result}, path {outputs/ai-team/content/...}" | "{N} new topics are posted below for your checkmark" | "nothing picked, nothing drafted"}
+- Radar (Mondays): {The idea in a sentence}, {store}. Evidence: {source, date}. {verified | unverified}
+- Value line (first Monday of the month only): **[[{STORE}]]** {the store's two sentences from the "For the brief" block in `data/value_line.md`}, one line per store.
 
 ### Compliance gate
 - {What was reviewed}: {pass | change needed, and what}. Checked federal, California, {OEM file}. Not checked: {…}
+- CARS web watch, {STORE}: {n} flagged for review ({first run: listed, no Action items} | {n} NEW, see Action items) | no CARS web data for {STORE} since {date}
+- Ad text: {high and review hits, flagged for review} | no ad text data (v2 export not installed in {accounts})
 
 ### Missing tonight
 - {Store}: no {source} since {date}.
 
+**GM notes drafted for your edit (Fridays):** {paths, or "none this week" with the reason}. Nothing was sent.
+
 ### Action items
 1. **{Owner}: {the action, in one sentence}.** Why: {the evidence}. If skipped: {what it costs}. {Needs your go | No approval needed | Waiting on {someone}}
 2. …
+(new or changed tonight only, each with its ask id, for example "(A19)"; carried-over asks live in Asks aging)
+
+### Asks aging
+- {id}, {label}, open {n} days, {owner}{, GM request due | , GM request drafted {date}: path}
+
+### Closed tonight
+- {id}, {label}: closed. {closure evidence}{ Win: {win}}
+- {id}, {label}: withdrawn. {reason}
 
 ### What the players say
 - **Kobe:** working: {…}. Not working: {…}. Suggestion: {…}. Source: {…}

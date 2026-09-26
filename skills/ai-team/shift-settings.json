@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "deny": [
+      "mcp__claude-in-chrome",
+      "mcp__claude_ai_Gmail",
+      "mcp__claude_ai_Slack",
+      "mcp__claude_ai_Notion",
+      "mcp__claude_ai_Google_Calendar",
+      "mcp__claude_ai_Google_Drive",
+      "mcp__claude_ai_Zapier",
+      "mcp__claude_ai_Canva",
+      "mcp__claude_ai_Microsoft_365",
+      "mcp__claude_ai_Claude_Docs",
+      "mcp__semrush",
+      "mcp__meta-ads__ads_creative_upload_local_image",
+      "mcp__meta-ads__ads_finalize_local_ad_image_upload",
+      "mcp__meta-ads__ads_delete_local_ad_image"
+    ]
+  }
+}

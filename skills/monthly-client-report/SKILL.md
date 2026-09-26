@@ -46,13 +46,23 @@ If Drew replies `go` without files, proceed with whatever IS attached and omit t
 ## Step 0: Resolve the client (no subagent, fast)
 
 1. Parse `$ARGUMENTS`: first token = client (CODE, name fragment, or domain); optional `--month YYYY-MM`.
-2. Load `reference/client_registry.json`. Match the arg against `code`, `aliases`, or `domains` (lowercase, strip `www.`/`https://`). If a website was given and isn't in the registry, infer brand/city from the site + a quick WebSearch, then proceed.
+2. Load `reference/client_registry.json`. Match the arg against `code`, `aliases`, or `domains` (lowercase, strip `www.`/`https://`). If a website was given and isn't in the registry, infer brand/city from the site + a quick WebSearch, then proceed. If the matched registry entry has a status that starts with inactive, stop and tell Drew the client is inactive instead of building a report.
 3. Default `--month` to the **previous calendar month** (today is the 1st/2nd when scheduled). Build `month_label` ("May 2026") and the date range.
 4. From the matched client read: `city`, `state`, `brand`, `brand_tier`, `ga4_property`, `semrush_project`, `domains`, `review_name`, `crm`, `owner`.
-5. **State logic for regional data:** use `state` from the registry. If blank (e.g. CDHD), read `Projects/{CODE}/README.md` to find the city, then map city→state (Anaheim→California, Las Vegas→Nevada, etc.). The regional pull keys off this state.
+5. **State logic for regional data:** use `state` from the registry. If blank, read `Projects/{CODE}/README.md` to find the city, then map city→state (Anaheim→California, Las Vegas→Nevada, etc.). The regional pull keys off this state.
 6. If `ga4_property` is `""` → omit Traffic. If `semrush_project` is `""` and the client isn't a dealer in Semrush → omit SEO (or run a domain-only `domain_organic` if a domain exists). Non-auto `brand_tier` ("non-auto") → skip the NADA lead benchmark and pull **local small-business/economic** context instead of NADA auto data.
 
 Post the attachment reminder (above). Wait for `go`.
+
+---
+
+<!-- ai-team month pack step, added 2026-09-23. Keep this section identical in the source copy (~/Desktop/Skills/skills/monthly-client-report/SKILL.md) and the runtime copy (skills-plugin/.../skills/monthly-client-report/SKILL.md). -->
+## Step 0.5: Check the AI-team month pack before pulling GA4, Ads, Meta, or CRM
+
+Read `/Users/drewmoon/Desktop/DigitalCLIQ Brain HQ/outputs/ai-team/ledgers/month-pack-{YYYY-MM}.json` for the report month (the night shift writes it with `ledgers.py month`). Look up `stores[{CODE}]` in upper case (the registry's `Atlas` is `ATLAS` there). For each source `ga4`, `google_ads`, `meta`, `crm`:
+- `coverage.complete` is `true`: use the pack for that source and skip its pull (no agent A when `ga4` is complete; the attached ad file is not needed for Google or Meta numbers the pack covers). Every number taken from it goes in the facts manifest with `"source": "month-pack-{YYYY-MM}.json stores.{CODE}.{source}"`. For `ga4`, if `key_events_notes` is not empty, report `clean_key_events` or no key events, never the raw count. For `crm`, the pack gives month-to-date totals and by-source rows; Step 2's score-leads grading still runs on an attached CRM file when there is one.
+- File missing, store missing, or `coverage.complete` is `false`: pull that source exactly as below, and write "month pack incomplete for {source}" in the manifest. Never mix pack numbers and a live pull for the same source.
+<!-- end ai-team month pack step -->
 
 ---
 

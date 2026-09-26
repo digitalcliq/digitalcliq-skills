@@ -36,9 +36,10 @@ DATE=$(TZ=America/Los_Angeles date +%F)
 LOG="$VAULT/outputs/ai-team/$DATE/shift-log.md"
 
 # --chrome: Magic (the lead only) may read Semrush in Drew's signed-in Chrome as the last-resort fallback.
-# First run after 2026-09-19: type /mcp inside the session and authenticate "semrush" and "meta-ads" once,
-# so teammates load them from user settings (claude.ai connectors did not reach teammates on 9/19).
-caffeinate -i claude --model opus --chrome --permission-mode "$PERM" "/ai-team $MODE $EXTRA" &
+# Connectors reach teammates only when Magic spawns them on a turn AFTER turn 1 (teammates get the tool list from
+# the start of the lead's current turn, and MCP finishes loading a few seconds into turn 1). SKILL.md step 1 handles
+# that with a turn break; usage.py --tools checks it right after the spawn (root cause found 2026-09-23).
+caffeinate -i claude --model opus --chrome --permission-mode "$PERM" --settings "$VAULT/.claude/skills/ai-team/shift-settings.json" "/ai-team $MODE $EXTRA" &
 CLAUDE_PID=$!
 
 (

@@ -40,7 +40,7 @@ Examples:
 - `/compliance-audit nissan https://www.nissanofirvine.com --client "Nissan of Irvine"`
 - `/compliance-audit cdjr https://www.mcpeekcdjr.com --client "McPeek CDJR"`
 - `/compliance-audit chevy https://www.covinahillschevy.com --client "Covina Hills Chevy"`
-- `/compliance-audit harley https://www.chuckdeluxehd.com --client "Chuck Deluxe Harley-Davidson"`
+- `/compliance-audit harley https://www.example-hd-dealer.com --client "Example Harley-Davidson"`
 
 Brand aliases:
 - **bmw** → BMW AVP guidelines

@@ -34,5 +34,5 @@ Runs unattended weekdays at 7:00 PM local via the scheduled task `daily-work-log
 ## Open ideas
 
 - Companion weekly rollup task (Friday evening) that harvests the week's quick-lists into a DigitalCLIQ weekly accomplishments summary, and a monthly variant on the 1st.
-- Confirm key people and email domains for the lighter accounts (CHC, KCC, CCT, DKD, MFK, RAVE, TGN) so routing for them is as tight as the dealerships.
+- Confirm key people and email domains for the lighter accounts (CHC, CCT, DKD, MFK, RAVE, TGN) so routing for them is as tight as the dealerships.
 - Optional: push the day's per-client summary into each client's Notion page, not just the vault.
