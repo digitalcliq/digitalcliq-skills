@@ -38,6 +38,8 @@ Commands: `python3 .claude/skills/ai-team/scripts/slack.py post --as kobe --text
 
 ## Mandatory triggers
 
+A trigger whose question is already on the settled list (`ledgers.py settled list`) is answered by that item's nightly `settled check`, not a new huddle. Reopen it only when the check shows its reopen condition is met; bring the new data cut that changed it.
+
 If one of these fires, the huddle is not optional.
 
 | Who sees it | Trigger | Talks to | The question to settle |
@@ -52,6 +54,7 @@ If one of these fires, the huddle is not optional.
 | Nick | A model keeps generating leads, or a model in stock generates none | Shaq, Luka, and Worthy | Demand signal. Shaq and Luka weigh campaign and creative coverage, Worthy weighs content coverage. |
 | Nick | No report received for a store | Magic | Magic puts "no data since {date}" in the brief. Nobody estimates. |
 | Worthy | A page or topic is winning organic traffic | Shaq and Kobe | Is paid buying clicks we already earn for free? Does that traffic convert? |
+| Shaq | `data/vendor_ppc_NCBMW.md` raises GA4_RATIO (NabThat's clicks and GA4's untagged paid visits stopped moving together) or SPLIT (the three split methods disagree) | Kobe | Did a vendor change tagging or campaigns, or did the site lose visits? Kobe re-pulls GA4 by campaign for the same days; Shaq checks the dashboard reads and both vendor sheets. |
 | Anyone | A number from a teammate does not reconcile with your own source | That teammate | Find which number is wrong and why before either one reaches Magic. |
 
 ## The three-way: traffic quality (Shaq or Luka + Kobe + Nick)

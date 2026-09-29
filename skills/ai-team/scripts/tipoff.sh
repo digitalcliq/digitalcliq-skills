@@ -35,7 +35,7 @@ esac
 DATE=$(TZ=America/Los_Angeles date +%F)
 LOG="$VAULT/outputs/ai-team/$DATE/shift-log.md"
 
-# --chrome: Magic (the lead only) may read Semrush in Drew's signed-in Chrome as the last-resort fallback.
+# --chrome is harmless: shift-settings.json denies every Chrome tool; the Semrush browser fallback lives in the semrush-prepull desktop task.
 # Connectors reach teammates only when Magic spawns them on a turn AFTER turn 1 (teammates get the tool list from
 # the start of the lead's current turn, and MCP finishes loading a few seconds into turn 1). SKILL.md step 1 handles
 # that with a turn break; usage.py --tools checks it right after the spawn (root cause found 2026-09-23).

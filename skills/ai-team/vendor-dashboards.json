@@ -1,0 +1,139 @@
+{
+  "_about": "Vendor paid-media dashboards the AI team watches read-only (Drew, 2026-09-28: the vendors will not give us Google Ads access, so the team reads what they share). The desktop task vendor-dash-read (daily about 12:45 AM) reads every source with status active in the Claude Browser and writes outputs/ai-team/vendor-dash/{date}/reads.jsonl; vendor_dash.py ingest validates each read, and vendor_dash.py report writes the night's deltas for Shaq. To turn on a new dashboard: paste its view link into url and set status to active. Nothing else changes. Never add a link that needs a sign-in.",
+  "sources": [
+    {
+      "id": "ncbmw-nabthat",
+      "store": "NCBMW",
+      "vendor": "NabThat",
+      "channel": "Google Ads, English campaigns (display, video and search)",
+      "kind": "looker",
+      "status": "active",
+      "added": "2026-09-28",
+      "owner": "shaq",
+      "url": "https://datastudio.google.com/reporting/bb6b08bf-94dd-4896-8134-b6938b5231d0/page/VQ19F",
+      "title_contains": "Google Ads Report - New Century BMW",
+      "access": "view link, opens without a sign-in (checked 2026-09-28 in the Claude Browser)",
+      "metrics": [
+        {
+          "label": "Clicks",
+          "key": "clicks",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Impressions",
+          "key": "impressions",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Avg. CPC (converted)",
+          "key": "avg_cpc",
+          "type": "money",
+          "scope": "vendor_ads",
+          "additive": false
+        },
+        {
+          "label": "CTR",
+          "key": "ctr",
+          "type": "pct",
+          "scope": "vendor_ads",
+          "additive": false
+        },
+        {
+          "label": "Phone calls",
+          "key": "phone_calls",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Views",
+          "key": "video_views",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Sessions",
+          "key": "site_sessions",
+          "type": "count",
+          "scope": "site_ga4",
+          "additive": true
+        },
+        {
+          "label": "Engagement rate",
+          "key": "site_engagement_rate",
+          "type": "pct",
+          "scope": "site_ga4",
+          "additive": false
+        },
+        {
+          "label": "keyEvents:asc_form_submission",
+          "key": "site_form_submissions",
+          "type": "count",
+          "scope": "site_ga4",
+          "additive": true
+        }
+      ],
+      "scope_notes": {
+        "vendor_ads": "NabThat's own Google Ads account. No Cost box on the dashboard: spend is implied as clicks x Avg. CPC (converted), which is the cost per click in dollars, so the implied figure is good to about half a cent per click.",
+        "site_ga4": "The WHOLE website in GA4, not NabThat's traffic. Verified 2026-09-28 against GA4 property 487046736: Sep 1 to 27 the dashboard showed 13,275 sessions and 70 form submissions; GA4 had 13,011 sessions and 71 asc_form_submission key events across all channels, and only 6,762 sessions and 19 form submissions from Paid Search (which includes Constellation's campaigns). Sun 9/27: dashboard 430 sessions, GA4 all channels 426, Paid Search 174. Never credit these three boxes to NabThat."
+      },
+      "windows": {
+        "yesterday": "Yesterday preset. Expected page label: yesterday to yesterday.",
+        "mtd": "This month to date preset (Include today unchecked), or Last month when today is the 1st. Expected label: the 1st of yesterday's month to yesterday.",
+        "last_month": "Last month preset, on the 2nd and 3rd of a month only, to catch the closed month's final numbers. Expected label: the previous month in full."
+      },
+      "budget": {
+        "monthly_incl_fees": 28000,
+        "fee_rate_fallback": 0.15,
+        "source": "Dan Lin to Drew, 2026-06-02 (Gmail 19e8bc4e00060c8d): 'Nabthat has $28K (inclusive of fees) approved just for English.' The NCBMW 2026 Marketing Budget sheet carries $28,000 for Jul to Dec. NabThat's own sheet: June $27,299.64, July $30,216.20, August $30,458.11 including its 15% fee; its ad spend alone has stayed under $28,000 every month since November 2025.",
+        "confirmed": "Drew, 2026-09-28, no change as far as he knows; an email scan found none"
+      },
+      "sheet": {
+        "id": "1uWps6y0SeIc9_a9nqSMubvUD-C4XH9yqofBLcS5e7Ik",
+        "title": "NEW CENTURY PAID SEARCH METRICS",
+        "range": "'NEW CENTURY PAID SEARCH RESULTS'!A1:AA60",
+        "block": "NEW CENTURY BMW",
+        "cadence": "monthly, NabThat fills it after the month closes (August 2026 was the newest column on 2026-09-28)"
+      },
+      "contact": "Jason (jason@nabthat.com)"
+    },
+    {
+      "id": "ncbmw-constellation",
+      "store": "NCBMW",
+      "vendor": "Constellation",
+      "channel": "Google Ads multicultural (Spanish, Chinese, Korean Performance Max and branding) plus the BMW Western Region vehicle listing ads",
+      "kind": "looker",
+      "status": "awaiting_link",
+      "added": "2026-09-28",
+      "owner": "shaq",
+      "url": null,
+      "title_contains": null,
+      "note": "No dashboard yet. Drew said on 2026-09-25 he would call Delaney Love about a dashboard or a weekly report. When a view link arrives: paste it into url, set status active, fill title_contains and the metrics list from the page's box labels (vendor_dash.py ingest --date D --learn prints them), and the nightly task reads it from that night on.",
+      "interim": [
+        "GA4: campaigns named constellation_* (today only constellation_2026_BMWWR_VLA, the vehicle listing ads, google / cpc and google / vehiclelisting). Constellation's Performance Max and branding campaigns are not tagged, so GA4 lumps them with NabThat's under (organic) and (not set).",
+        "Monthly sheet: one tab per closed month, named '{Month} {YYYY} (By Language)'; the BMW block is 'New Century BMW (SEM)' with campaign rows and a total row. August 2026 was the newest tab on 2026-09-28. The 'Jul-Sep' and 'Oct-Dec' tabs are from 2024; never read them as current.",
+        "The Tuesday email from reports@helloconstellation.com ('New Century BMW_OB_{date}.pdf') is an On-Brand Inventory pricing report, not ad results."
+      ],
+      "budget": {
+        "monthly_incl_fees": 22613,
+        "fee_rate_fallback": null,
+        "source": "Projects/NCBMW/README.md open items: Jul-Dec approved at $22,613 a month (2026-07-11)."
+      },
+      "sheet": {
+        "id": "1oJB5PNVFHmRD8E2F0-lwGq8dj5Vr5GTKtytCjw6Vsho",
+        "title": "New Century Stores Monthly Report",
+        "tab_pattern": "^(January|February|March|April|May|June|July|August|September|October|November|December) (20\\d\\d) \\(By Language\\)$",
+        "range_cols": "A1:AD80",
+        "block": "New Century BMW (SEM)",
+        "cadence": "monthly, after the month closes"
+      },
+      "ga4_campaign_prefix": "constellation_",
+      "contact": "Delaney Love (delaney.love@helloconstellation.com), Coco Arowolo"
+    }
+  ]
+}

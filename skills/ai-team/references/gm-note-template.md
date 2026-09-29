@@ -1,3 +1,5 @@
+> [!warning] Retired 2026-09-28 (Drew: "I don't need Friday GM notes... I am paying attention so if they ask I can tell them or get it myself"). Nothing in the shift reads or runs this file or `scripts/gm_note.py` any more; both are kept only as history.
+
 # Friday GM note template (Magic drafts, Drew edits and sends)
 
 GMs never see what the team catches overnight. Every Friday the shift drafts one page per store for the store's GM: what we watched this week, what we caught, the one number that moved, and what we need from the store. [[Drew Moon]] edits and sends every note himself. Nothing goes out automatically: no Slack post to the store, no email, no Drive share. Approved by Drew 2026-09-23. Worked example: `outputs/ai-team/gm-notes/2026-09-25/NOI.md` and `NOI.pdf`.

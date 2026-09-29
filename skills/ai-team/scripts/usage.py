@@ -218,7 +218,7 @@ def tools_report(files):
     print(f"SEMRUSH worthy: {'yes' if semrush else 'no'}")
     print(f"META luka: {'yes' if meta else 'no'}")
     if not (semrush and meta):
-        print("missing connector tools: run the fallback pre-pull from the lead session for that player (SKILL.md step 2)")
+        print("missing connector tools: respawn once (SKILL.md step 2: TaskStop all five, background sleep, end turn, --turn-check); pull fallbacks only if the second spawn also shows 0")
     return 0 if semrush and meta else 2
 
 def scan(path, since):
@@ -270,6 +270,61 @@ def find_lead(session):
         sys.exit("no lead session with teammates touched today; pass --session")
     return max(shift or cands, key=os.path.getmtime)
 
+def find_current_lead(session):
+    """The running shift lead, before any teammate exists: --session if given, else the newest
+    transcript touched in the last 15 minutes that holds the /ai-team command."""
+    if session:
+        return find_lead(session)
+    now = dt.datetime.now().timestamp()
+    cands = sorted((p for p in glob.glob(os.path.join(PROJECT, "*.jsonl"))
+                    if now - os.path.getmtime(p) < 900), key=os.path.getmtime, reverse=True)
+    for p in cands:
+        with open(p, encoding="utf-8", errors="replace") as fh:
+            head = fh.read(200000)
+        if "<command-name>/ai-team</command-name>" in head:
+            return p
+    sys.exit("no running /ai-team session found in the last 15 minutes; pass --session")
+
+def turn_check(lead, upto=None):
+    """Is the lead's CURRENT turn a fresh one that began after MCP connectors loaded?
+    Teammates get the tool list from the start of the lead's current turn (root cause 2026-09-23;
+    9/28 failed because a background job's notification arrived mid-turn and the lead spawned
+    without ending turn 1). Exit 0 = safe to spawn, 3 = end your turn first."""
+    mcp_first = last_end = last_start = None
+    for i, d in enumerate(records(lead)):
+        if upto is not None and i > upto:
+            break
+        a = d.get("attachment")
+        if (mcp_first is None and isinstance(a, dict) and a.get("type", "").startswith("deferred_tools")
+                and any(str(n).startswith("mcp__") for n in (a.get("addedNames") or []))):
+            mcp_first = i
+        m = d.get("message") if isinstance(d.get("message"), dict) else {}
+        if d.get("type") == "assistant" and m.get("stop_reason") == "end_turn":
+            last_end = i
+        if d.get("type") == "user":
+            c = m.get("content")
+            if isinstance(c, str) or any(b.get("type") == "text" for b in blocks(d)):
+                last_start = i
+    ok = (mcp_first is not None and last_end is not None and last_start is not None
+          and mcp_first < last_start and last_end < last_start)
+    if ok:
+        print("OK to spawn: this turn began after an end of turn and after the connectors loaded "
+              "(connectors at record %d, turn ended at %d, new turn at %d)." % (mcp_first, last_end, last_start))
+        return 0
+    why = []
+    if mcp_first is None:
+        why.append("no MCP connectors have loaded in this session yet")
+    if last_end is None:
+        why.append("you have not ended a turn yet in this session")
+    elif last_start is None or last_start < last_end:
+        why.append("you are still inside the turn that ended at record %d's successor" % last_end)
+    elif mcp_first is not None and last_start < mcp_first:
+        why.append("this turn began before the connectors loaded")
+    print("NOT SAFE TO SPAWN: " + "; ".join(why or ["this is still the turn that began with /ai-team"]) +
+          ". Start one background python3 sleep, end your turn now with one line, and spawn only on the turn "
+          "its notification starts. A notification that arrives while you are still working is not the wake.")
+    return 3
+
 def main():
     ap = argparse.ArgumentParser(description="AI team shift stats, hang watchdog, and teammate tool check.")
     ap.add_argument("--session", help="lead session id or unique prefix (default: newest shift session touched today)")
@@ -280,7 +335,14 @@ def main():
                       help="watchdog: players whose last tool call has had no result for MINUTES+ (exit 1 if any)")
     mode.add_argument("--tools", action="store_true",
                       help="tools each teammate loaded at spawn; exit 2 if Worthy lacks Semrush or Luka lacks Meta")
+    mode.add_argument("--turn-check", action="store_true",
+                      help="run right before spawning: exit 0 if this turn is fresh (after an end of turn and after connectors loaded), 3 if not")
+    ap.add_argument("--upto", type=int, help=argparse.SUPPRESS)  # tests: evaluate the transcript as of record N
     a = ap.parse_args()
+    if a.turn_check:
+        lead = find_current_lead(a.session)
+        print("session", os.path.basename(lead)[:-6])
+        sys.exit(turn_check(lead, a.upto))
     since = None
     if a.since:
         h, mnt = map(int, a.since.split(":"))
