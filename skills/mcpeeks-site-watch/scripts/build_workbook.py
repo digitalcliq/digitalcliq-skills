@@ -396,8 +396,9 @@ def sheet_scorecard(wb, R, logo):
         cell(ws, r, 4, cat["what"], font(SLAB, 9.5), z, LEFT_MID)
         cell(ws, r, 5, n_disp, font(DOSIS, 13, True, NAVY_BASE), z, CENTER)
         cell(ws, r, 6, p_disp, font(DOSIS, 11, False, WARM_GREY), z, CENTER)
-        chg_txt = chg if chg == "" else (f"+{chg}" if chg > 0 else str(chg))
-        cell(ws, r, 7, chg_txt, font(DOSIS, 11, True, TILE_BLUE if isinstance(chg, int) and chg <= 0 else WARM_GREY), z, CENTER)
+        c7 = cell(ws, r, 7, chg, font(DOSIS, 11, True, TILE_BLUE if isinstance(chg, int) and chg <= 0 else WARM_GREY), z, CENTER)
+        if isinstance(chg, int):
+            (c7 if c7 is not None else ws.cell(row=r, column=7)).number_format = "+0;-0;0"
         status_cell(ws, r, 8, status)
         cell(ws, r, 9, cat["owner"], font(SLAB, 9), z, LEFT_MID)
         row_height_for(ws, r, [(cat["what"], widths[3]), (cat["name"], widths[2])], 30)
@@ -558,10 +559,20 @@ def sheet_changes(wb, R, logo):
              font(SLAB, 10, False, TILE_BLUE), F_CALLOUT)
         print_setup(ws); return ws
     nb, rb = m.get("new_by_reason", {}), m.get("resolved_by_reason", {})
+    REASON_PLURAL = {
+        "New issue on a vehicle that was already listed": "new issues on vehicles that were already listed",
+        "New arrival on the lot": "new arrivals on the lot",
+        "New since last run": "new since last run",
+        "Fixed on the page (vehicle still listed)": "fixed on the page (vehicle still listed)",
+        "Vehicle no longer listed (sold or delisted)": "vehicles no longer listed (sold or delisted)",
+        "No longer detected": "no longer detected",
+    }
+    def reason(k, v):
+        return REASON_PLURAL.get(k, k.lower()) if v != 1 else k.lower()
     intro = (f"Compared with the {pretty_date(m['prev_date'])} run. {m['new']} new {plural(m['new'], 'item')}: " +
-             ("; ".join(f"{v} {k.lower()}" for k, v in nb.items()) or "none") +
+             ("; ".join(f"{v} {reason(k, v)}" for k, v in nb.items()) or "none") +
              f". {m['resolved']} resolved {plural(m['resolved'], 'item')}: " +
-             ("; ".join(f"{v} {k.lower()}" for k, v in rb.items()) or "none") +
+             ("; ".join(f"{v} {reason(k, v)}" for k, v in rb.items()) or "none") +
              ". 'Vehicle no longer listed' means the unit sold or came off the site, so the item cleared by turnover, not by a fix.")
     para(ws, 3, intro, N, sum(widths), font(SLAB, 9.5, False, TILE_BLUE), F_CALLOUT)
 
@@ -639,7 +650,7 @@ def sheet_changes(wb, R, logo):
 
 # ======================================================================
 
-def facts_manifest(R, summary_text, out_path, xlsx_path):
+def facts_manifest(R, summary_text, out_path, xlsx_path, prepared_for=""):
     m = R["meta"]
     facts = [
         {"value": m["date"], "label": "Run date (masthead, Summary subline)", "source": "report.py --date / findings.json generated"},
@@ -659,6 +670,23 @@ def facts_manifest(R, summary_text, out_path, xlsx_path):
         facts.append({"value": fx["example"], "label": f"Fix List row {fx['priority']} example", "source": "first VIN-bearing finding for the check"})
     for p in R.get("phones", []):
         facts.append({"value": p["number"], "label": "Phone Checklist number", "source": "findings.json phones_sitewide (crawl of static pages)"})
+    facts.append({"value": prepared_for, "label": "Prepared for (Summary subline)", "source": "--prepared-for / Projects/MCP/README.md Key contacts"})
+    for owner in sorted({c["owner"] for c in CATALOG.values()}):
+        facts.append({"value": owner, "label": "Fix owner (Fix List, Scorecard, Summary top fixes)", "source": "check_catalog.py owner field; vendors per Projects/MCP/README.md"})
+    for k, v in m.get("new_by_reason", {}).items():
+        facts.append({"value": v, "label": f"What Changed intro, new by reason: {k}", "source": "report.json meta.new_by_reason (first_seen.json + finding keys diff)"})
+    for k, v in m.get("resolved_by_reason", {}).items():
+        facts.append({"value": v, "label": f"What Changed intro, resolved by reason: {k}", "source": "report.json meta.resolved_by_reason (finding keys diff + inventory.json)"})
+    turnover = {}
+    for r in R.get("resolved", []):
+        if r["reason"].startswith("Vehicle no longer listed"):
+            turnover[r["check"]] = turnover.get(r["check"], 0) + 1
+    for cid, n in sorted(turnover.items()):
+        facts.append({"value": n, "label": f"What Changed turnover table: {cid}", "source": "report.json resolved (reason = vehicle no longer listed)"})
+    for f_ in R.get("findings", []):
+        if f_["check"] in ("C15", "C16", "C17", "C03") and not f_.get("vin"):
+            for num in re.findall(r"\b\d{1,3}\b", f_.get("summary") or ""):
+                facts.append({"value": int(num), "label": f"Site-wide finding figure ({f_['check']} {f_.get('url')})", "source": "findings.json (checks.py script_domains) or browser_findings.json (model browser pass, Phase 2)"})
     for num in re.findall(r"\$?[\d,]+(?:\.\d+)?%?", summary_text):
         if len(num.strip("$,%")) >= 2:
             facts.append({"value": num, "label": "Figure in the executive summary", "source": "exec_summary.txt written by the model from run_summary.md; verify against report.json"})
@@ -704,7 +732,7 @@ def main():
     stem = f"McPeeks_Site_Watch_{R['meta']['date']}"
     xlsx = os.path.join(args.out, stem + ".xlsx")
     wb.save(xlsx)
-    facts_manifest(R, summary_text, os.path.join(args.out, stem + ".facts.json"), xlsx)
+    facts_manifest(R, summary_text, os.path.join(args.out, stem + ".facts.json"), xlsx, args.prepared_for)
     print(xlsx)
     print(os.path.join(args.out, stem + ".facts.json"))
 
