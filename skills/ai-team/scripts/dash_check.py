@@ -15,7 +15,9 @@ Signals, per store (clients.<key> in the payload):
   RED    crmSource says the CRM tab is empty, or carries a "CHECK:" note
   RED    pace.leads.mtd is 0 after day 3 of the month
   RED    a CRM headline card label (kpiCards) names a month before the last closed month
-  RED    a paid vendor block (ppc.<vendor>.month) names a month before the last closed month
+  RED    a paid vendor block (ppc.<vendor>.month) names a month before the last closed month, except a
+         vendor in the store's ppc_due_day (SBMW's Pixel Motion, which reports a month about mid-month):
+         there the month before the last closed month passes through that day of the month
   AMBER  an SEO headline card label names a month before the last closed month
   AMBER  the SEO months (months[-1], else the client-level seoMonth) end before the last closed
          month, or the SEO section has no months at all (a pending build)
@@ -49,11 +51,25 @@ except Exception:  # pragma: no cover
 
 # Store code -> dashboard. Source: morning-coffee references/sources.md "Live dashboard endpoints";
 # mirrored in ai-team references/data-sources.md "Client dashboards".
+# Optional per store: ppc_fix (vendor key -> fix text, %(month)s = the last closed month's name) replaces the
+# default "load the report" fix; ppc_due_day (vendor key -> day of month) is the PPC_OLD_MONTH grace below.
+# SBMW v2 (2026-09-29): the Sterling BMW Loader fills the Sheet from the nightly Momentum KPI Summary email, Pixel
+# Motion's co-op email and CRM Drop/SBMW, and logs every file in the Sheet's Ingest Log tab. Pixel Motion emails a
+# month's co-op files about the 15th of the next month, matching the feed's ppc.pixel.dueBy (the 20th, Code.gs D21).
+# If the Sterling dashboard ever sets its optional DASH_KEY script property, its /exec answers {"error": "not
+# authorized"} and SBMW reads NO DATA every night: this script would then need to add ?key= to that URL, with the
+# key read from outside the vault (~/.config/digitalcliq-ai-team/), never written here. Not built while the key is off.
 DASHBOARDS = {
     "SBMW": {"key": "sbmw", "name": "Sterling BMW", "sheet": "1Ki2RjJUc4AN4A-ZFgqNLQpENDySVjgULR4xG6UTSpCU",
              "url": "https://script.google.com/macros/s/AKfycbxVJugSl93A9egpeeXymBMEzBv6M5yWMxs-Prn-VEP-MM0"
                     "ragBhWDP0xdKXDlAl_ijgJQ/exec",
-             "crm_fix": "paste the current Momentum Lead Source Report into the SBMW dashboard Sheet"},
+             "crm_fix": "check the Ingest Log tab in the SBMW dashboard Sheet: the nightly Momentum KPI Summary email "
+                        "or a file in CRM Drop/SBMW did not load (to fill a gap, drop a KPI Summary for the 1st "
+                        "through yesterday, Showed Appt All, in CRM Drop/SBMW)",
+             "ppc_fix": {"pixel": "check the Ingest Log tab in the SBMW dashboard Sheet for Pixel Motion's \"Sterling "
+                                  "BMW Coop Files %(month)s\" email; it was due by the 20th, so if it has not "
+                                  "arrived, ask Pixel Motion for it"},
+             "ppc_due_day": {"pixel": 20}},
     "NCBMW": {"key": "ncbmw", "name": "New Century BMW", "sheet": "1JJcHIC1253Dtpp50OGIRhgNCw-g-DqRgkETIJa8okAE",
               "url": "https://script.google.com/macros/s/AKfycbwdi91LD8vFv5A3PDCJQ4BIm4TWkzDWei49G_dCf0fnxfMuc"
                      "DHORapSKtLcnoQ9aMpyWA/exec",
@@ -209,8 +225,10 @@ def evaluate(store, payload, ref):
                             "headline cards still show %s (%s)" % (ym_label(ym), ", ".join(cards)), crm_fix,
                             month=ym_label(ym)))
 
-    # 4. Paid vendor blocks naming an old month.
+    # 4. Paid vendor blocks naming an old month. A vendor in ppc_due_day reports the last closed month by that
+    #    day, so until then the month before it is current (Pixel Motion: August stays current through Oct 20).
     ppc = c.get("ppc") or {}
+    closed_name = dt.date(closed[0], closed[1], 1).strftime("%B")
     if isinstance(ppc, dict):
         for vk, v in sorted(ppc.items()):
             if not isinstance(v, dict):
@@ -219,13 +237,21 @@ def evaluate(store, payload, ref):
             ym = month_in(raw, ref)
             if raw and not ym:
                 notes.append("ppc.%s.month unreadable: %r" % (vk, raw))
+            due_day = (cfg.get("ppc_due_day") or {}).get(vk)
+            if (ym and due_day and ym == prev_month(dt.date(closed[0], closed[1], 1))
+                    and ref.day <= due_day):
+                notes.append("ppc.%s.month %s not flagged: the %s report is due by %s %d"
+                             % (vk, ym_label(ym), closed_name, ref.strftime("%b"), due_day))
+                continue
             if ym and ym < closed:
                 vname = clean(v.get("name") or vk)
                 vshort = vname.split(" (")[0]
+                fix = (cfg.get("ppc_fix") or {}).get(vk)
                 issues.append(issue("RED", "PPC_OLD_MONTH", "ppc:%s" % vk,
                                     "%s still shows %s" % (vname, ym_label(ym)),
+                                    fix % {"month": closed_name} if fix else
                                     "load the %s %s report into the %s dashboard Sheet"
-                                    % (dt.date(closed[0], closed[1], 1).strftime("%B"), vshort, store),
+                                    % (closed_name, vshort, store),
                                     month=ym_label(ym)))
 
     # 5. SEO months: months[-1], else the client-level seoMonth (never the top-level one).
@@ -433,6 +459,24 @@ def selftest():
     assert lv(evaluate("MCP", pay("MCP", months=[], seoMonth="Mon Jun 01 2026 00:00:00 GMT-0700"), ref)[0]) == [
         ("SEO_OLD_MONTH", "AMBER")]
     assert lv(evaluate("NCBMW", pay("NCBMW", crmSource="v2 CHECK: header moved"), ref)[0]) == [("CRM_EMPTY", "RED")]
+    # SBMW Pixel Motion grace: August is current through Oct 20 (September's report is due then), RED from Oct 21;
+    # two months behind is RED at once; the same block at NCBMW or MCP has no grace.
+    px = lambda store, month, day: pay(store, months=["Aug", "Sep"], updated="Oct %d, 2026" % day,
+                                       ppc={"pixel": {"name": "Pixel Motion (Paid Search)", "month": month}})
+    for day in (1, 6, 20):
+        iss, notes, _ = evaluate("SBMW", px("SBMW", "Aug 2026", day), dt.date(2026, 10, day))
+        assert iss == [] and any("not flagged" in n and "due by Oct 20" in n for n in notes), (day, iss, notes)
+    iss = evaluate("SBMW", px("SBMW", "Aug 2026", 21), dt.date(2026, 10, 21))[0]
+    assert lv(iss) == [("PPC_OLD_MONTH", "RED")] and "Coop Files September" in iss[0]["fix"], iss
+    assert "load the" not in iss[0]["fix"] and "%(" not in iss[0]["fix"], iss[0]["fix"]
+    assert lv(evaluate("SBMW", px("SBMW", "Jul 2026", 6), dt.date(2026, 10, 6))[0]) == [("PPC_OLD_MONTH", "RED")]
+    assert evaluate("SBMW", px("SBMW", "Sep 2026", 25), dt.date(2026, 10, 25))[0] == []
+    for store in ("NCBMW", "MCP"):
+        iss = evaluate(store, px(store, "Aug 2026", 6), dt.date(2026, 10, 6))[0]
+        assert lv(iss) == [("PPC_OLD_MONTH", "RED")] and iss[0]["fix"].startswith("load the September Pixel Motion"), iss
+    # SBMW CRM fix points at the loader's Ingest Log, not a paste.
+    iss = evaluate("SBMW", pay("SBMW", crmSource="momentum kpi: CHECK: no KPI Summary"), ref)[0]
+    assert lv(iss) == [("CRM_EMPTY", "RED")] and "Ingest Log" in iss[0]["fix"] and "paste" not in iss[0]["fix"], iss
     print("selftest: all checks passed")
     return 0
 

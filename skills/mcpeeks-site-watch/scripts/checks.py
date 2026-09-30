@@ -182,7 +182,7 @@ def main():
         if cond == "NEW" and v.get("model_year") and int(v["model_year"]) >= TODAY.year \
                 and not (v.get("has_lease_mention") and v.get("payments")):
             F.append(finding("C10", SEV_DATA, url,
-                "Current-model new vehicle shows no lease payment (possible feed/trim drop)", vin))
+                "Current-model new vehicle shows no lease payment (the payment feed may have dropped this trim)", vin))
 
         # C11 — aged inventory at MSRP / bogus savings
         fs = first_seen.get(vin) if vin else None
@@ -224,13 +224,13 @@ def main():
                      if approved and not any(a in d for a in approved))
     if unknown:
         F.append(finding("C15", SEV_HYGIENE, "site-wide",
-            f"{len(unknown)} script domain(s) not on approved-vendor list",
+            f"{len(unknown)} outside script {'domain' if len(unknown) == 1 else 'domains'} not on the approved-vendor list",
             None, ", ".join(unknown[:25])))
     prev_domains = set(load(os.path.join(args.state, "script_domains.json"), []))
     new_domains = sorted(set(all_domains) - prev_domains) if prev_domains else []
     if new_domains:
         F.append(finding("C15", SEV_HYGIENE, "site-wide",
-            f"NEW script domains since last run: {', '.join(new_domains[:15])}"))
+            f"Script domains first seen this run: {', '.join(new_domains[:15])}"))
     gtm_ids = set()
     for p, pd in inv.get("pages", {}).items():
         gtm_ids |= set(re.findall(r"GTM-[A-Z0-9]{4,10}", pd.get("text", "")))
@@ -246,7 +246,7 @@ def main():
             all_site_phones.setdefault(ph, []).append(p)
         if p in dept_pages and len(pd.get("phones", [])) <= 1:
             F.append(finding("C21", SEV_HYGIENE, p,
-                f"{dept_pages[p]} page shows {len(pd.get('phones', []))} phone number(s) — "
+                f"{dept_pages[p]} page shows {len(pd.get('phones', []))} phone numbers, "
                 "verify department routing vs single generic number",
                 None, str(pd.get("phones"))))
     for junk in ("123-456-7890", "999-999-9999", "000-000-0000"):

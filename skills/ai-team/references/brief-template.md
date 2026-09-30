@@ -45,7 +45,7 @@ GA4 for {target date} is preliminary, GA4 finalizes in 24 to 48 hours; traffic f
 ### Missing tonight
 - {Store}: no {source} since {date}.
 - NCBMW NabThat dashboard: no read since {date}, {reason from `vendor_dash.py status`} (only when a read is missing or invalid)
-- {STORE} dashboard: {RED | AMBER}, {first seen tonight | open n days}. {What the GM sees that is stale}. Fix: {the fix, e.g. "paste the current Momentum Lead Source Report into the SBMW dashboard Sheet"}. (one line per flagged store, from `brief_lines` in `data/dashboards.json`; nothing when all three are GREEN)
+- {STORE} dashboard: {RED | AMBER}, {first seen tonight | open n days}. {What the GM sees that is stale}. Fix: {the fix, e.g. "load the current Focus export into the NCBMW dashboard Sheet"}. (one line per flagged store, from `brief_lines` in `data/dashboards.json`; nothing when all three are GREEN)
 
 ### Action items
 1. **{Owner}: {the action, in one sentence}.** Why: {the evidence}. If skipped: {what it costs}. {Needs your go | No approval needed | Waiting on {someone}}

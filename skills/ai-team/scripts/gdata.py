@@ -23,7 +23,10 @@ Commands:
   sheet-tabs --id SHEET_ID
   sheet --id SHEET_ID --range 'Tab!A1:Z500'
   drive-find --name "CRM Drop"
-  drive-ls --folder FOLDER_ID
+  drive-ls --folder FOLDER_ID [--processed [--days 3]]
+                                         direct children; --processed adds files in its _processed subfolder
+                                         modified or created in the last N days (the dashboard loaders move
+                                         every loaded drop there), each row tagged "in"
   drive-get --id FILE_ID --out PATH      Google Sheets export as .xlsx, others raw
   mail-ls [--days 3] [--query 'from:x']  CRM report emails under the Morning_CRM label
   mail-get --id MSG_ID --out DIR         save that email's attachments + text body to DIR
@@ -547,7 +550,8 @@ def cmd_sheet(args):
 
 DRIVE_LIST = ("https://www.googleapis.com/drive/v3/files?supportsAllDrives=true&includeItemsFromAllDrives=true"
               "&corpora=allDrives&pageSize=100&orderBy=modifiedTime%20desc"
-              "&fields=files(id,name,mimeType,modifiedTime,size,parents)&q=")
+              "&fields=files(id,name,mimeType,modifiedTime,createdTime,size,parents)&q=")
+FOLDER_MIME = "application/vnd.google-apps.folder"
 
 
 def cmd_drive_find(args):
@@ -557,7 +561,25 @@ def cmd_drive_find(args):
 
 def cmd_drive_ls(args):
     q = "'%s' in parents and trashed = false" % args.folder
-    print(json.dumps(api(DRIVE_LIST + urllib.parse.quote(q)).get("files", []), indent=1))
+    files = api(DRIVE_LIST + urllib.parse.quote(q)).get("files", [])
+    if args.processed:
+        # The CRM Drop loaders (NCBMW, SBMW, MCP) move each loaded file into the store folder's _processed
+        # subfolder, so a direct-children listing misses what Drew dropped. Recent files only; "[temp] " names
+        # are the loaders' own scratch copies, never a drop. _needs a look is never listed.
+        for f in files:
+            f["in"] = "drop folder"
+        sub = [f for f in files if f["name"] == "_processed" and f["mimeType"] == FOLDER_MIME]
+        if not sub:
+            print("note: no _processed subfolder in %s" % args.folder, file=sys.stderr)
+        else:
+            since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=args.days)).strftime("%Y-%m-%dT%H:%M:%S")
+            q = ("'%s' in parents and trashed = false and (modifiedTime > '%s' or createdTime > '%s')"
+                 % (sub[0]["id"], since, since))
+            for f in api(DRIVE_LIST + urllib.parse.quote(q)).get("files", []):
+                if not f["name"].startswith("[temp] "):
+                    f["in"] = "_processed"
+                    files.append(f)
+    print(json.dumps(files, indent=1))
 
 
 def cmd_drive_get(args):
@@ -685,6 +707,9 @@ def main():
     s.set_defaults(fn=cmd_drive_find)
     s = sub.add_parser("drive-ls")
     s.add_argument("--folder", required=True)
+    s.add_argument("--processed", action="store_true",
+                   help="also list the folder's _processed subfolder (files modified or created in the last --days)")
+    s.add_argument("--days", type=int, default=3, help="with --processed: how far back (default 3; Monday 4)")
     s.set_defaults(fn=cmd_drive_ls)
     s = sub.add_parser("drive-get")
     s.add_argument("--id", required=True)

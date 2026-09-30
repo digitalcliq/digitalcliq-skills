@@ -11,7 +11,7 @@ Audience: the dealership General Manager and owner. Every tab answers a GM
 question in plain English before it shows any data:
   Summary            where the store stands, in one screen
   Fix List           what to fix, why it matters, who fixes it, how
-  Scorecard          all 21 checks, this run vs last, pass / watch / action
+  Scorecard          all 24 checks, this run vs last, pass / watch / action
   Legal & Pricing    per-vehicle detail for the legal items
   Inventory Accuracy per-vehicle detail for photo / payment / pricing-data items
   Site Health        scripts, consent, SSL, redirects, page speed
@@ -71,10 +71,15 @@ STATUS_STYLE = {   # palette treatments only; the label text carries the meaning
     "MANUAL CHECK": (F_SKY, font(DOSIS, 10, True, WHITE)),
     "MANUAL": (F_SKY, font(DOSIS, 10, True, WHITE)),
     "CLEAR": (F_CALLOUT, font(DOSIS, 10, True, TILE_BLUE)),
+    "NOT RUN": (F_CALLOUT, font(DOSIS, 10, True, WARM_GREY)),
     "NEW": (F_BRAND, font(DOSIS, 9, True, WHITE)),
     "PERSISTING": (F_CALLOUT, font(DOSIS, 9, True, TILE_BLUE)),
     "BASELINE": (F_CALLOUT, font(DOSIS, 9, True, TILE_BLUE)),
 }
+
+
+def plural(n, w):
+    return w if n == 1 else w + "s"
 
 
 def pretty_date(iso):
@@ -233,7 +238,7 @@ def sheet_summary(wb, R, summary_text, logo, prepared_for):
 
     # ---- stat band ----
     ac = R["area_counts"]
-    tiles = [("LEGAL & PRICING ITEMS", ac.get(AREA_LEGAL, 0), "open on vehicle pages"),
+    tiles = [("LEGAL & PRICING ITEMS", ac.get(AREA_LEGAL, 0), "open across vehicle and site pages"),
              ("INVENTORY ACCURACY ITEMS", ac.get(AREA_ACCURACY, 0), "photos, payments, pricing data"),
              ("SITE HEALTH & PRIVACY ITEMS", ac.get(AREA_HEALTH, 0), "scripts, consent, SSL, domains"),
              ("NEW SINCE LAST RUN", m["new"], "first run: everything is new" if m["baseline"] else "items not flagged last run"),
@@ -297,13 +302,13 @@ def sheet_summary(wb, R, summary_text, logo, prepared_for):
     r += 2; eyebrow(ws, r, "How to read this workbook", N)
     guide = [
         ("Fix List", "The action plan. One row per problem type, ranked. Says what we found, why it matters, who fixes it, and the fix. Start here."),
-        ("Scorecard", "All 21 checks with this run's count against last run's, so you can see what is trending the right way."),
+        ("Scorecard", f"All {len(CHECK_IDS)} checks with this run's count against last run's, so you can see what is trending the right way."),
         ("Legal & Pricing", "Every vehicle behind the legal items, with VIN, the dollar figures, and a link to the page."),
         ("Inventory Accuracy", "Every vehicle with a photo, payment, or pricing-data problem. Hand this tab to the inventory manager."),
         ("Site Health", "Scripts, cookies, consent, SSL and domain redirects, plus page-speed scores when captured."),
         ("Phone Checklist", "The numbers on the site that a person must test-call. Columns are left blank for whoever makes the calls."),
         ("What Changed", "Everything new since the previous run and everything that cleared, with the reason it cleared (fixed vs sold)."),
-        ("Status labels", "ACTION NEEDED = legal exposure or a large accuracy gap. WATCH = worth a look, not urgent. CLEAR = nothing flagged. "
+        ("Status labels", "ACTION NEEDED = legal exposure or a large accuracy gap. WATCH = worth a look, not urgent. CLEAR = nothing flagged. NOT RUN = not measured this run. "
                           "NEW = not flagged last run. PERSISTING = flagged last run too."),
     ]
     for i, (tab, desc) in enumerate(guide):
@@ -365,9 +370,9 @@ def sheet_scorecard(wb, R, logo):
     ws = wb.create_sheet("Scorecard"); ws.sheet_properties.tabColor = SKY_BLUE
     widths = [7, 17, 34, 58, 9, 9, 11, 15, 26]; N = len(widths)
     set_widths(ws, widths)
-    masthead(ws, "Scorecard  ·  all 21 checks, this run vs last", pretty_date(R["meta"]["date"]), N, logo)
+    masthead(ws, f"Scorecard  ·  all {len(CHECK_IDS)} checks, this run vs last", pretty_date(R["meta"]["date"]), N, logo)
     para(ws, 3, "Every check we run, including the ones that passed. ACTION = legal item with findings. "
-                "WATCH = accuracy or health item with findings. CLEAR = nothing flagged. "
+                "WATCH = accuracy or health item with findings. CLEAR = nothing flagged. NOT RUN = not measured this run. "
                 "MANUAL = needs a person (test calls). Change is this run minus last run; negative is good.",
          N, sum(widths), font(SLAB, 9.5, False, TILE_BLUE), F_CALLOUT)
     hdr = 4
@@ -379,6 +384,8 @@ def sheet_scorecard(wb, R, logo):
         n, p = counts.get(cid, 0), prev.get(cid, 0)
         if cid == "C20":
             status, n_disp, p_disp, chg = "MANUAL", "see tab", "", ""
+        elif cid == "C14" and not R.get("lighthouse"):
+            status, n_disp, p_disp, chg = "NOT RUN", "", "", ""
         else:
             status = "CLEAR" if n == 0 else ("ACTION" if cat["area"] == AREA_LEGAL else "WATCH")
             n_disp, p_disp = n, (p if not R["meta"]["baseline"] else "")
@@ -447,8 +454,8 @@ def sheet_site_health(wb, R, logo):
     lh = R.get("lighthouse", [])
     if not lh:
         r += 1
-        para(ws, r, "Page-speed scores were not captured this run (Lighthouse could not run on the reporting machine). "
-                    "Nothing on the site is implied by that; the scores return once the tool is restored.",
+        para(ws, r, "Page-speed scores were not captured this run. Nothing on the site is implied by that; "
+                    "the scores return with the next run.",
              N, 208, font(SLAB, 9.5, False, WARM_GREY))
         return ws
     r += 1
@@ -481,6 +488,8 @@ def likely_department(pages):
         return "Service"
     if any(p.startswith("/parts") for p in pages):
         return "Parts"
+    if any(p.startswith("/inventory/used") for p in pages) and any(p.startswith("/inventory/new") for p in pages):
+        return "Sales (new and used)"
     if any(p.startswith("/inventory/used") for p in pages):
         return "Used sales"
     if any(p.startswith("/inventory") for p in pages):
@@ -549,9 +558,9 @@ def sheet_changes(wb, R, logo):
              font(SLAB, 10, False, TILE_BLUE), F_CALLOUT)
         print_setup(ws); return ws
     nb, rb = m.get("new_by_reason", {}), m.get("resolved_by_reason", {})
-    intro = (f"Compared with the {pretty_date(m['prev_date'])} run. {m['new']} new item(s): " +
+    intro = (f"Compared with the {pretty_date(m['prev_date'])} run. {m['new']} new {plural(m['new'], 'item')}: " +
              ("; ".join(f"{v} {k.lower()}" for k, v in nb.items()) or "none") +
-             f". {m['resolved']} resolved item(s): " +
+             f". {m['resolved']} resolved {plural(m['resolved'], 'item')}: " +
              ("; ".join(f"{v} {k.lower()}" for k, v in rb.items()) or "none") +
              ". 'Vehicle no longer listed' means the unit sold or came off the site, so the item cleared by turnover, not by a fix.")
     para(ws, 3, intro, N, sum(widths), font(SLAB, 9.5, False, TILE_BLUE), F_CALLOUT)
@@ -579,7 +588,7 @@ def sheet_changes(wb, R, logo):
     listed = [x for x in R["resolved"] if not x["reason"].startswith("Vehicle")]
     if turnover:
         r += 1
-        para(ws, r, f"{len(turnover)} item(s) cleared because the vehicle sold or came off the site. These are not fixes, "
+        para(ws, r, f"{len(turnover)} {plural(len(turnover), 'item')} cleared because the vehicle sold or came off the site. These are not fixes, "
                     "so they are summarized by check instead of listed one by one.", N, sum(widths),
              font(SLAB, 9.5, False, WARM_GREY))
         r += 1

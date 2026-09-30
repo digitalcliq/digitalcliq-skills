@@ -20,6 +20,24 @@ from check_catalog import (CATALOG, AREA_ORDER, AREA_LEGAL, AREA_ACCURACY,
 VDP_RE = re.compile(r"/inventory/display/(new|used|certified)/(\d{4})/([^/]+)/([^/]+)/([A-Z0-9]{11,17})", re.I)
 
 
+def plural(n, w):
+    return w if n == 1 else w + "s"
+
+
+def gm_health(flag, kind, chain=None):
+    """Translate sitehealth.py flags into GM language."""
+    fl = flag or ""
+    if kind == "ssl":
+        if "Hostname mismatch" in fl or "not valid for" in fl:
+            return "The security certificate on this domain was not issued for it, so browsers show a warning instead of the page."
+        if "expire" in fl.lower():
+            return "The security certificate on this domain is expired or about to expire."
+        return "The security certificate on this domain does not check out: " + fl.replace("SSL INVALID: ", "")
+    if fl.startswith("DEAD END"):
+        return "The domain does not load and does not redirect to www.mcpeeks.com."
+    return fl + (f". Redirect chain: {' > '.join(chain[-3:])}" if chain else "")
+
+
 def key(f):
     return f"{f['check']}|{f.get('vin') or f.get('url')}"
 
@@ -69,11 +87,11 @@ def main():
     for r in sh.get("ssl", []):
         if r.get("flag"):
             F.append({"check": "C18", "severity": "hygiene", "url": r["host"],
-                      "summary": r["flag"], "vin": None})
+                      "summary": gm_health(r["flag"], "ssl"), "vin": None})
     for r in sh.get("redirects", []):
         if r.get("flag"):
             F.append({"check": "C19", "severity": "hygiene", "url": r["domain"],
-                      "summary": f"{r['flag']}. Chain: {' > '.join(r['chain'][-3:])}", "vin": None})
+                      "summary": gm_health(r["flag"], "redirect", r.get("chain")), "vin": None})
 
     prev = load(os.path.join(args.state, "snapshot.json"), {})
     prev_lh = {r["url"]: r for r in prev.get("lighthouse", [])}
@@ -95,6 +113,18 @@ def main():
             F.append({"check": "C14", "severity": "hygiene", "url": r["url"], "vin": None,
                       "summary": f"Lighthouse performance {r.get('performance')}" +
                                  (f"; regressions: {', '.join(drops)}" if drops else "")})
+
+    # dedupe by key (check + VIN/page) so counts, Scorecard and What Changed reconcile
+    merged, order = {}, []
+    for f in F:
+        k = key(f)
+        if k in merged:
+            s0, s1 = merged[k].get("summary") or "", f.get("summary") or ""
+            if s1 and s1 not in s0:
+                merged[k]["summary"] = (s0 + " " + s1).strip()
+        else:
+            merged[k] = f; order.append(k)
+    F = [merged[k] for k in order]
 
     # ---- enrich every finding ----
     first_seen = load(os.path.join(args.state, "first_seen.json"), {})
@@ -139,7 +169,12 @@ def main():
                          "ref": ref, "reason": reason})
 
     # ---- counts ----
-    counts, prev_counts = {}, prev.get("counts", {})
+    counts, prev_counts = {}, {}
+    if prev.get("finding_keys"):   # count last run per unique key so it matches the What Changed diff
+        for k in prev["finding_keys"]:
+            c = k.split("|", 1)[0]; prev_counts[c] = prev_counts.get(c, 0) + 1
+    else:
+        prev_counts = prev.get("counts", {})
     for f in F:
         counts[f["check"]] = counts.get(f["check"], 0) + 1
     area_counts = {a: 0 for a in AREA_ORDER}
@@ -206,14 +241,16 @@ def main():
             meaning = (f"{len(findings.get('phones_sitewide', {}))} numbers listed on the site need a test call "
                        "(Phone Checklist tab).")
             if n:
-                meaning = f"{n} page(s) show a generic or dummy number, plus the manual test calls."
+                meaning = f"{n} {plural(n, 'page')} show a generic or dummy number, plus the manual test calls."
         else:
             label = area_status(a, n)
             if n == 0:
                 meaning = "Nothing flagged this run."
             else:
-                names = [CATALOG[c]["name"] for c in checks if c in CATALOG][:3]
-                meaning = f"{n} open item(s) across {len(checks)} check(s): " + "; ".join(names) + "."
+                names = [CATALOG[c]["name"] for c in checks if c in CATALOG]
+                more = f" and {len(names) - 3} more" if len(names) > 3 else ""
+                meaning = (f"{n} open {plural(n, 'item')} across {len(checks)} {plural(len(checks), 'check')}: "
+                           + "; ".join(names[:3]) + more + ".")
         area_status_rows.append({"area": a, "status": label, "open": n, "meaning": meaning})
 
     # ---- phones (diffed run over run) ----
@@ -226,7 +263,7 @@ def main():
         elif prev_phones and sorted(prev_phones.get(num, [])) != sorted(pages):
             chg = "Pages changed"
         else:
-            chg = "Same as last run" if prev_phones else "Baseline"
+            chg = "Same as last run" if prev_phones else "Baseline (first run tracked)"
         phone_rows.append({"number": num, "pages": pages, "change": chg})
     for num in sorted(set(prev_phones) - set(phones)):
         phone_rows.append({"number": num, "pages": prev_phones[num], "change": "REMOVED since last run"})

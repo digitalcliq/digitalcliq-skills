@@ -26,7 +26,7 @@ AREA_ORDER = [AREA_LEGAL, AREA_ACCURACY, AREA_HEALTH, AREA_PHONE]
 
 # Fix owners. Keep these names stable; they appear in the "Who fixes it" column.
 OWNER_SITE = "Pixel Motion (website vendor)"
-OWNER_CONSENT = "ComplyAuto + GTM admin"
+OWNER_CONSENT = "ComplyAuto + tag manager admin"
 OWNER_INVENTORY = "Inventory manager / photo vendor"
 OWNER_DESKING = "Desking / F&I manager"
 OWNER_DOMAINS = "Domain registrar / IT"
@@ -166,7 +166,7 @@ CATALOG = {
         name="Trackers firing before the visitor consents",
         area=AREA_LEGAL, weight=88,
         what="Advertising and analytics trackers that load before anyone clicks the ComplyAuto consent banner.",
-        why="California's Invasion of Privacy Act (CIPA) suits against dealers are built on exactly this: tracking a visitor before consent. Settlements run into six figures and the plaintiff bar files them in volume.",
+        why="California's Invasion of Privacy Act (CIPA) suits against dealers are built on exactly this: tracking a visitor before consent. These suits are filed against dealers regularly, and the exposure grows with every tag that fires early.",
         owner=OWNER_CONSENT,
         fix="Turn on ComplyAuto pre-consent tag blocking (or Google Consent Mode v2 defaulted to denied) so every tag waits for the visitor's choice.",
     ),
