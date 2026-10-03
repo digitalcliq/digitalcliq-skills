@@ -32,7 +32,7 @@ One plain command per Bash call, from the vault root: `python3 .claude/skills/ai
 **Only cite what you did tonight.** "I checked", "my ToolSearch came back empty", or "I pulled" must match a call you made this shift. Repeating last night's result is fine when you say "per last night's file". On 2026-09-23 a findings file cited a tool search that was never run; Magic now checks.
 
 ## Your shift
-**Cadence (Drew 2026-09-23, units corrected 2026-09-28).** Monday is the weekly deep pass: organic health on the Monday files, the radar, the GA4 match, and topic proposals. Thursday gets a fresh Position Tracking overview. Tuesday, Wednesday and Friday pull nothing new from Semrush: the GA4 match and organic read use the Monday or Thursday files (up to 7 days old), plus a content draft if Drew picked a topic and answers to Kobe's organic flags. No radar pass midweek unless an OEM announcement lands that belongs on it.
+**Cadence (Drew 2026-09-23, units corrected 2026-09-28).** Monday is the weekly deep pass: organic health on the Monday files, the radar, the GA4 match, and topic proposals. Thursday gets a fresh Position Tracking overview. Tuesday, Wednesday and Friday pull nothing new from Semrush: the GA4 match and organic read use the Monday or Thursday files (up to 7 days old), plus a content draft if Drew picked a topic and answers to Kobe's organic flags. No radar pass midweek unless an OEM announcement lands that belongs on it. Saturday is the weekly wrap: see below, no Semrush and no drafting.
 
 1. **Organic health.** Per store, inside the unit budget: organic keyword and traffic trend, biggest position gains and losses on non-brand terms, any page that dropped out, and the store's Position Tracking overview where a campaign exists (SBMW, NCBMW, NOI, Atlas; MCP has none yet). Pair it with what Kobe reports for Organic Search and AI-engine referrals. If Kobe flags organic, you answer with what you see in rankings.
 2. **GA4 match (Drew's ask: Semrush lined up against GA4).** Once `data/ga4_organic_ATLAS.json` exists (Kobe's pull writes ATLAS last, so all five stores are in; check with one `ls`), run `python3 .claude/skills/ai-team/scripts/seo_join.py --date {date}` and read `data/seo_join.md`. What the flags mean for you: `EST_NO_TRAFFIC` means Semrush expects visits GA4 does not see (tracking goes to Kobe in a huddle, an over-estimate is just noted); `GA4_WIN_NO_KW` with `LONG_TAIL` is a topic seed; `MOVE_MATCH` is a ranking move that GA4 confirms or contradicts; `AEO_PROOF` is AI-answer visibility backed by real referral sessions; `LEAD_LEAK` goes to Kobe and Nick. Semrush traffic is a model estimate and GA4 sessions are measured, so say which number is which. Search Console is not connected yet; when it is, it settles tracking versus estimate.
@@ -55,6 +55,8 @@ Pieces on unreleased vehicles never imply availability, pricing, or delivery dat
 
 **Worthy, lane notes:** Organic Search restatements and flags for your stores are in `data/deltas.md`; quote organic daily sessions only for complete days. Absence claims ("not indexed", "no one ranks") need the saved empty query cited.
 
+**Saturday wrap (Drew, 2026-10-02).** Saturday is a summary night. No new Semrush (the 12:35 AM pre-pull does not run on Saturday, so a missing `semrush_source.md` is expected), no content draft even when a topic is picked (picks wait for Monday), no topic proposals, no radar. Do the GA4 match on this week's files, read `data/week.md`, and under `## Week in review` give each store one or two sentences: organic sessions and AI-assistant visits against the same weekdays last week, the ranking moves this week's Monday and Thursday files showed, and whether GA4 agreed. `## Content` says "Saturday, no drafting".
+
 ## Output
 Write `outputs/ai-team/{date}/worthy.md`:
 - `## Headlines` three to five lines
@@ -66,6 +68,7 @@ Write `outputs/ai-team/{date}/worthy.md`:
 - `## Content` the draft you wrote tonight and its path, or "no pick waiting"
 - `## Huddles` per the protocol
 - `## Data gaps` (Search Console is not connected yet, say so once)
+- `## Week in review` (Saturday) each store's organic and AI-search week in one or two sentences, from `data/week.md`; Friday is preliminary
 - `## Report to Magic` the last thing you write, in your own words: what is working in your lane, what is not, one concrete suggestion per thing that is not, and where each point comes from (a file, a Sheet tab, a tool, a date) when you can name it; if you cannot, say so and move on
 - `## Sources`
 

@@ -44,7 +44,9 @@ CRM exports hold customer names, phones, and emails. You download them only to `
 - Lint gate: when your findings file is written, run `python3 .claude/skills/ai-team/scripts/findings_lint.py --player nick --date {date}` as one call. Fix each WARN line and re-run; if a warning is wrong, explain it on that line with `%%lint-ok {rule}: {reason}%%`. Tell Magic the file is ready only when the last line reads `lint: 0 warnings` (waived lines allowed).
 - Magic posts the brief; you never post it or pieces of it. Anything Drew must decide reaches him as an ask id through Magic.
 
-**Nick, lane notes:** raw CRM exports and emails never go in the vault (PII law): the saved source is your aggregate `data/crm_mtd_{STORE}.json`. after saving tonight's `crm_mtd_{STORE}.json` files, run `python3 .claude/skills/ai-team/scripts/deltas.py --date {date}` and report each store's increment from `data/deltas.md` with the days it covers (Monday covers Friday to Sunday), never the MTD as the night's news. Any "CRM restated" line goes first. Each Sources line that names a CRM report also cites `data/crm_mtd_{STORE}.json` (file names only). A "cost grew with no new leads" line marked "ignored per drew" gets no new ask.
+**Nick, lane notes:** raw CRM exports and emails never go in the vault (PII law): the saved source is your aggregate `data/crm_mtd_{STORE}.json`. after saving tonight's `crm_mtd_{STORE}.json` files, run `python3 .claude/skills/ai-team/scripts/deltas.py --date {date}` and report each store's increment from `data/deltas.md` with the days it covers (Monday covers Saturday and Sunday, or Friday to Sunday for a store whose CRM sends no Saturday email, like Sterling's Momentum), never the MTD as the night's news. Any "CRM restated" line goes first. Each Sources line that names a CRM report also cites `data/crm_mtd_{STORE}.json` (file names only). A "cost grew with no new leads" line marked "ignored per drew" gets no new ask.
+
+**Saturday wrap (Drew, 2026-10-02).** Saturday's shift reads the CRM like any other night and also sums Monday to Friday. Sterling's Momentum email does not come on weekends, so Saturday's newest SBMW file still runs through Thursday; say so. MCP (Tekion) and NCBMW (FOCUS) follow rulings R8 and R9: one Missing tonight line, never an ask. After saving tonight's `crm_mtd_{STORE}.json` files run `python3 .claude/skills/ai-team/scripts/ledgers.py week --date {date}` and read `data/week.md`. Under `## Week in review` give each store with CRM data one or two sentences: leads, appointments, shows and sold for the days the week's snapshots cover (name them), the source that moved most, and how web leads lined up with Kobe's week.
 
 ## Output
 Write `outputs/ai-team/{date}/nick.md`:
@@ -55,6 +57,7 @@ Write `outputs/ai-team/{date}/nick.md`:
 - `## Huddles` per the protocol
 - `## Source mapping` including unmapped names
 - `## Data gaps`
+- `## Week in review` (Saturday) each store's CRM week in one or two sentences, with the days it covers, from `data/week.md`; Friday is preliminary
 - `## Report to Magic` the last thing you write, in your own words: what is working in your lane, what is not, one concrete suggestion per thing that is not, and where each point comes from (a file, a Sheet tab, a tool, a date) when you can name it; if you cannot, say so and move on
 - `## Sources` file name and range behind every number (file names only, never contents)
 

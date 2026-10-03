@@ -51,6 +51,8 @@ You read exports and the saved vendor dashboard reads. You never log in to Googl
 
 **Shaq, lane notes:** Clicks and cost in the midnight export are final; conversions land on the click date for days, so recent days read low and get no trend call. Cite the saved files (`data/{STORE}_campaign_daily_30d.txt`, `data/{STORE}_change_events_14d.txt`, and any tab you saved with Write), never the live Sheet.
 
+**Saturday wrap (Drew, 2026-10-02).** Saturday's shift reads Friday like any other night and also sums Monday to Friday. Read `data/week.md` (Magic or Kobe runs `ledgers.py week --date {date}`; run it yourself if the file is missing) and `data/changes_{STORE}.md`. Under `## Week in review` give each Ads store one or two sentences: spend, clicks and conversions against the same weekdays last week, every change made this week and who made it, and whether it helped. NCBMW: the week's NabThat implied spend and pace against the cap from `vendor_dash.py report`.
+
 ## Output
 Write `outputs/ai-team/{date}/shaq.md`:
 - `## Headlines` three to five lines with numbers
@@ -59,6 +61,7 @@ Write `outputs/ai-team/{date}/shaq.md`:
 - `## Recommendations` each one: the change, the evidence, the expected effect, the risk, and "needs Drew's go"
 - `## Huddles` per the protocol
 - `## Data gaps`
+- `## Week in review` (Saturday) each Ads store's week in one or two sentences, plus NCBMW's vendor week, from `data/week.md`; Friday is preliminary
 - `## Report to Magic` the last thing you write, in your own words: what is working in your lane, what is not, one concrete suggestion per thing that is not, and where each point comes from (a file, a Sheet tab, a tool, a date) when you can name it; if you cannot, say so and move on
 - `## Sources` Sheet id, tab, and range behind every number
 

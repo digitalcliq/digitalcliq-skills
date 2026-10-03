@@ -17,6 +17,15 @@ Morning Drew. {One or two sentences: the night in a nutshell and the single thin
 - {Store}: {RED | AMBER | GREEN}. {Top issue in plain words, with its dates}. Broken {n} days.
 (one line per store, straight from `data/health.md`; red numbers stay out of every claim below)
 
+### Week in review (Saturday only)
+The week of {Mon date} to {Fri date} against the same weekdays a week earlier, from `data/week.md`; Friday is preliminary.
+**[[MCP]]** {Two or three sentences: traffic, paid search, paid social, organic, CRM for the week; what changed this week, who changed it, and whether it worked.}
+**[[NOI]]** …
+**[[SBMW]]** …
+**[[NCBMW]]** …
+**[[Atlas]]** …
+- Closed this week: {ids and labels, wins named}. Still open from this week: {ids}.
+
 ### Needs your call
 - {The question in a sentence. Who raised it. What happens if you say go, and what happens if you do not.} ({Ax})
 

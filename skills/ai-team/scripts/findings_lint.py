@@ -470,6 +470,8 @@ def required_headings(ctx):
                     continue
                 if re.search(r"\(monday\)", rest) and ctx.date.weekday() != 0:
                     continue
+                if re.search(r"\(saturday\)", rest) and ctx.date.weekday() != 5:
+                    continue
                 req.append(name)
     if not req:
         ctx.note("no Output section read from .claude/agents/%s.md; using the built-in heading list" % ctx.player)

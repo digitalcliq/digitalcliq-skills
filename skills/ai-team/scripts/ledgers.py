@@ -66,6 +66,8 @@ Shift ledger and month pack
   L shift set --file PATH                bulk overrides, a JSON list of the same keys
   L shift list [--date D]
   L month --month YYYY-MM                month-pack-{M}.json and .md
+  L week --date D [--out DIR]            Saturday wrap: Mon to Fri before D vs the week before, per store,
+                                         to outputs/ai-team/D/data/week.md and week.json
   L ads-dump --date D                    save each Ads export Sheet's campaign_daily_30d (and meta tab)
                                          to D/data/{STORE}_campaign_daily_30d.txt (read-only, gdata auth)
 CRM snapshot contract
@@ -1209,6 +1211,232 @@ def month_pack_md(pack):
             L.append("- Open asks: " + ", ".join("%s %s" % (x["id"], x["label"]) for x in st["open_asks"]))
         L.append("- Wins this month: " + ("; ".join("%s %s (%s)" % (w["date"], w["win"], w["id"]) for w in st["wins"])
                                            if st["wins"] else "none closed with a win yet"))
+        L.append("")
+    return "\n".join(L) + "\n"
+
+
+# ---------------------------------------------------------------- week pack (Saturday wrap)
+
+def week_window(date):
+    """Saturday's shift (date D) covers Monday to Friday of the week that ends the day before D.
+    Any other date: Monday of the week holding D - 1, through D - 1."""
+    end = dt.date.fromisoformat(iso(date)) - dt.timedelta(days=1)
+    start = end - dt.timedelta(days=end.weekday())
+    return start.isoformat(), end.isoformat()
+
+
+def harvest_span(fn, days):
+    """Run a month harvester for every month the days touch and keep only those days."""
+    out = {}
+    for m in sorted({d[:7] for d in days}):
+        got = fn(m)
+        for k, v in got.items():
+            if isinstance(v, dict) and k in STORES:
+                out.setdefault(k, {}).update({d: x for d, x in v.items() if d in days})
+            elif k in days:
+                out[k] = v
+    return out
+
+
+def crm_week(store, days, snaps):
+    """CRM change across the days, from month-to-date snapshots: end minus base, per month part."""
+    fields = ("leads", "appointments", "shows", "sold")
+    parts, total = [], {f: 0 for f in fields}
+    for m in sorted({d[:7] for d in days}):
+        md = [d for d in days if d.startswith(m)]
+        mine = [(n["period_end"], sd, p, n) for (sd, p, n) in snaps
+                if n["store"] == store and str(n.get("period_end") or "").startswith(m) and n.get("headline")]
+        ends = [x for x in mine if md[0] <= x[0] <= md[-1]]
+        if not ends:
+            parts.append({"month": m, "days": [md[0], md[-1]], "status": "no snapshot inside these days"})
+            continue
+        e = sorted(ends, key=lambda x: (x[0], x[1]))[-1]
+        if md[0].endswith("-01"):
+            b, base_end = None, None
+        else:
+            bases = [x for x in mine if x[0] < md[0]]
+            if not bases:
+                parts.append({"month": m, "days": [md[0], md[-1]], "status": "no snapshot before %s to subtract" % md[0],
+                              "end_snapshot": rel(e[2])})
+                continue
+            b = sorted(bases, key=lambda x: (x[0], x[1]))[-1]
+            base_end = b[0]
+        inc = {}
+        for f in fields:
+            ev = e[3]["headline"].get(f)
+            bv = b[3]["headline"].get(f) if b else 0
+            inc[f] = (ev - bv) if isinstance(ev, (int, float)) and isinstance(bv, (int, float)) else None
+        first = (dt.date.fromisoformat(base_end) + dt.timedelta(days=1)).isoformat() if base_end else md[0]
+        parts.append({"month": m, "covers": [first, e[0]], "increment": inc, "end_snapshot": rel(e[2]),
+                      "base_snapshot": rel(b[2]) if b else "month start", "status": "ok"})
+        for f in fields:
+            total[f] = None if (total[f] is None or inc[f] is None) else total[f] + inc[f]
+    ok = [p for p in parts if p["status"] == "ok"]
+    return {"parts": parts, "total": total if ok else None,
+            "covers": [ok[0]["covers"][0], ok[-1]["covers"][1]] if ok else None}
+
+
+def _pct(a, b):
+    return None if not b or a is None else round((a - b) / b * 100, 1)
+
+
+def cmd_week(args):
+    date = iso(args.date)
+    start, end = week_window(date)
+    days = daterange(start, end)
+    pstart, pend = [(dt.date.fromisoformat(x) - dt.timedelta(days=7)).isoformat() for x in (start, end)]
+    pdays = daterange(pstart, pend)
+    ga4 = harvest_span(harvest_ga4, days + pdays)
+    ads = harvest_span(harvest_ads, days + pdays)
+    meta = harvest_span(harvest_meta, days + pdays)
+    snaps = crm_snapshots()
+    ledger = read_ledger()
+    asks = (load_json(LP("asks.json"), {"asks": []}) or {}).get("asks", [])
+    shifts = [d for d in shift_dates() if start < d <= date]
+    pack = {"schema": "week-pack.v1", "shift_date": date, "week": [start, end], "prior_week": [pstart, pend],
+            "preliminary_day": end, "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
+            "how_to_use": ("Monday to Friday totals per store from the night-shift folders, against the same five "
+                           "days a week earlier. %s is the newest day and preliminary (read at 1 AM); the prior week is "
+                           "final. A source with fewer than five days is partial and says which days it has. CRM is "
+                           "the change between month-to-date snapshots, with the days it actually covers." % end),
+            "shifts_this_week": [{"date": d, "brief": rel(os.path.join(ROOT, "outputs", "ai-team", d, "brief.md"))
+                                  if os.path.exists(os.path.join(ROOT, "outputs", "ai-team", d, "brief.md")) else None}
+                                 for d in shifts],
+            "stores": {}}
+
+    def sum_days(src, store, dd, keys):
+        have = [d for d in dd if store in src and d in src[store] and src[store][d][1]]
+        tot = {k: 0 for k in keys}
+        for d in have:
+            for k in keys:
+                tot[k] += src[store][d][1][k]
+        return {"days": have, "totals": {k: round(v, 2) for k, v in tot.items()}}
+
+    def meta_days(store, dd):
+        have = [d for d in dd if d in meta]
+        tot = {"spend": 0.0, "clicks": 0, "lpv": 0}
+        for d in have:
+            md = meta_store_day(meta[d][1], store, d)
+            for k in tot:
+                tot[k] += md[k]
+        return {"days": have, "totals": {"spend": round(tot["spend"], 2), "clicks": tot["clicks"],
+                                         "landing_page_views": tot["lpv"]}}
+
+    def back7(have):
+        # the prior week is compared on the same weekdays this week has, never 4 days against 5
+        return [(dt.date.fromisoformat(d) - dt.timedelta(days=7)).isoformat() for d in have]
+
+    def pair(fn):
+        w = fn(days)
+        return {"week": w, "prior": fn(back7(w["days"]))}
+
+    for s in STORES:
+        st = {"name": STORE_NAMES[s]}
+        g_keys = ("sessions", "engaged", "key_events", "organic", "ai")
+        st["ga4"] = pair(lambda dd: sum_days(ga4, s, dd, g_keys))
+        st["ga4"]["clean_key_events"] = {r["target_date"]: r["clean_key_events"] for r in ledger
+                                         if r["store"] == s and r["target_date"] in days
+                                         and r.get("clean_key_events") is not None}
+        st["ga4"]["key_events_notes"] = sorted({"%s: %s" % (r["target_date"], r["key_events_note"]) for r in ledger
+                                                if r["store"] == s and r["target_date"] in days and r.get("key_events_note")})
+        a_keys = ("cost", "clicks", "impressions", "conversions")
+        st["google_ads"] = pair(lambda dd: sum_days(ads, s, dd, a_keys))
+        st["meta"] = pair(lambda dd: meta_days(s, dd))
+        st["crm"] = {"week": crm_week(s, days, snaps), "prior": crm_week(s, pdays, snaps)}
+        st["asks_opened"] = [{"id": x["id"], "label": x["label"]} for x in asks
+                             if x["store"] in (s, "ALL") and start <= str(x.get("first_raised") or "") <= date]
+        st["asks_closed"] = [{"id": x["id"], "label": x["label"], "status": x["status"], "win": x.get("win")}
+                             for x in asks if x["store"] in (s, "ALL") and x["status"] in ("closed", "withdrawn")
+                             and start <= str(x.get("closed_date") or "") <= date]
+        pack["stores"][s] = st
+    out = args.out or os.path.join(ROOT, "outputs", "ai-team", date, "data")
+    save_json(os.path.join(out, "week.json"), pack)
+    save_text(os.path.join(out, "week.md"), week_md(pack))
+    print("week %s to %s (vs %s to %s): wrote %s/week.md and week.json from %d shift folder(s)."
+          % (start, end, pstart, pend, rel(out), len(shifts)))
+    for s in STORES:
+        st = pack["stores"][s]
+        print("  %-5s ga4 %d/5 days, gads %d/5, meta %d/5, crm %s" % (
+            s, len(st["ga4"]["week"]["days"]), len(st["google_ads"]["week"]["days"]), len(st["meta"]["week"]["days"]),
+            "%s to %s" % tuple(st["crm"]["week"]["covers"]) if st["crm"]["week"]["covers"] else "none"))
+
+
+def week_md(pack):
+    start, end = pack["week"]
+    pstart, pend = pack["prior_week"]
+
+    def span(days, n=5):
+        if not days:
+            return "no days"
+        return "all five days" if len(days) == n else "%d of %d days (%s)" % (
+            len(days), n, ", ".join(dt.date.fromisoformat(d).strftime("%a %-m/%-d") for d in days))
+
+    def vs(a, b, f):
+        p = _pct(a, b)
+        return "%s vs %s%s" % (f(a), f(b), "" if p is None else " (%+.1f%%)" % p)
+
+    lab = lambda d: dt.date.fromisoformat(d).strftime("%a %-m/%-d")
+    L = ["---", "type: ai-team-week-pack", "date: %s" % pack["shift_date"], "status: generated",
+         "tags: [ai-team, ledgers, weekly-wrap]", "---", "",
+         "# AI team week pack, %s to %s" % (lab(start), lab(end)), "",
+         "Built by `ledgers.py week` for the Saturday wrap. This week (%s to %s) against the week before (%s to %s). "
+         "%s is preliminary (read at 1 AM), so every week total that includes it is preliminary too; the prior week "
+         "is final. Each prior-week figure is summed on the same weekdays this week has, so a partial source "
+         "still compares like for like; its day list shows what is missing." % (lab(start), lab(end), lab(pstart), lab(pend), lab(end)), "",
+         "Shifts this week: " + (", ".join("%s%s" % (lab(x["date"]), "" if x["brief"] else " (no brief)")
+                                           for x in pack["shifts_this_week"]) or "none"), ""]
+    for s, st in pack["stores"].items():
+        L.append("## [[%s]] (%s)" % (s if s != "ATLAS" else "Atlas", st["name"]))
+        g, gp = st["ga4"]["week"], st["ga4"]["prior"]
+        if g["days"]:
+            L.append("- GA4, %s: sessions %s; key events %s; Organic Search %s; AI Assistant %s. Prior week read on %s." % (
+                span(g["days"]), vs(g["totals"]["sessions"], gp["totals"]["sessions"], fmt_num),
+                vs(g["totals"]["key_events"], gp["totals"]["key_events"], fmt_num),
+                vs(g["totals"]["organic"], gp["totals"]["organic"], fmt_num),
+                vs(g["totals"]["ai"], gp["totals"]["ai"], fmt_num), span(gp["days"])))
+        else:
+            L.append("- GA4: no pulls this week.")
+        if st["ga4"]["clean_key_events"]:
+            L.append("  - Clean key events (Kobe): " + ", ".join(
+                "%s %s" % (lab(d), v) for d, v in sorted(st["ga4"]["clean_key_events"].items())))
+        for n in st["ga4"]["key_events_notes"][-2:]:
+            L.append("  - Key events caveat: " + n)
+        a, ap = st["google_ads"]["week"], st["google_ads"]["prior"]
+        if a["days"]:
+            L.append("- Google Ads, %s: cost %s; clicks %s; conversions %s. Prior week read on %s." % (
+                span(a["days"]), vs(a["totals"]["cost"], ap["totals"]["cost"], fmt_money),
+                vs(a["totals"]["clicks"], ap["totals"]["clicks"], fmt_num),
+                vs(a["totals"]["conversions"], ap["totals"]["conversions"], fmt_num), span(ap["days"])))
+        else:
+            L.append("- Google Ads: no export in this week's shift folders.")
+        m, mp = st["meta"]["week"], st["meta"]["prior"]
+        if m["days"]:
+            L.append("- Meta, %s: spend %s; clicks %s; landing page views %s. Prior week read on %s." % (
+                span(m["days"]), vs(m["totals"]["spend"], mp["totals"]["spend"], fmt_money),
+                vs(m["totals"]["clicks"], mp["totals"]["clicks"], fmt_num),
+                vs(m["totals"]["landing_page_views"], mp["totals"]["landing_page_views"], fmt_num), span(mp["days"])))
+        else:
+            L.append("- Meta: no Meta pull this week.")
+        c, cp = st["crm"]["week"], st["crm"]["prior"]
+        if c["total"]:
+            t = c["total"]
+            L.append("- CRM, %s to %s: leads %s, appointments %s, shows %s, sold %s%s." % (
+                lab(c["covers"][0]), lab(c["covers"][1]), fmt_num(t["leads"]), fmt_num(t["appointments"]),
+                fmt_num(t["shows"]), fmt_num(t["sold"]),
+                ". Prior week %s to %s: leads %s, sold %s" % (lab(cp["covers"][0]), lab(cp["covers"][1]),
+                                                              fmt_num(cp["total"]["leads"]), fmt_num(cp["total"]["sold"]))
+                if cp["total"] else ". No prior-week CRM to compare"))
+            for p in c["parts"]:
+                if p["status"] != "ok":
+                    L.append("  - CRM gap %s to %s: %s." % (lab(p["days"][0]), lab(p["days"][1]), p["status"]))
+        else:
+            L.append("- CRM: no usable snapshots this week (%s)." % "; ".join(p["status"] for p in c["parts"]))
+        if st["asks_opened"]:
+            L.append("- Asks raised this week: " + ", ".join("%s %s" % (x["id"], x["label"]) for x in st["asks_opened"]))
+        if st["asks_closed"]:
+            L.append("- Closed this week: " + ", ".join("%s %s (%s%s)" % (x["id"], x["label"], x["status"],
+                                                                      ", win" if x["win"] else "")
+                                                        for x in st["asks_closed"]))
         L.append("")
     return "\n".join(L) + "\n"
 
@@ -4119,6 +4347,8 @@ def main():
     p = s.add_parser("list"); p.add_argument("--date"); p.set_defaults(fn=cmd_shift_list)
 
     p = sub.add_parser("month"); p.add_argument("--month", required=True); p.set_defaults(fn=cmd_month)
+    p = sub.add_parser("week"); p.add_argument("--date", required=True); p.add_argument("--out")
+    p.set_defaults(fn=cmd_week)
     p = sub.add_parser("ads-dump"); p.add_argument("--date", required=True); p.set_defaults(fn=cmd_ads_dump)
     p = sub.add_parser("crm-shape"); p.set_defaults(fn=cmd_crm_shape)
     p = sub.add_parser("crm-check"); p.add_argument("--file", required=True); p.set_defaults(fn=cmd_crm_check)
