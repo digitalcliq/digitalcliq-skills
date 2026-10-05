@@ -156,7 +156,9 @@ def legend_cell(ws, row_idx, text, col_count, height=30, autofit_chars=152):
     # A fixed height silently clips long legends (the VIN tab lost its >=/?/CFP key
     # mid-sentence, QA gate pass 2). Grow the row to fit the wrapped text.
     if text:
-        height = max(height, 13 * (1 + len(str(text)) // autofit_chars) + 8)
+        # +1 line of headroom: the chars-per-line estimate runs optimistic for
+        # Roboto Slab, and the VIN legend lost its last line by ~5pt (QA 2026-10-05).
+        height = max(height, 13 * (2 + len(str(text)) // autofit_chars) + 8)
     return _legend_cell_impl(ws, row_idx, text, col_count, height)
 
 
@@ -249,7 +251,7 @@ def build_summary(ws, a):
     for dl in a["meta"]["dealers"]:
         tag = "CLIENT" if dl.get("role") == "client" else "competitor"
         status = dl.get("status", "?")
-        cell = ws.cell(row=r, column=1, value=f"{dl['name']}  ({tag}, crawl: {status})")
+        cell = ws.cell(row=r, column=1, value=f"{dl['name']}  ({tag}, website review: {'complete' if status == 'ok' else status})")
         cell.font = body_bold if dl.get("role") == "client" else body_font
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=5)
         r += 1
@@ -271,7 +273,7 @@ def build_summary(ws, a):
         r += 2
     r += 1
     _METHOD = (
-        "Method: live crawl of each dealer's published website offers and a sample of new inventory "
+        "Method: a review of each dealer's published website offers and a sample of new inventory "
         f"({sample_depth_text(a)}). Unknown values show as ?. Rankings use effective monthly "
         "cost ((due at signing + remaining payments) / term), not the advertised teaser payment. Conditional "
         "payments (stacked, non-universal rebates) are labeled. Prepared by DigitalCLIQ.")
@@ -290,7 +292,7 @@ def build_lease(ws, a):
     headers = ["Dealer", "Model", "Trim", "MY", "First Seen", "$/mo", "Vs Prior", "Eff $/mo", "Rank",
                "Term", "Down", "Miles/Yr", "DAS", "MSRP", "Type", "Flags", "Offer (as published)",
                "Prior $/mo", "Prior Offer"]
-    widths = [22, 12, 18, 6, 11, 9, 26, 9, 7, 6, 9, 20, 9, 10, 11, 26, 46, 9, 40]
+    widths = [22, 12, 18, 6, 11, 9, 46, 9, 7, 6, 9, 34, 9, 10, 11, 26, 46, 9, 40]
     add_masthead(ws, "Lease Offers: this period vs prior", a["meta"]["run_date"], len(headers))
     legend_cell(ws, 3, (
         "Effective $/mo is shaded by rank within each model/trim (Sky Blue = market low, Warm Grey = highest). "
@@ -326,6 +328,7 @@ def build_lease(ws, a):
                + (" (from fine print)" if row.get("miles_yr_derived") else "")
                + (" (carried from prior run, not published this run)"
                   if row.get("miles_yr_carried") else "")
+               + (f" ({row['miles_src']})" if row.get("miles_src") else "")
                if row.get("miles_yr") else "?")
         body_cell(ws, r, 12, _mi, right)
         body_cell(ws, r, 13, money(row.get("das", 0)), right)
@@ -359,6 +362,25 @@ def pulled_block(ws, a, kind, r, col_count):
     ws.cell(row=r, column=1, value=f"Pulled since {a['meta'].get('compare_date') or 'the prior run'} "
                                   f"(published then, not published now)").font = label_font
     r += 1
+    _key = "lease_rows" if kind == "lease" else "finance_rows"
+    _has = {r.get("dealer") for r in a.get(_key, [])}
+    _ref = sorted({x["dealer"] for x in rows
+                   if x["dealer"] not in _has and any(dl.get("name") == x["dealer"] and (_updating_stub(dl.get("notes", "") or "", kind)
+                          or _claims_confirmed_zero(dl.get("notes", "") or "", kind))
+                          for dl in a["meta"]["dealers"])})
+    _upd = [d for d in _ref if any(dl.get("name") == d and _updating_stub(dl.get("notes", "") or "", kind)
+                                   for dl in a["meta"]["dealers"])]
+    _emp = [d for d in _ref if d not in _upd]
+    _txt = ""
+    if _upd:
+        _txt += f"{_join(_upd)}: the specials page said it was being updated when checked on {a['meta']['run_date']}. "
+    if _emp:
+        _txt += (f"{_join(_emp)}: the specials page showed no lease or finance offers on tracked models "
+                 f"when checked on {a['meta']['run_date']}. ")
+    if _ref:
+        ws.cell(row=r, column=1, value=(_txt + "DigitalCLIQ will recheck next run.")).font = body_font
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=col_count)
+        r += 1
     for x in rows:
         who = x["dealer"] + (" (you)" if x["is_client"] else "")
         what = f"{x.get('yr') or ''} {x.get('model','')} {x.get('trim','')}".strip()
@@ -372,8 +394,11 @@ def pulled_block(ws, a, kind, r, col_count):
             fig = f"was {x['apr']:.2f}% APR" + (f" / {x['term_mo']} mo" if x.get("term_mo") else "")
         else:
             fig = "figure not published"
+        if _re.search(r"loyalty|conquest|military|bonus cash|qualified buyers|returning lessee",
+                      str(x.get("offer_text", "")), _re.I):
+            fig += " (conditional: required a loyalty or qualifying credit)"
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=col_count)
-        c = ws.cell(row=r, column=1, value=depluralize(f"•  {who} - {what}: {fig}."))
+        c = ws.cell(row=r, column=1, value=depluralize(f"•  {who}, {what}: {fig}."))
         c.font = body_bold if x["is_client"] else body_font
         c.alignment = left
         r += 1
@@ -384,7 +409,7 @@ def build_finance(ws, a):
     rows = a["finance_rows"]
     headers = ["Dealer", "Model", "Trim", "MY", "First Seen", "APR", "Vs Prior", "Rank", "Term", "MSRP",
                "Conditions", "Prior APR", "Prior Term"]
-    widths = [22, 12, 10, 6, 11, 8, 12, 7, 8, 11, 44, 9, 9]
+    widths = [22, 12, 10, 6, 11, 8, 15, 7, 8, 11, 44, 9, 9]
     add_masthead(ws, "Finance Offers: this period vs prior", a["meta"]["run_date"], len(headers))
     legend_cell(ws, 3, (
         "APR shaded by rank within each model/trim (Sky Blue = lowest). ? = no APR published "
@@ -446,7 +471,7 @@ def build_movement(ws, a):
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=len(headers))
         cell = ws.cell(row=r, column=1, value=_txt)
         cell.font = body_bold; cell.fill = alt_fill; cell.alignment = left
-        ws.row_dimensions[r].height = max(28, 14 * (1 + len(_txt) // 110))
+        ws.row_dimensions[r].height = max(28, 14 * (1 + len(_txt) // 110) + 10)
         r += 1
     header_row(ws, r, headers, widths)
     # The Delisted header carries the tracking window and wraps to 3 lines at
@@ -500,6 +525,12 @@ def _net_price_dealers(a, tol=3):
         neg = [x for x in deltas if x < 0]
         if len(deltas) >= 4 and len(neg) == len(deltas) and len(Counter(neg)) <= tol:
             out.append(dl)
+    # A store whose own crawl note says the shown price is net of manufacturer cash
+    # is net-priced whatever its deltas look like (QA 2026-10-05, Nissan of Tustin).
+    for dl in a["meta"].get("dealers", []):
+        if (_re.search(r"net price|after nissan|net of", str(dl.get("notes", "")), _re.I)
+                and dl.get("name") in per and dl.get("name") not in out):
+            out.append(dl.get("name"))
     return sorted(out)
 
 
@@ -507,9 +538,9 @@ def _net_price_note(a):
     dls = _net_price_dealers(a)
     if not dls:
         return ""
-    return ("PRICE BASIS: every sampled unit at " + _join_names(dls) + " carries the same "
-            "handful of negative differences against MSRP, which is the signature of a price "
-            "quoted NET of a universal manufacturer rebate rather than an advertised price. "
+    return ("PRICE BASIS: " + _join_names(dls) + " quote prices NET of manufacturer cash (shown by "
+            "the store's own price label or by the same negative MSRP differences repeating across its "
+            "stock), not a pre-rebate advertised price. "
             "Those minimums and ranks are therefore NOT like-for-like against stores that "
             "publish a pre-rebate advertised price, and the market low can flip once the "
             "rebate is added back. Verify before quoting. ")
@@ -549,7 +580,7 @@ def build_matrix(ws, a):
         _mark = "" if _st.get(dl, "ok") == "ok" else f" ({_st.get(dl)} crawl)"
         headers += [f"{dl}: Min Price{_mark}", "# @ Min", "Age (DOM)"]
     headers += ["Market Low"]
-    widths = [15, 6] + [22, 8, 26] * n + [26]
+    widths = [15, 6] + [22, 8, 26] * n + [32]
     add_masthead(ws, "Minimum Advertised Price by model", a["meta"]["run_date"], len(headers))
     legend_cell(ws, 3, (
         "Lowest advertised price among SAMPLED in-stock units per model/model-year "
@@ -604,9 +635,49 @@ def build_matrix(ws, a):
         _n_ranked = len(ranked)
         body_cell(ws, r, c, (f"{row['market_low_dealer']}  {money(row['market_low_price'])}"
                              if row["market_low_dealer"] and _n_ranked > 1
-                             else (f"{row['market_low_dealer']}, only store stocking it" if _n_ranked == 1 else "-")),
+                             else (f"{row['market_low_dealer']}, only store with a sampled unit" if _n_ranked == 1 else "-")),
                   left, body_bold)
         r += 1
+
+
+def _markup_outlier_note(a):
+    """When a store's stock mostly repeats one Price vs MSRP figure, name the units
+    that carry a different one so a GM is not left guessing (QA 2026-10-05:
+    Sterling BMW +$1,044 on most units, +$2,044 on its X5 M models)."""
+    from collections import Counter
+    out = []
+    by = {}
+    for v in a.get("vin_rows", []):
+        if v.get("price") and v.get("msrp"):
+            by.setdefault(v.get("dealer", ""), []).append(v)
+    for dl, vs in by.items():
+        c = Counter(int(v["price"] - v["msrp"]) for v in vs)
+        mode, n = c.most_common(1)[0]
+        if mode <= 0 or n < 5 or n < 0.6 * len(vs):
+            continue
+        odd = [v for v in vs if int(v["price"] - v["msrp"]) != mode]
+        if not odd or len(odd) > 6:
+            continue
+        figs = Counter(int(v["price"] - v["msrp"]) for v in odd)
+        desc = "; ".join(
+            f"{k:+,} on {cnt} unit(s) ("
+            + ", ".join(sorted({f"{v.get('model','')} {v.get('trim','')}".strip()
+                                for v in odd if int(v['price'] - v['msrp']) == k})) + ")"
+            for k, cnt in figs.items()).replace("+", "+$").replace("-", "-$", 1)
+        out.append(f"{dl}: most sampled units show +${mode:,}; the exceptions are {desc}.")
+    return (" ".join(out) + " ") if out else ""
+
+
+def _unconfirmed_msrp_note(a):
+    """A store whose own pages disagree on MSRP gets the caveat where the numbers
+    sit, not only in the Run Log (QA gate 2026-10-05, Puente Hills CJDR)."""
+    bad = sorted({str(e).split(":", 1)[0] for e in (a.get("errors") or [])
+                  if "msrp" in str(e).lower() and _re.search(r"unreliable|unconfirmed|do(?:es)? not match|vs ", str(e), _re.I)
+                  and ":" in str(e)})
+    if not bad:
+        return ""
+    return (f"{_join(bad)}: sticker (MSRP) figures on some vehicle pages did not match the store's own "
+            f"specials page this run, so their MSRP and Price vs MSRP figures are approximate. ")
 
 
 def build_vins(ws, a):
@@ -614,15 +685,17 @@ def build_vins(ws, a):
     # entirely when no row carries a value (QA2 MAJOR 11).
     _has_version = any((v.get("version") or "").strip() for v in a.get("vin_rows", []))
     headers = ["Model", "Trim"] + (["Version"] if _has_version else []) + \
-              ["MY", "VIN", "MSRP", "Adv. Price", "Disc/Markup", "DOM", "Dealer"]
+              ["MY", "VIN", "MSRP", "Adv. Price", "Price vs MSRP", "DOM", "Dealer"]
     widths = [13, 18] + ([30] if _has_version else []) + [6, 22, 11, 11, 12, 9, 24]
     add_masthead(ws, "Per-VIN pricing: client vs competitors", a["meta"]["run_date"], len(headers))
     legend_cell(ws, 3, (
-        f"Sampled tracked units ({sample_depth_text(a)}). Disc/Markup = advertised price minus MSRP; "
-        "a figure repeating identically across a dealer's whole stock is a fixed dealer-added item "
-        "(accessory/doc package) when POSITIVE, and a universal rebate already deducted when "
-        "NEGATIVE, not a per-unit pricing decision. "
-        + _net_price_note(a) +
+        f"Sampled tracked units ({sample_depth_text(a)}). Price vs MSRP = advertised price minus MSRP. "
+        "A figure repeating identically across a dealer's whole stock is a fixed amount the store adds "
+        "on every unit when POSITIVE (for example a destination, documentation or add-on charge; "
+        "check the vehicle page for what it covers), and a universal rebate already deducted when NEGATIVE. It is not a "
+        "per-unit pricing decision, and stores do not all define MSRP the same way (some include "
+        "destination), so compare these figures with care. "
+        + _net_price_note(a) + _unconfirmed_msrp_note(a) + _markup_outlier_note(a) +
         "DOM prefixed >= means the unit was already on the lot when DigitalCLIQ tracking began; "
         "? = not yet derivable (first capture). CFP = Call for Price."), len(headers))
     header_row(ws, 4, headers, widths)
@@ -684,7 +757,16 @@ _PLAIN = {r"\bVDPs\b": "vehicle pages", r"\bVDP\b": "vehicle page", r"\bjson-ld\
     r"\bcall_for_price\b": "call-for-price", r"\bsee dealer\.notes\b": "see the dealer note above",
     r"\bis an search results page": "is a search results page",
     r"\btext matching-extracted\b": "text matching picked up", r"\bmsrp\b": "MSRP",
-    r"\bSRP\b": "search results page", r"\bsoft-redirected\b": "silently redirected",
+    r"\bSRP\b": "search results page", r"\bbanner[ _]das[ _]mismatch\b": "Due at signing mismatch",
+    r"\brecheck VINs soft-redirected to /used-vehicles/ \(confirmed gone\)":
+        "previously listed vehicles are no longer on the website (their pages now send visitors to used inventory)",
+    r"\bsoft-redirected\b": "now send visitors elsewhere",
+    r"\bLease banner cards\b": "Lease offer banners", r"\bnot distinguished\b": "could not be told apart",
+    r"\bOffer modal disclaimers\b": "Offer pop-up disclaimers",
+    r"/promotions/new/bmw-promotions\.htm empty body\b": "specials page was blank",
+    r"\bempty body\b": "blank page",
+    r"\babridged in fragment \(full text on source page\)": "shortened here; full text is on the store's specials page",
+    r"\bin fragment\b": "in this report",
     r"\bcached html\b": "the saved copy of the page",
     r"\bthe server agent's\b": "an earlier pass of this report's",
     r"\bthis agent\b|\bthe delist engine\b": "this report",
@@ -707,6 +789,8 @@ def flags_text(raw):
         else:
             f = f.replace("_", " ")
             f = f[:1].upper() + f[1:]            # keep interior case: "West BC", not "west bc"
+        f = _re.sub(r"(?i)^banner das mismatch", "Due at signing mismatch", f)
+        f = _re.sub(r"(?i)^stale offer date", "Expired offer", f)
         # strip trailing internal program codes (e.g. "... Bonus Cash WELTM")
         return _re.sub(r"\s+[A-Z0-9]{4,}$", "", f).strip()
     parts = [f for f in str(raw or "").split("|") if f.strip()]
@@ -765,6 +849,27 @@ def _mentions_unread(raw, kind):
     return False
 
 
+def _updating_stub(raw, kind):
+    """True when the store's own specials page said it is being updated. That is a
+    third state, neither a verified zero nor an unread page, and the tabs must all
+    say the same thing about it (QA gate 2026-10-05: one tab said 'confirmed on
+    site', another 'not positively confirmed')."""
+    for sent in _re.split(r"[.;|]", raw or ""):
+        t = sent.lower()
+        if "updating" not in t:
+            continue
+        other = "finance" if kind == "lease" else "lease"
+        if other in t and kind not in t:
+            continue
+        return True
+    return False
+
+
+def _updating_sentence(name, word, a):
+    return (f"{name}: the store's specials page said it is currently updating its offers when "
+            f"checked on {a['meta']['run_date']}; no {word} offers were published at the time of this check.")
+
+
 def _dealer_coverage(a, kind):
     """Dealers whose lease/finance coverage is UNVERIFIED this run, vs those whose
     zero was positively confirmed. Silence about an unread page reads to a GM as
@@ -783,6 +888,8 @@ def _dealer_coverage(a, kind):
             if dl.get("status") == "partial" and _mentions_unread(raw, kind):
                 partial.append(name)
             continue
+        elif _updating_stub(raw, kind):
+            confirmed.append(name)          # worded via _updating_sentence below
         elif _claims_confirmed_zero(raw, kind):
             confirmed.append(name)
         else:
@@ -806,6 +913,11 @@ def coverage_caveat(a, kind):
         bits.append(f"{'Also, no' if part else 'COVERAGE: no'} {word} offers were captured for "
                     f"{_join(unv)} this run, and their absence was NOT positively confirmed on site. "
                     f"Treat those blanks as unverified, not as proof the store publishes nothing.")
+    _upd = {dl.get("name", ""): dl for dl in a["meta"]["dealers"]
+            if _updating_stub(dl.get("notes", "") or "", kind)}
+    for n in [c for c in conf if c in _upd]:
+        bits.append(_updating_sentence(n, word, a))
+    conf = [c for c in conf if c not in _upd]
     if conf:
         bits.append(f"{_join(conf)}: no published {word} offers, confirmed on site.")
     return " ".join(bits)
@@ -839,7 +951,7 @@ def client_method(mth):
     m = (mth or "").lower()
     if "recheck" in m:
         return "Website re-check"
-    return "Website crawl"
+    return "Website review"
 
 def _hedged(p):
     # "Dealer.com (confirmed, not Dealer Inspire as previously suspected)" is a
@@ -856,9 +968,9 @@ def _hedged(p):
 def client_platform(p):
     base = (p or "").split("(")[0].strip()
     if not base or base.lower() in ("unknown", "unknown-dom", "n/a"):
-        return "Unknown"
+        return "Not identified"
     if any(j in base.lower() for j in _JARGON):
-        return "Unknown"
+        return "Not identified"
     # Keep the hedge: the source said "suspected", the sheet must not say it flatly.
     return base + " (unconfirmed)" if _hedged(p) else base
 
@@ -868,7 +980,7 @@ def dealer_status_note(a, dl):
     veh = sum(1 for v in a.get("vin_rows", []) if v.get("dealer") == name)
     lease = sum(1 for r in a.get("lease_rows", []) if r.get("dealer") == name)
     fin = sum(1 for r in a.get("finance_rows", []) if r.get("dealer") == name)
-    stmap = {"ok": "Sampled crawl", "partial": "Partial crawl", "failed": "Crawl failed"}
+    stmap = {"ok": "Website reviewed", "partial": "Website partly reviewed", "failed": "Website could not be read"}
     st = dl.get("status", "ok")
     n_pmt = sum(1 for r in a.get("lease_rows", []) if r.get("dealer") == name and r.get("pmt"))
     _lease_txt = (f"{lease} advertised offer(s) ({n_pmt} monthly lease payment(s))"
@@ -881,12 +993,21 @@ def dealer_status_note(a, dl):
     for label, n in (("lease", lease), ("finance", fin)):
         confirmed_zero = _claims_confirmed_zero(dl.get("notes", "") or "", label)
         unread = _mentions_unread(dl.get("notes", "") or "", label) or st == "partial"
-        if n == 0 and confirmed_zero and not unread:
+        if n == 0 and _updating_stub(dl.get("notes", "") or "", label):
+            _s = _updating_sentence("This store", label, a).replace("This store: the", "The")
+            _both = (label == "finance" and lease == 0
+                     and _updating_stub(dl.get("notes", "") or "", "lease"))
+            if _both:
+                # One page, one sentence: lease and finance share it (QA 2026-10-05).
+                parts[-1] = parts[-1].replace("no lease offers", "no lease or finance offers")
+            else:
+                parts.append(_s)
+        elif n == 0 and confirmed_zero and not unread:
             parts.append(f"No published {label} offers, confirmed on site.")
         elif n == 0:
             # Zero rows with no positive confirmation is NOT a confirmed zero.
             parts.append(f"No {label} offers were captured for this store this run, and their absence "
-                         f"was not positively confirmed on site - treat as unverified, not as zero.")
+                         f"was not positively confirmed on site; treat as unverified, not as zero.")
     if "pre-owned" in raw or "preowned" in raw:
         parts.append("Note: this site labels its new-vehicle lease offers 'Pre-Owned'; "
                      "recorded exactly as published.")
@@ -909,16 +1030,17 @@ def dealer_status_note(a, dl):
         _carry = ("this report carries the HEADLINE figure; the fine print on that unit reads lower, "
                   "so treat the advertised payment as unconfirmed"
                   if _recorded_headline else
-                  "this report carries the fine-print figure, which is the one that governs")
+                  "this report uses the fine-print figure; the headline and the fine print must agree, "
+                  "so the banner needs correcting")
         tail.append(f"a banner headline and its fine print disagree on {_field}" +
-                    (f" ({_who}) - {_carry}" if _who else ""))
+                    (f" ({_who}): {_carry}" if _who else ""))
     if tail:
         parts.append("Flag: " + "; ".join(tail) + ".")
     return " ".join(parts)
 
 def build_runlog(ws, a):
     m = a["meta"]
-    headers = ["Dealer", "Role", "Platform", "Crawl Method", "Status", "Pages", "Notes"]
+    headers = ["Dealer", "Role", "Platform", "Review Method", "Status", "Pages Read", "Notes"]
     widths = [24, 11, 18, 22, 12, 8, 60]
     add_masthead(ws, "Run Log", m["run_date"], len(headers))
     header_row(ws, 4, headers, widths)
@@ -933,7 +1055,7 @@ def build_runlog(ws, a):
         body_cell(ws, r, 6, dl.get("pages_crawled", 0), center)
         _note = dealer_status_note(a, dl)
         body_cell(ws, r, 7, _note)
-        ws.row_dimensions[r].height = max(16, 14 * (1 + len(_note) // 58))
+        ws.row_dimensions[r].height = max(16, 14 * (2 + len(_note) // 58))
         r += 1
     r += 1
     ws.cell(row=r, column=1, value="Errors this run").font = label_font
@@ -991,7 +1113,7 @@ def build_runlog(ws, a):
         ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=len(headers))
         ec = ws.cell(row=r, column=1, value=depluralize(f"•  {e}"))
         ec.font = body_font; ec.alignment = left
-        ws.row_dimensions[r].height = max(16, 14 * (1 + len(e) // 120))
+        ws.row_dimensions[r].height = max(16, 14 * (1 + len(e) // 120) + 8)
         r += 1
     r += 1
     legend_cell(ws, r, (

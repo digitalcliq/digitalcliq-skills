@@ -1,231 +1,231 @@
 {
-  "_readme": "DigitalCLIQ Inventory Pulse client roster. Hardcoded per Drew, 2026-08-06. Model years are NEVER stored here: the skill resolves current + incoming model year dynamically from live inventory each run. Update platform/notes fields as runs discover them (they are a cache, not a contract). fetch field per dealer: 'server' (urllib works) or 'browser' (WAF'd, needs the in-page JS strategy); probed 2026-08-15.",
-  "schedule": {
-    "run_days": [
-      5,
-      20
-    ],
-    "anchor_day_max": 12,
-    "note": "Runs on the 5th (anchor: month-over-month vs prior month's anchor) and the 20th (pulse: vs this month's anchor)."
-  },
-  "clients": {
-    "SBMW": {
-      "display": "Sterling BMW",
-      "brand": "BMW",
-      "makes": [
-        "BMW"
-      ],
-      "drive_client_folder": "Sterling BMW",
-      "client_dealer": {
-        "name": "Sterling BMW",
-        "url": "https://www.sterlingbmw.com/",
-        "platform": "Dealer Inspire",
-        "notes": "Server-fetch 403s; use the Dealer Inspire crawl strategy from compliance-audit memory (browser surfaces cascade). 403 all server fetch (probe 2026-08-15) | 2026-09-06: Claude Browser pane (tier1) DEAD all session (navigate failed even on google.com) -> whole run ran on the Chrome extension tier2. Extension exposes 2 browsers and cannot disambiguate unattended: used 'Browser 1' deviceId 4d5c9bfc-44a9-4892-94d3-4dc119f18022. Site labels NEW-vehicle lease offers 'Pre-Owned' in its template (record as published). /finance-specials/ redirects to /lease-finance-offers/ and rendered empty: finance NOT verified. Only dealer with stored VDP urls, so the only one whose delistings are measurable. | 2026-09-20: 13 of 40 re-checked vehicle pages now soft-redirect (HTTP 200) to /used-vehicles/ = confirmed delisted. Lease page would not scroll past the first banner and the Offer Details lightbox never opened, so banners below the fold (X3/3 Series) were missed. X5 lease still served live but its published end date (August 31) has already passed. Real OC Lease Specials URL cached by the agent",
-        "fetch": "browser"
-      },
-      "competitors": [
-        {
-          "name": "Crevier BMW",
-          "url": "https://www.crevierbmw.com/",
-          "platform": "",
-          "notes": "Penske store. 403 all server fetch (probe 2026-08-15) | 2026-09-06: lease offers are TEXT-rendered homepage banner carousel (not images), disclaimers capturable verbatim. /finance/ read directly, no APR offers = verified_zero for finance. Sitemap sampling: use hyphen-suffixed match tokens (x3-, x5-) to avoid VIN-substring false positives. | 2026-09-20: in-page fetch of /sitemap.xml now returns 403 (WAF tightened since 2026-09-06); the jsfetch bypass is dead here. browser-srp via SNIPPET C worked. Working SRP search/sort param discovered: ?q={term}",
-          "fetch": "browser"
-        },
-        {
-          "name": "Irvine BMW",
-          "url": "https://www.irvinebmw.com/",
-          "platform": "",
-          "notes": "Shelly Auto Group. 403 all server fetch (probe 2026-08-15) | 2026-09-06: /promotions/new/bmw-promotions.htm rendered EMPTY body twice -> offers unverified, never claim verified_zero. Sitemap mixes static model-landing pages (/new-bmw/330i-irvine-ca.htm) + blog posts that match substring filters: require a VIN in the path (6 of 18 dropped). | 2026-09-20: /promotions/new/bmw-promotions.htm rendered EMPTY for the THIRD run running; homepage banners are vague CTAs with no figures and /finance.htm soft-redirects to generic inventory. Offers remain needs_human_review, never verified_zero. VDP urls use an opaque hash, not the VIN: /new/BMW/{yr}-BMW-{model}-{hash}.htm, so VIN-in-path filtering does not work here",
-          "fetch": "browser"
-        },
-        {
-          "name": "Long Beach BMW",
-          "url": "https://www.longbeachbmw.com/",
-          "platform": "Dealer.com",
-          "notes": "Domain verified live 2026-08-06. 403 all server fetch (probe 2026-08-15) | 2026-09-06: /promotions/new/index.htm renders offer cards as text-on-image banners; headline pmt/term/DAS readable via get_page_text, full disclaimers often NOT reachable (flag disclaimer_not_captured). Sitemap noise: model-landing pages + blogs, require VIN in path (6 of 17 dropped). | 2026-09-20: platform CONFIRMED Dealer.com-family (same as Irvine BMW), not Dealer Inspire. Full verbatim lease disclaimers WERE reachable this run, improving on the prior 'disclaimers often not reachable' note. Finance needs manual review: homepage banner advertises 0.9%/60mo but the detail page was not locatable in the time box",
-          "fetch": "browser"
-        }
-      ],
-      "models": [
-        {
-          "model": "3 Series",
-          "match": [
-            "3 series",
-            "330i",
-            "m340i",
-            "330e"
-          ],
-          "trims_of_interest": [
-            "330i",
-            "M340i"
-          ]
-        },
-        {
-          "model": "X3",
-          "match": [
-            "x3"
-          ],
-          "trims_of_interest": [
-            "30",
-            "M50"
-          ]
-        },
-        {
-          "model": "X5",
-          "match": [
-            "x5"
-          ],
-          "trims_of_interest": [
-            "40i",
-            "50e",
-            "M60i"
-          ]
-        }
-      ]
+ "_readme": "DigitalCLIQ Inventory Pulse client roster. Hardcoded per Drew, 2026-08-06. Model years are NEVER stored here: the skill resolves current + incoming model year dynamically from live inventory each run. Update platform/notes fields as runs discover them (they are a cache, not a contract). fetch field per dealer: 'server' (urllib works) or 'browser' (WAF'd, needs the in-page JS strategy); probed 2026-08-15.",
+ "schedule": {
+  "run_days": [
+   5,
+   20
+  ],
+  "anchor_day_max": 12,
+  "note": "Runs on the 5th (anchor: month-over-month vs prior month's anchor) and the 20th (pulse: vs this month's anchor)."
+ },
+ "clients": {
+  "SBMW": {
+   "display": "Sterling BMW",
+   "brand": "BMW",
+   "makes": [
+    "BMW"
+   ],
+   "drive_client_folder": "Sterling BMW",
+   "client_dealer": {
+    "name": "Sterling BMW",
+    "url": "https://www.sterlingbmw.com/",
+    "platform": "Dealer Inspire",
+    "notes": "Server-fetch 403s; use the Dealer Inspire crawl strategy from compliance-audit memory (browser surfaces cascade). 403 all server fetch (probe 2026-08-15) | 2026-09-06: Claude Browser pane (tier1) DEAD all session (navigate failed even on google.com) -> whole run ran on the Chrome extension tier2. Extension exposes 2 browsers and cannot disambiguate unattended: used 'Browser 1' deviceId 4d5c9bfc-44a9-4892-94d3-4dc119f18022. Site labels NEW-vehicle lease offers 'Pre-Owned' in its template (record as published). /finance-specials/ redirects to /lease-finance-offers/ and rendered empty: finance NOT verified. Only dealer with stored VDP urls, so the only one whose delistings are measurable. | 2026-09-20: 13 of 40 re-checked vehicle pages now soft-redirect (HTTP 200) to /used-vehicles/ = confirmed delisted. Lease page would not scroll past the first banner and the Offer Details lightbox never opened, so banners below the fold (X3/3 Series) were missed. X5 lease still served live but its published end date (August 31) has already passed. Real OC Lease Specials URL cached by the agent | 2026-10-05: Claude Browser tier1 worked all run. 13 of 40 rechecks soft-redirect to /used-vehicles/ (delisted). Lease pages /bmw-lease-specials-orange-county/, /bmw-lease-offers/, courtesy page read 'We Are Currently Updating Our Specials'. Advertised price = MSRP +$1,044 on most units, +$2,044 on X5 M models (unlabelled on site).",
+    "fetch": "browser"
+   },
+   "competitors": [
+    {
+     "name": "Crevier BMW",
+     "url": "https://www.crevierbmw.com/",
+     "platform": "",
+     "notes": "Penske store. 403 all server fetch (probe 2026-08-15) | 2026-09-06: lease offers are TEXT-rendered homepage banner carousel (not images), disclaimers capturable verbatim. /finance/ read directly, no APR offers = verified_zero for finance. Sitemap sampling: use hyphen-suffixed match tokens (x3-, x5-) to avoid VIN-substring false positives. | 2026-09-20: in-page fetch of /sitemap.xml now returns 403 (WAF tightened since 2026-09-06); the jsfetch bypass is dead here. browser-srp via SNIPPET C worked. Working SRP search/sort param discovered: ?q={term} | 2026-10-05: SRP /new-vehicles/?q={term} price-sorted ascending, wait 3-4s. Lease banners (image) at /new-bmw-lease-finance-apr-offers-santa-ana-ca/; Offer Details modal not reachable via DOM. 0.9% APR banners on homepage.",
+     "fetch": "browser"
     },
-    "MCP": {
-      "display": "McPeek's CDJR of Anaheim",
-      "brand": "CDJR",
-      "makes": [
-        "Ram",
-        "Jeep",
-        "Chrysler",
-        "Dodge"
-      ],
-      "drive_client_folder": "McPeek's Anaheim",
-      "client_dealer": {
-        "name": "McPeek's CDJR of Anaheim",
-        "url": "https://www.mcpeeks.com/",
-        "platform": "Pixel Motion",
-        "notes": "Server-fetchable with Chrome UA. Inventory sitemap https://www.mcpeeks.com/inventory-sitemap.xml, VDP /inventory/display/{cond}/{year}/{make}/{model}/{VIN}. JSON-LD Vehicle on VDPs. Prices arrive as &dollar; entities: html.unescape first. Politeness: max 3 workers, 0.7s pacing (site went down under a 10-worker crawl on 2026-07-26). home+sitemaps 200 (probe 2026-08-15) | 2026-09-06: /specials is an EMPTY STUB and /lease-specials + /specials/{jeep,ram}.htm all redirect to the homepage - this platform has NO dedicated brand/lease specials pages. Real offers live in hidden .slide-disclaimer DOM on the homepage carousel and are PURCHASE DISCOUNTS, not leases (no monthly payment). Server fetch still fine for inventory.",
-        "fetch": "server"
-      },
-      "competitors": [
-        {
-          "name": "Orange Coast CJDR",
-          "url": "https://www.ocauto.com/",
-          "platform": "",
-          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: /inventory-sitemap.xml clean per-model; specials are TEXT (not banners) at /new-vehicles/new-specials/; /finance-specials 404s. | 2026-09-06: /inventory-sitemap.xml clean per-model; specials are TEXT at /new-vehicles/new-specials/; /finance-specials 404s. browser-jsfetch ok. | 2026-09-20: sitemap + specials both clean again; /finance-specials still 404s (not re-probed)",
-          "fetch": "browser"
-        },
-        {
-          "name": "Huntington Beach CJDR",
-          "url": "https://www.hbchryslerdodgejeepram.com/",
-          "platform": "",
-          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' match false-positives on ProMaster 1500 (exclude promaster|fleet-new URLs); specials are banner images at /specials/(brand).htm; floating 'Bad Credit?' CTA masks part of each banner's fine print (note in parse_note). | 2026-09-06: MUST exclude promaster|fleet-new URLs from a bare '1500' match (135 skipped this run). Specials are banner images at /specials/(brand).htm. The 'Bad Credit?' floating CTA was NOT present this run. | 2026-09-20: promaster|fleet-new exclusion held with zero false positives. One sitemap hit was an SRP category page, not a vehicle page: drop non-VIN urls. Pacifica specials page loaded with zero banners = verified_zero",
-          "fetch": "browser"
-        },
-        {
-          "name": "Puente Hills CJDR",
-          "url": "https://www.puentehillscdjr.com/",
-          "platform": "",
-          "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' can hit VIN digit coincidences (verify model); real specials page /best-jeep-dodge-chrysler-ram-lease-offers-serving-los-angeles-ca/ (text cards). | 2026-09-06: specials pages (combined + per-brand) use a scroll-lock/lazy-render pattern that blocks reading offers - only 1 of ~4 captured, mark needs_human_review, do NOT claim verified_zero. Use word-boundary '1500' matching to avoid VIN-digit false positives. Site shows an identical $58,085 MSRP across 3 different Pacifica trims (shared-widget artifact, keep as-extracted). | 2026-09-20: NO lazy-render block this run, specials pages loaded fine, but they render as a paginated per-VIN rebate-stack grid rather than $/mo lease banners, so offers stay needs_human_review. MSRP on vehicle pages is unreliable: one Wrangler VIN scraped $53,120 on its page vs $44,990 for the same VIN on the dealer's own specials grid. Pacifica $58,085 duplicate-MSRP artifact reproduced",
-          "fetch": "browser"
-        }
-      ],
-      "models": [
-        {
-          "model": "1500",
-          "make": "Ram",
-          "match": [
-            "ram 1500",
-            "1500"
-          ],
-          "trims_of_interest": []
-        },
-        {
-          "model": "Wrangler",
-          "make": "Jeep",
-          "match": [
-            "wrangler"
-          ],
-          "trims_of_interest": []
-        },
-        {
-          "model": "Pacifica",
-          "make": "Chrysler",
-          "match": [
-            "pacifica"
-          ],
-          "trims_of_interest": []
-        },
-        {
-          "model": "Charger",
-          "make": "Dodge",
-          "match": [
-            "charger"
-          ],
-          "trims_of_interest": []
-        }
-      ]
+    {
+     "name": "Irvine BMW",
+     "url": "https://www.irvinebmw.com/",
+     "platform": "",
+     "notes": "Shelly Auto Group. 403 all server fetch (probe 2026-08-15) | 2026-09-06: /promotions/new/bmw-promotions.htm rendered EMPTY body twice -> offers unverified, never claim verified_zero. Sitemap mixes static model-landing pages (/new-bmw/330i-irvine-ca.htm) + blog posts that match substring filters: require a VIN in the path (6 of 18 dropped). | 2026-09-20: /promotions/new/bmw-promotions.htm rendered EMPTY for the THIRD run running; homepage banners are vague CTAs with no figures and /finance.htm soft-redirects to generic inventory. Offers remain needs_human_review, never verified_zero. VDP urls use an opaque hash, not the VIN: /new/BMW/{yr}-BMW-{model}-{hash}.htm, so VIN-in-path filtering does not work here | 2026-10-05: promotions page EMPTY for the 4th run running. SRP /new-inventory/index.htm?search={term}, lazy cards (scroll 2x10 ticks), VIN only via in-page VDP fetch.",
+     "fetch": "browser"
     },
-    "NOI": {
-      "display": "Nissan of Irvine",
-      "brand": "Nissan",
-      "makes": [
-        "Nissan"
-      ],
-      "drive_client_folder": "Nissan Of Irvine",
-      "client_dealer": {
-        "name": "Nissan of Irvine",
-        "url": "https://www.nissanofirvine.com/",
-        "platform": "",
-        "notes": "home 200, sitemap.xml 200, no inventory-sitemap (probe 2026-08-15) | 2026-09-04: sitemap.xml WAF-blocked this run; fell back to recheck VDPs (existing VINs only). Consider browser mode for full NEW-inventory discovery next run. | 2026-09-06: sitemap.xml WAF-blocked again; server mode reaches recheck VDPs only. Full NEW-inventory discovery needs the browser: SRP /inventory/?model=X&dealername=nissan of irvine, price-ascending. Specials are JS-rendered, unreadable server-side. Watch banner-vs-disclaimer DAS mismatches ($2,995 headline vs $4,995/$5,495 fine print, 2 seen this run) - always record the disclosure figure. Consider flipping fetch to 'browser'. | 2026-09-20: FLIPPED fetch server -> browser. sitemap.xml WAF-blocked for the THIRD run running, so server mode reaches only re-check vehicle pages and discovers no new inventory. Specials are JS-rendered and unreadable server-side. Use the live SRP /inventory/?model=X&dealername=nissan of irvine, price-ascending",
-        "fetch": "browser"
-      },
-      "competitors": [
-        {
-          "name": "Nissan of Tustin",
-          "url": "https://www.nissanoftustin.com/",
-          "platform": "",
-          "notes": "403 all server fetch (probe 2026-08-15) | 2026-09-04: specials at /new-vehicles/new-vehicle-specials/ (readable). browser-jsfetch ok. | 2026-09-06: browser-srp works. Specials at /new-vehicles/new-vehicle-specials/. Runs 24-month leases where rivals run 36 - do not compare payments without effective-cost normalization. No purchase APR anywhere = verified_zero for finance. No Rogue lease this run.",
-          "fetch": "browser"
-        },
-        {
-          "name": "Nissan of Costa Mesa",
-          "url": "https://www.nissanofcostamesa.com/",
-          "platform": "",
-          "notes": "WAF newly enabled 2026-09-04: server fetch now 403s (was server-fetchable 2026-08-15). Real inventory sitemap is /inventoryvdpsitemap.xml (found via /sitemap.xml index); the old /inventory-sitemap.xml intermittently returns a cookie-shell HTML. Browser-jsfetch works. | 2026-09-06: /inventoryvdpsitemap.xml is STALE (357 of 358 urls 'Sentra') - do NOT trust it, use the live SRP instead. SRP shows MSRP only, real discount is gated behind a lead form, so its prices are not comparable to rivals' discounted advertised prices - caveat any price ranking. Trim strings gained drivetrain suffixes ('SV' -> 'SV FWD') without any payment change; offer keys are trim-normalized so this no longer reads as pulled+new.",
-          "fetch": "browser"
-        },
-        {
-          "name": "Nissan of Orange",
-          "url": "https://www.nissanorange.com/",
-          "platform": "",
-          "notes": "TLS handshake rejected server-side (TLSV1_ALERT_PROTOCOL_VERSION, probe 2026-08-15); browser only | 2026-09-04: /specials/ renders readable text w/ VIN-level disclaimers (not banner images). Watch banner-vs-disclaimer $ mismatches (Rogue SV $209 headline vs $199 fine print, same VIN). | 2026-09-06: multi-store SRP, MUST filter to the Nissan Of Orange location facet. /specials/ renders readable text with VIN-level disclaimers. CONFIRMED banner-vs-disclaimer mismatch on Rogue VIN 5N1BT3BA5TC832343 (banner $209/$6,185 DAS vs disclosure $199/$7,705 DAS) - record the disclosure. Delistings here surface as SOFT REDIRECTS (HTTP 200 retitled to the SRP), not 404s.",
-          "fetch": "browser"
-        }
-      ],
-      "models": [
-        {
-          "model": "Rogue",
-          "match": [
-            "rogue"
-          ],
-          "trims_of_interest": []
-        },
-        {
-          "model": "Altima",
-          "match": [
-            "altima"
-          ],
-          "trims_of_interest": []
-        },
-        {
-          "model": "Sentra",
-          "match": [
-            "sentra"
-          ],
-          "trims_of_interest": []
-        },
-        {
-          "model": "Pathfinder",
-          "match": [
-            "pathfinder"
-          ],
-          "trims_of_interest": []
-        }
-      ]
+    {
+     "name": "Long Beach BMW",
+     "url": "https://www.longbeachbmw.com/",
+     "platform": "Dealer.com",
+     "notes": "Domain verified live 2026-08-06. 403 all server fetch (probe 2026-08-15) | 2026-09-06: /promotions/new/index.htm renders offer cards as text-on-image banners; headline pmt/term/DAS readable via get_page_text, full disclaimers often NOT reachable (flag disclaimer_not_captured). Sitemap noise: model-landing pages + blogs, require VIN in path (6 of 17 dropped). | 2026-09-20: platform CONFIRMED Dealer.com-family (same as Irvine BMW), not Dealer Inspire. Full verbatim lease disclaimers WERE reachable this run, improving on the prior 'disclaimers often not reachable' note. Finance needs manual review: homepage banner advertises 0.9%/60mo but the detail page was not locatable in the time box | 2026-10-05: /promotions/new/index.htm fully TEXT-rendered (innerText gives verbatim disclaimers; disclaimer gives only $0.25/mile over allowance, no allowance figure). SRP /new-inventory/index.htm?search= redirects to /new-bmw/long-beach.htm?search=.",
+     "fetch": "browser"
     }
+   ],
+   "models": [
+    {
+     "model": "3 Series",
+     "match": [
+      "3 series",
+      "330i",
+      "m340i",
+      "330e"
+     ],
+     "trims_of_interest": [
+      "330i",
+      "M340i"
+     ]
+    },
+    {
+     "model": "X3",
+     "match": [
+      "x3"
+     ],
+     "trims_of_interest": [
+      "30",
+      "M50"
+     ]
+    },
+    {
+     "model": "X5",
+     "match": [
+      "x5"
+     ],
+     "trims_of_interest": [
+      "40i",
+      "50e",
+      "M60i"
+     ]
+    }
+   ]
+  },
+  "MCP": {
+   "display": "McPeek's CDJR of Anaheim",
+   "brand": "CDJR",
+   "makes": [
+    "Ram",
+    "Jeep",
+    "Chrysler",
+    "Dodge"
+   ],
+   "drive_client_folder": "McPeek's Anaheim",
+   "client_dealer": {
+    "name": "McPeek's CDJR of Anaheim",
+    "url": "https://www.mcpeeks.com/",
+    "platform": "Pixel Motion",
+    "notes": "Server-fetchable with Chrome UA. Inventory sitemap https://www.mcpeeks.com/inventory-sitemap.xml, VDP /inventory/display/{cond}/{year}/{make}/{model}/{VIN}. JSON-LD Vehicle on VDPs. Prices arrive as &dollar; entities: html.unescape first. Politeness: max 3 workers, 0.7s pacing (site went down under a 10-worker crawl on 2026-07-26). home+sitemaps 200 (probe 2026-08-15) | 2026-09-06: /specials is an EMPTY STUB and /lease-specials + /specials/{jeep,ram}.htm all redirect to the homepage - this platform has NO dedicated brand/lease specials pages. Real offers live in hidden .slide-disclaimer DOM on the homepage carousel and are PURCHASE DISCOUNTS, not leases (no monthly payment). Server fetch still fine for inventory. | 2026-10-05: hidden .slide-disclaimer DOM in SERVER HTML holds stock-numbered single-unit LEASE offers (1500 Big Horn Stk T0139, Wrangler Willys Stk T0100), extract with a python parser; correction to the 'purchase discounts only' note.",
+    "fetch": "server"
+   },
+   "competitors": [
+    {
+     "name": "Orange Coast CJDR",
+     "url": "https://www.ocauto.com/",
+     "platform": "",
+     "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: /inventory-sitemap.xml clean per-model; specials are TEXT (not banners) at /new-vehicles/new-specials/; /finance-specials 404s. | 2026-09-06: /inventory-sitemap.xml clean per-model; specials are TEXT at /new-vehicles/new-specials/; /finance-specials 404s. browser-jsfetch ok. | 2026-09-20: sitemap + specials both clean again; /finance-specials still 404s (not re-probed) | 2026-10-05: Dealer Inspire. /new-vehicles/new-specials/ read 'currently updating our monthly offers' (no cards). browser-jsfetch sitemap worked.",
+     "fetch": "browser"
+    },
+    {
+     "name": "Huntington Beach CJDR",
+     "url": "https://www.hbchryslerdodgejeepram.com/",
+     "platform": "",
+     "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' match false-positives on ProMaster 1500 (exclude promaster|fleet-new URLs); specials are banner images at /specials/(brand).htm; floating 'Bad Credit?' CTA masks part of each banner's fine print (note in parse_note). | 2026-09-06: MUST exclude promaster|fleet-new URLs from a bare '1500' match (135 skipped this run). Specials are banner images at /specials/(brand).htm. The 'Bad Credit?' floating CTA was NOT present this run. | 2026-09-20: promaster|fleet-new exclusion held with zero false positives. One sitemap hit was an SRP category page, not a vehicle page: drop non-VIN urls. Pacifica specials page loaded with zero banners = verified_zero | 2026-10-05: Dealer.com. /specials/{jeep,ram,dodge,chrysler}.htm and /specials/new.htm 200 with no banners; /new-vehicle-specials.htm 404. Sitemap VDP urls carry a hash, VIN from JSON-LD. Exclude Promaster/fleet.",
+     "fetch": "browser"
+    },
+    {
+     "name": "Puente Hills CJDR",
+     "url": "https://www.puentehillscdjr.com/",
+     "platform": "",
+     "notes": "403 all server fetch (probe 2026-08-15) Discovery 2026-08-15: bare '1500' can hit VIN digit coincidences (verify model); real specials page /best-jeep-dodge-chrysler-ram-lease-offers-serving-los-angeles-ca/ (text cards). | 2026-09-06: specials pages (combined + per-brand) use a scroll-lock/lazy-render pattern that blocks reading offers - only 1 of ~4 captured, mark needs_human_review, do NOT claim verified_zero. Use word-boundary '1500' matching to avoid VIN-digit false positives. Site shows an identical $58,085 MSRP across 3 different Pacifica trims (shared-widget artifact, keep as-extracted). | 2026-09-20: NO lazy-render block this run, specials pages loaded fine, but they render as a paginated per-VIN rebate-stack grid rather than $/mo lease banners, so offers stay needs_human_review. MSRP on vehicle pages is unreliable: one Wrangler VIN scraped $53,120 on its page vs $44,990 for the same VIN on the dealer's own specials grid. Pacifica $58,085 duplicate-MSRP artifact reproduced | 2026-10-05: Dealer Inspire. Specials page /best-jeep-dodge-chrysler-ram-lease-offers-serving-los-angeles-ca/ is a paginated per-VIN rebate grid (no payments). VDP MSRPs unreliable vs that grid; many VDPs lack JSON-LD.",
+     "fetch": "browser"
+    }
+   ],
+   "models": [
+    {
+     "model": "1500",
+     "make": "Ram",
+     "match": [
+      "ram 1500",
+      "1500"
+     ],
+     "trims_of_interest": []
+    },
+    {
+     "model": "Wrangler",
+     "make": "Jeep",
+     "match": [
+      "wrangler"
+     ],
+     "trims_of_interest": []
+    },
+    {
+     "model": "Pacifica",
+     "make": "Chrysler",
+     "match": [
+      "pacifica"
+     ],
+     "trims_of_interest": []
+    },
+    {
+     "model": "Charger",
+     "make": "Dodge",
+     "match": [
+      "charger"
+     ],
+     "trims_of_interest": []
+    }
+   ]
+  },
+  "NOI": {
+   "display": "Nissan of Irvine",
+   "brand": "Nissan",
+   "makes": [
+    "Nissan"
+   ],
+   "drive_client_folder": "Nissan Of Irvine",
+   "client_dealer": {
+    "name": "Nissan of Irvine",
+    "url": "https://www.nissanofirvine.com/",
+    "platform": "",
+    "notes": "home 200, sitemap.xml 200, no inventory-sitemap (probe 2026-08-15) | 2026-09-04: sitemap.xml WAF-blocked this run; fell back to recheck VDPs (existing VINs only). Consider browser mode for full NEW-inventory discovery next run. | 2026-09-06: sitemap.xml WAF-blocked again; server mode reaches recheck VDPs only. Full NEW-inventory discovery needs the browser: SRP /inventory/?model=X&dealername=nissan of irvine, price-ascending. Specials are JS-rendered, unreadable server-side. Watch banner-vs-disclaimer DAS mismatches ($2,995 headline vs $4,995/$5,495 fine print, 2 seen this run) - always record the disclosure figure. Consider flipping fetch to 'browser'. | 2026-09-20: FLIPPED fetch server -> browser. sitemap.xml WAF-blocked for the THIRD run running, so server mode reaches only re-check vehicle pages and discovers no new inventory. Specials are JS-rendered and unreadable server-side. Use the live SRP /inventory/?model=X&dealername=nissan of irvine, price-ascending | 2026-10-05: HomeNet-style SRP /inventory/new-nissan-{model}/ default price-ascending, cards expose data-vin + data-sales-price; ?page= does not paginate. Rechecks soft-redirect to model listing when gone (23 of 40 this run). Banner DAS ($2,995) disagrees with disclosure ($4,995/$5,495) on Sentra/Rogue.",
+    "fetch": "browser"
+   },
+   "competitors": [
+    {
+     "name": "Nissan of Tustin",
+     "url": "https://www.nissanoftustin.com/",
+     "platform": "",
+     "notes": "403 all server fetch (probe 2026-08-15) | 2026-09-04: specials at /new-vehicles/new-vehicle-specials/ (readable). browser-jsfetch ok. | 2026-09-06: browser-srp works. Specials at /new-vehicles/new-vehicle-specials/. Runs 24-month leases where rivals run 36 - do not compare payments without effective-cost normalization. No purchase APR anywhere = verified_zero for finance. No Rogue lease this run. | 2026-10-05: Dealer Inspire, JS-rendered. /new-vehicles/?q=M&_dFR[type][0]=New&model=M, wait ~3s, first 20 cards; price field = Net Price. Leases moved 24mo -> 36mo, $2,999 DAS.",
+     "fetch": "browser"
+    },
+    {
+     "name": "Nissan of Costa Mesa",
+     "url": "https://www.nissanofcostamesa.com/",
+     "platform": "",
+     "notes": "WAF newly enabled 2026-09-04: server fetch now 403s (was server-fetchable 2026-08-15). Real inventory sitemap is /inventoryvdpsitemap.xml (found via /sitemap.xml index); the old /inventory-sitemap.xml intermittently returns a cookie-shell HTML. Browser-jsfetch works. | 2026-09-06: /inventoryvdpsitemap.xml is STALE (357 of 358 urls 'Sentra') - do NOT trust it, use the live SRP instead. SRP shows MSRP only, real discount is gated behind a lead form, so its prices are not comparable to rivals' discounted advertised prices - caveat any price ranking. Trim strings gained drivetrain suffixes ('SV' -> 'SV FWD') without any payment change; offer keys are trim-normalized so this no longer reads as pulled+new. | 2026-10-05: Dealer Inspire SRP same pattern as Tustin; price field now Sale Price (after Nissan cash), so the 'MSRP only' note is outdated. Specials page = Kicks cash-offer cards only.",
+     "fetch": "browser"
+    },
+    {
+     "name": "Nissan of Orange",
+     "url": "https://www.nissanorange.com/",
+     "platform": "",
+     "notes": "TLS handshake rejected server-side (TLSV1_ALERT_PROTOCOL_VERSION, probe 2026-08-15); browser only | 2026-09-04: /specials/ renders readable text w/ VIN-level disclaimers (not banner images). Watch banner-vs-disclaimer $ mismatches (Rogue SV $209 headline vs $199 fine print, same VIN). | 2026-09-06: multi-store SRP, MUST filter to the Nissan Of Orange location facet. /specials/ renders readable text with VIN-level disclaimers. CONFIRMED banner-vs-disclaimer mismatch on Rogue VIN 5N1BT3BA5TC832343 (banner $209/$6,185 DAS vs disclosure $199/$7,705 DAS) - record the disclosure. Delistings here surface as SOFT REDIRECTS (HTTP 200 retitled to the SRP), not 404s. | 2026-10-05: HomeNet-style SRP like Irvine, needs ?dealername=nissan%20of%20orange. VDP prices JS-rendered: rechecks outside the first 20 SRP cards come back price 0. DAS recorded incl. Nissan rebate.",
+     "fetch": "browser"
+    }
+   ],
+   "models": [
+    {
+     "model": "Rogue",
+     "match": [
+      "rogue"
+     ],
+     "trims_of_interest": []
+    },
+    {
+     "model": "Altima",
+     "match": [
+      "altima"
+     ],
+     "trims_of_interest": []
+    },
+    {
+     "model": "Sentra",
+     "match": [
+      "sentra"
+     ],
+     "trims_of_interest": []
+    },
+    {
+     "model": "Pathfinder",
+     "match": [
+      "pathfinder"
+     ],
+     "trims_of_interest": []
+    }
+   ]
   }
+ }
 }

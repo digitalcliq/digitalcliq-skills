@@ -83,6 +83,11 @@ def derive_miles_yr(o):
     return 0, False
 
 
+def _re_stk(flags):
+    m = re.search(r"Stk\.?\s*#?\s*([A-Z0-9-]+)", str(flags or ""), re.I)
+    return f"Stk. {m.group(1)} " if m else ""
+
+
 def join_names(names):
     names = list(names)
     if len(names) <= 1:
@@ -364,24 +369,40 @@ def main():
         n = days_between(entry["first_seen"], run_date)
         return n, (">=" if floor or baseline else "")
 
+    # A prior offer matched EXACTLY (same trim) by one current offer cannot also be
+    # the figure-fallback "prior" of a different trim. Crevier BMW 2026-10-05: the
+    # new 330i xDrive at $479 borrowed last run's 330i Sedan $479 and printed
+    # "no change" while the 330i itself had moved to $459 (QA gate).
+    _claimed = {offer_key(o, kk) for kk, src in (("lease", "lease_offers"), ("fin", "finance_offers"))
+                for o in ex.get(src, []) if offer_key(o, kk) in cmp_offers}
+
+    def _fallback(o, kk):
+        if offer_key(o, kk) in cmp_offers:
+            return cmp_offers[offer_key(o, kk)]
+        for cand in (cmp_by_fig.get(offer_figkey(o, kk)), cmp_by_loose.get(offer_figkey_loose(o, kk))):
+            if cand and offer_key(cand, kk) not in _claimed:
+                return cand
+        return None
+
     lease_rows, groups = [], {}
     for i, o in enumerate(ex.get("lease_offers", [])):
         k = offer_key(o, "lease")
         rentry = reg["offer_registry"].setdefault(k, {"first_seen": run_date, "history": []})
         # It was live on the compare run, so it cannot have been first seen today.
-        if rentry["first_seen"] == run_date and cmp_run and (
-                k in cmp_offers or offer_figkey(o, "lease") in cmp_by_fig
-                or offer_figkey_loose(o, "lease") in cmp_by_loose):
+        if rentry["first_seen"] == run_date and cmp_run and _fallback(o, "lease"):
             rentry["first_seen"] = cmp_run["date"]
         rentry["last_seen"] = run_date
         rentry["history"] = [h for h in rentry["history"] if h.get("date") != run_date]
         rentry["history"].append({"date": run_date, "pmt": o.get("pmt", 0),
                                   "das": o.get("das", 0), "term_mo": o.get("term_mo", 0)})
-        prev = (cmp_offers.get(k) or cmp_by_fig.get(offer_figkey(o, "lease"))
-                or cmp_by_loose.get(offer_figkey_loose(o, "lease")))
+        prev = _fallback(o, "lease")
         dtype, damt, dlabel = delta_row(o.get("pmt", 0), prev.get("pmt", 0) if prev else None)
         if not cmp_run or not cmp_counts["lease"]:
             dlabel = "first capture"  # nothing existed to be "new" against
+        elif not prev and cmp_run and rentry["first_seen"] < cmp_run["date"]:
+            # Seen before the compare run, absent on it, back now: "new" next to an
+            # older First Seen date contradicted itself (QA gate 2026-10-05).
+            dlabel = f"returned (not published {cmp_run['date']})"
         # If this offer is flagged as a banner/fine-print mismatch and the prior run
         # recorded the BANNER number, the difference is a basis correction on our side,
         # not the dealer moving its price (QA 2026-09-06).
@@ -392,6 +413,36 @@ def main():
             dlabel = "no change (basis, see Flags)"
         if dtype in ("up", "down") and abs(damt) < 5:
             dtype, damt, dlabel = "same", 0, "no change (rounding)"
+        # A payment move across a different term, or "no change" while due at
+        # signing moved, is not like-for-like (QA gate 2026-10-05, NOI).
+        if prev:
+            _nt = []
+            if prev.get("term_mo") and o.get("term_mo") and prev["term_mo"] != o["term_mo"]:
+                _nt.append(f"term was {prev['term_mo']} mo")
+            _pdas = prev.get("das") or 0
+            if "basis" in str(o.get("flags", "")).lower():
+                # This run records CASH due; the prior run recorded a rebate-inclusive
+                # total. Compare like for like using the prior run's own cash figure.
+                _m = re.search(r"\$([\d,]+)\s+(?:cash\s+)?due at (?:lease\s+)?signing",
+                               str(prev.get("offer_text", "")) + " " + str(prev.get("disclaimer_text", "")), re.I)
+                _pdas = int(_m.group(1).replace(",", "")) if _m else 0
+            if _pdas and o.get("das") and abs(_pdas - o["das"]) >= 100:
+                _dd = o["das"] - _pdas
+                _nt.append(f"due at signing {'+' if _dd > 0 else '-'}${abs(_dd):,}")
+            _pmi = derive_miles_yr(prev)[0]
+            if _pmi and o.get("miles_yr") and _pmi != o["miles_yr"]:
+                _nt.append(f"mileage was {_pmi:,}/yr")
+            if _nt:
+                dlabel += " (" + "; ".join(_nt) + ")"
+        else:
+            _my_prev = next((c for c in cmp_offers.values()
+                             if c.get("dealer") == o.get("dealer") and c.get("model") == o.get("model")
+                             and norm_trim(c.get("trim")) == norm_trim(o.get("trim"))
+                             and c.get("yr", 0) and o.get("yr", 0) and c.get("yr") != o.get("yr")
+                             and c.get("pmt")), None)
+            if _my_prev and cmp_run and cmp_counts["lease"]:
+                dlabel = (f"new model year (replaces {_my_prev.get('yr')} offer at "
+                          f"${_my_prev.get('pmt', 0):,}/{_my_prev.get('term_mo', 0)} mo)")
         eff = eff_monthly(o.get("pmt", 0), o.get("das", 0), o.get("term_mo", 0))
         # Honesty layer, enforced here rather than trusted from the crawl: if the
         # payment names rebates, it is conditional whatever the fragment claimed.
@@ -458,15 +509,12 @@ def main():
     for i, o in enumerate(ex.get("finance_offers", [])):
         k = offer_key(o, "fin")
         rentry = reg["offer_registry"].setdefault(k, {"first_seen": run_date, "history": []})
-        if rentry["first_seen"] == run_date and cmp_run and (
-                k in cmp_offers or offer_figkey(o, "fin") in cmp_by_fig
-                or offer_figkey_loose(o, "fin") in cmp_by_loose):
+        if rentry["first_seen"] == run_date and cmp_run and _fallback(o, "fin"):
             rentry["first_seen"] = cmp_run["date"]
         rentry["last_seen"] = run_date
         rentry["history"] = [h for h in rentry["history"] if h.get("date") != run_date]
         rentry["history"].append({"date": run_date, "apr": o.get("apr", 0), "term_mo": o.get("term_mo", 0)})
-        prev = (cmp_offers.get(k) or cmp_by_fig.get(offer_figkey(o, "fin"))
-                or cmp_by_loose.get(offer_figkey_loose(o, "fin")))
+        prev = _fallback(o, "fin")
         dtype, damt, dlabel = delta_row(o.get("apr", 0), prev.get("apr", 0) if prev else None, unit="pts")
         if not cmp_run or not cmp_counts["fin"]:
             dlabel = "first capture"
@@ -476,6 +524,8 @@ def main():
         # finance fact (QA 2026-09-06).
         _zero = apr_published_zero(o)
         _zero_src = ""
+        if prev and _zero and not prev.get("apr") and not apr_published_zero(prev):
+            dlabel = "0% APR first confirmed this run"
         if not _zero and not o.get("apr") and prev and apr_published_zero(prev):
             _zero, _zero_src = True, (cmp_run["date"] if cmp_run else "")
         fin_rows.append({**o, "apr_zero": 1 if _zero else 0, "apr_zero_src": _zero_src,
@@ -491,6 +541,8 @@ def main():
     franks = rank_fills(fgroups)
     for i, row in enumerate(fin_rows):
         row["rank"], row["group_size"] = franks.get(i, (0, 0))
+        if any(w in str(row.get("model", "")).lower() for w in ("select", "all ")) or row.get("model") == "All":
+            row["rank"], row["group_size"] = 0, 0   # unnamed models: not comparable
     fin_rows.sort(key=lambda r: (r.get("model", ""), r.get("trim", ""), r.get("apr") or 99))
 
     # ---- pulled offers (were live on the compare run, gone now) -----------
@@ -505,6 +557,12 @@ def main():
                  {offer_figkey(o, "fin") for o in ex.get("finance_offers", [])} |
                  {offer_figkey_loose(o, "lease") for o in ex.get("lease_offers", [])} |
                  {offer_figkey_loose(o, "fin") for o in ex.get("finance_offers", [])})
+    # A blanket finance headline this run ("0.9% on select models", no model named)
+    # may still cover a model-specific APR seen last run at the same dealer: that is
+    # unverified, never "pulled" (2026-10-05, Long Beach BMW).
+    blanket_fin = {(o.get("dealer", ""), float(o.get("apr") or 0))
+                   for o in ex.get("finance_offers", [])
+                   if any(w in str(o.get("model", "")).lower() for w in ("select", "all ", "all-"))}
     pulled_offers = []
     for k, o in cmp_offers.items():
         is_fin = k.startswith("fin|")
@@ -531,6 +589,15 @@ def main():
         # If we cannot state what the offer WAS, we cannot meaningfully say it was
         # pulled: those entries are trim/bucket normalization artifacts, not news.
         if not o.get("pmt") and not o.get("apr"):
+            continue
+        # Model-year changeover: the same store/model/trim is advertised this run
+        # under a newer year. That is a replacement, shown on the live row, not a pull.
+        if any(c.get("dealer") == dlr and c.get("model") == o.get("model")
+               and norm_trim(c.get("trim")) == norm_trim(o.get("trim"))
+               and (c.get("yr") or 0) > (o.get("yr") or 0)
+               for c in ex.get("finance_offers" if is_fin else "lease_offers", [])):
+            continue
+        if is_fin and (dlr, float(o.get("apr") or 0)) in blanket_fin:
             continue
         pulled_offers.append({
             "kind": kind, "dealer": dlr, "is_client": 1 if dlr == client_name else 0,
@@ -602,8 +669,13 @@ def main():
                         f"({who}); {n_gone} were gone this run ({_gone_who}). Sampled units that were not "
                         f"re-checked are not counted either way, so this is a floor, not a full count of "
                         f"what sold. The table below covers the whole {tracking_days}-day tracking window "
-                        f"and totals {_win_units} unit(s); the {_win_units - n_gone} beyond this run's "
-                        f"{n_gone} were recorded on earlier runs. The 'This run' column separates them.")
+                        f"and totals {_win_units} unit(s): {n_gone} left this run and "
+                        f"{_win_units - n_gone} on earlier runs. The 'This run' column separates them.")
+        if not _win_units:
+            delist_basis = (f"Basis: {n_rechecked} previously tracked vehicle page(s) were re-checked this run "
+                            f"({who}). None of those units has left the website this run or earlier in the "
+                            f"{tracking_days}-day tracking window. Sampled units that were not re-checked are "
+                            f"not counted either way.")
         _soft = [e for e in (ex.get("errors") or []) if "redirect" in str(e).lower()]
         if _soft and n_gone:
             # "Some" invited the reader to assume the rest were hard 404s. When every
@@ -611,8 +683,11 @@ def main():
             # Name the stores: "that store" lost its referent when jargon was scrubbed.
             _named = join_names([k for k in sorted(_gone_by) if _gone_by[k]]) or "one store"
             delist_basis += (f" Delistings at {_named} were inferred from vehicle pages that now "
-                             "redirect to a search results page rather than returning a 404; that "
+                             "send visitors to a search results page instead of the vehicle; that "
                              "signal is strong but is not a confirmed sale. See the Run Log.")
+        if n_gone and "send visitors to" not in delist_basis:
+            delist_basis += (" Gone means the vehicle's page now redirects to a listing page or no "
+                             "longer exists: the unit left the website, which is not a confirmed sale.")
         if not_checked:
             delist_basis += (" No vehicle page was re-checked for " + join_names(not_checked) +
                              ", so this run says nothing about movement at "
@@ -713,9 +788,18 @@ def main():
             bullets.append(f"Advertises the lowest effective lease payment on {len(_wg)} of "
                            f"{len(_cg)} model/trim group(s) where a rival published a comparable offer.")
         else:
-            bullets.append(f"{client_name} published {n_all_grp} lease group(s) this run and no rival "
-                           f"published a comparable offer on the same model, trim and year, so no "
+            bullets.append(f"{client_name} published lease offers on {n_all_grp} model/trim(s) this run and "
+                           f"no rival published a comparable offer on the same model, trim and year, so no "
                            f"head-to-head lease ranking is possible this run.")
+        # A stock-numbered offer is ONE vehicle, not a model-wide program. Saying so
+        # only on the Lease tab let the Summary read as a program (QA gate 2026-10-05).
+        _single = [r for r in client_lease if "single-unit" in str(r.get("flags", "")).lower()]
+        if _single:
+            _desc = "; ".join(
+                f"{r['model']} {r['trim']} {_re_stk(r.get('flags', ''))}(${r['pmt']:,}/mo, {r['term_mo']} mo, "
+                f"${r.get('das', 0):,} due at signing, effective ${r.get('eff_mo', 0):,}/mo)" for r in _single)
+            bullets.append(f"{client_name}'s published lease specials are single-vehicle offers tied to one "
+                           f"stock number each, not model-wide programs: {_desc}.")
         worst_pool = [r for r in client_lease if r["rank"] > 1 and r.get("dealers_in_group", 0) > 1]
         contested = [w for w in wins if w.get("dealers_in_group", 0) > 1]
         if contested:
@@ -751,10 +835,18 @@ def main():
                                 f"{'publishes' if _n == 1 else 'publish'} no capturable "
                                 f"mileage allowance")
                 quals.append("; ".join(bits) + ", so the comparison is not mileage-adjusted")
+            if "stale_offer_date" in str(w.get("flags", "")).lower():
+                quals.append("the offer's published end date has already passed but it is still "
+                             "displayed on the site; renew or remove it")
+            if w.get("miles_src"):
+                quals = [q.replace(f"{w['miles_yr']:,} mi/yr", f"{w['miles_yr']:,} mi/yr {w['miles_src']}", 1)
+                         for q in quals]
             qual = f" ({'; '.join(quals)})" if quals else ""
             bullets.append(f"Strongest lease position: {w['model']} {w['trim']} at ${w['pmt']:,}/mo "
                            f"(effective ${w['eff_mo']:,}/mo), lowest of the {n_d} dealers advertising it{qual}.")
-        elif wins:
+        elif wins and "single-unit" not in str(wins[0].get("flags", "")).lower():
+            # A single-vehicle offer is already stated (with its effective $/mo) in
+            # the single-unit bullet; repeating it read as a duplicate (QA 2026-10-05).
             w = wins[0]
             _incomplete = [d for d, s in dealer_status.items() if s != "ok"]
             _cav = ("" if not _incomplete else
@@ -783,7 +875,8 @@ def main():
                     if _win.get("term_mo") and gap_row.get("term_mo") and _win["term_mo"] != gap_row["term_mo"]:
                         _d.append(f"{gap_row['term_mo']}mo vs their {_win['term_mo']}mo")
                     if _win.get("miles_yr") and gap_row.get("miles_yr") and _win["miles_yr"] != gap_row["miles_yr"]:
-                        _d.append(f"{gap_row['miles_yr']:,} vs their {_win['miles_yr']:,} mi/yr")
+                        _src = f" ({gap_row['miles_src']})" if gap_row.get("miles_src") else ""
+                        _d.append(f"{gap_row['miles_yr']:,}{_src} vs their {_win['miles_yr']:,} mi/yr")
                     if _d:
                         _basis = (" Not like-for-like: " + "; ".join(_d) +
                                   ", so the gap is a term/mileage difference as well as a price one.")
@@ -799,8 +892,27 @@ def main():
                 f"ranked against the {len(comp_pmt)} competitor lease payment(s) in this set. "
                 f"A shopper comparing monthly payments online sees competitors and not {client_name}.")
         else:
-            bullets.append(f"No published lease specials found for {client_name} this run; "
-                           f"competitors are advertising {len(comp_pmt)} lease payment(s). Verify on site.")
+            _cdl = next((dl for dl in (ex.get("dealers") or []) if dl.get("name") == client_name), {})
+            _cn = str(_cdl.get("notes", "")).lower()
+            if "updating" in _cn:
+                # Same statement the Lease tab and Run Log carry (QA gate 2026-10-05).
+                bullets.append(f"{client_name}'s lease specials page said the store is currently updating its "
+                               f"specials when checked on {run_date}, so no lease offers were published at that "
+                               f"time; competitors are advertising {len(comp_pmt)} lease payment(s).")
+            else:
+                bullets.append(f"No lease specials were captured for {client_name} this run; competitors are "
+                               f"advertising {len(comp_pmt)} lease payment(s). Worth a check of the store's "
+                               f"specials page.")
+    _mm = [r for r in lease_rows if r["is_client"] and "banner_das_mismatch" in str(r.get("flags", ""))]
+    if _mm:
+        _parts = []
+        for r in _mm:
+            _m = re.search(r"banner shows (\$[\d,]+).*?fine print says (\$[\d,]+)", str(r.get("flags", "")))
+            _parts.append(f"{r['model']} {r['trim']}" + (f" (banner {_m.group(1)}, fine print {_m.group(2)})" if _m else ""))
+        bullets.insert(0, "Compliance: " + client_name + "'s lease banners show a different due-at-signing "
+                       "amount than their own fine print on " + "; ".join(_parts) + ". Under federal "
+                       "advertising rules the headline and the disclosure must agree; correct the banners. "
+                       "This report uses the fine-print figure.")
     # only CONTESTED groups (2+ dealers with sampled prices) count as wins;
     # "lowest of 1" would overstate the position to the client
     contested_mat = [m for m in matrix_rows if m["cells"].get(client_name, {}).get("rank")
@@ -831,8 +943,28 @@ def main():
                      + "; ".join((f"{r['model']} {r['trim']}".strip() +
                                   (f" ${r['pmt']:,}/mo" if r.get("pmt") else "")) for r in _cl[:3]) + ")")
         _tabs = sorted({("Finance" if x["kind"] == "finance" else "Lease") for x in pulled_offers})
+        # Only a store that published NOTHING of that kind this run gets the
+        # "empty / updating page" line; Tustin still had 4 leases (QA 2026-10-05).
+        _has = {(o.get("dealer"), "lease") for o in ex.get("lease_offers", [])} | \
+               {(o.get("dealer"), "finance") for o in ex.get("finance_offers", [])}
+        _refresh = sorted({x["dealer"] for x in pulled_offers
+                           if (x["dealer"], x["kind"]) not in _has and any(("updating" in str(dl.get("notes", "")).lower()
+                                   or "verified_zero" in str(dl.get("notes", "")).lower())
+                                  and dl.get("name") == x["dealer"]
+                                  for dl in (ex.get("dealers") or []))})
+        _upd = [d for d in _refresh if any(dl.get("name") == d and "updating" in str(dl.get("notes", "")).lower()
+                                             for dl in (ex.get("dealers") or []))]
+        _emp = [d for d in _refresh if d not in _upd]
+        _rtxt = ""
+        if _upd:
+            _rtxt += f" {join_names(_upd)}: the specials page said it was being updated when checked on {run_date}."
+        if _emp:
+            _rtxt += (f" {join_names(_emp)}: the specials page showed no lease or finance offers on tracked "
+                      f"models when checked on {run_date}.")
+        if _rtxt:
+            _rtxt += " DigitalCLIQ will recheck next run."
         bullets.append(_msg + ". They are listed at the foot of the "
-                       + " and ".join(_tabs) + " tab" + ("s" if len(_tabs) > 1 else "") + ".")
+                       + " and ".join(_tabs) + " tab" + ("s" if len(_tabs) > 1 else "") + "." + _rtxt)
 
     # Conditionality is a market-wide condition, not a competitor characteristic.
     # Reporting only the competitors' share while the client is 100% conditional
