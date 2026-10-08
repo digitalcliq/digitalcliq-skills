@@ -17,6 +17,8 @@ Supported formats (add new adapters in ADAPTERS):
     - vinsolutions  : "Lead Source ROI" export (Good-Leads basis)
     - momentum      : "E-Commerce Statistics" export (per-source)
     - momentum_lsr  : "Lead Source Report" paged .xls (JasperReports; no contact column)
+    - momentum_snap : "Executive Snapshot" paged .xls (JasperReports; one block per
+                      prospect channel: Internet, Inbound, Showroom, ...; no contact column)
     - tekion        : "Lead Source Report" (New/Used split; rolled up to vendors)
 
 CLI:
@@ -193,6 +195,130 @@ def _parse_momentum_lsr(sheets):
     if len(recs) < 2:
         raise ValueError("Momentum Lead Source Report recognized but fewer than 2 source rows parsed.")
     return recs, info
+
+
+def _parse_momentum_snapshot(sheets):
+    """Momentum CRM "Executive Snapshot" (JasperReports .xls, one sheet per printed
+    page). One block per prospect CHANNEL (Appraisal, Financial, Inbound, Internet,
+    Lease Retention, OEM, Outbound, Parts, Service, Showroom, Showroom UST), each with
+    Created Prospects, Appointments Scheduled, Shows, DMS Sold to Created Prospects
+    (same-month cohort), and a block-level "Total Sales" (every DMS sale the CRM
+    credits to the channel in the window, whenever the prospect was created).
+
+    Normalized as: leads = Created Prospects, appts = Appointments Scheduled,
+    shows = Shows, sales = Total Sales (period basis: matches the report's own
+    Totals row "DMS Sold" and the other CRM adapters). The same-month cohort
+    sales are carried as cohort_sales for the notes. Showroom reports
+    appointments and shows as "N / A" (walk-ins do not set appointments), so that
+    channel is listed in info["funnel_na_sources"] for the scorer to skip those
+    two factors. No contact column exists.
+
+    Returns (recs, info) or (None, None) when the workbook is not this report."""
+    if not sheets:
+        return None, None
+    first = sheets[0][1]
+    flat = " | ".join(" ".join(r) for r in first[:12])
+    if "Executive Snapshot" not in flat or "Created Prospects" not in " ".join(" ".join(r) for r in first):
+        return None, None
+
+    info = {"report_store": None, "report_date_range": None, "report_totals": None,
+            "funnel_na_sources": [], "cohort_sales": {}, "total_cohort_sales": 0,
+            "ust_sources": []}
+    for r in first[:8]:
+        cells = [c for c in r if c]
+        for i, c in enumerate(cells):
+            if c.startswith("Store:") and i + 1 < len(cells):
+                info["report_store"] = cells[i + 1]
+            if c.startswith("Date Range:"):
+                rng = c.replace("Date Range:", "").strip() or (cells[i + 1] if i + 1 < len(cells) else "")
+                info["report_date_range"] = rng
+
+    def _i(s):
+        return int(s.replace(",", ""))
+
+    recs, order = {}, []
+    for _name, rows in sheets:
+        i = 0
+        n = len(rows)
+        while i < n:
+            cells = [c for c in rows[i] if c]
+            # Block header: "Total Open Prospects:" <n> <Channel> "Total Sales:" <n>
+            # (the Showroom UST block has no open-prospect count: <Channel> "Total Sales:" <n>)
+            if "Total Sales:" in cells and (cells[0] == "Total Open Prospects:" or len(cells) == 3):
+                ts_idx = cells.index("Total Sales:")
+                channel = cells[ts_idx - 1]
+                total_sales = _i(cells[ts_idx + 1])
+                # Next rows: labels, sub-header (# % Goal ...), then the numbers row.
+                j = i + 1
+                labels = sub = None
+                while j < n and j < i + 5:
+                    cj = [c for c in rows[j] if c]
+                    if cj and cj[0] == "Created Prospects":
+                        labels = cj
+                        sub = [c for c in rows[j + 1] if c] if j + 1 < n else []
+                        nums = [c for c in rows[j + 2] if c] if j + 2 < n else []
+                        break
+                    j += 1
+                if labels is None:
+                    raise ValueError(f"Executive Snapshot: no funnel rows under channel block '{channel}'.")
+                funnel_na = "N / A" in sub
+                if funnel_na:
+                    # Showroom layout: "#", "%", "N / A", "N / A", "Goal", "#", "%", "+/-"
+                    # numbers: created, created%, goal, sold, sold%, +/-, sales-per-prospect
+                    ints = [c for c in nums if _INT_RE.match(c)]
+                    leads, appts, shows, cohort = _i(ints[0]), 0, 0, _i(ints[1])
+                else:
+                    # numbers: created, created%, goal, appts#, appts%, +/-, goal, shows#, shows%, +/-,
+                    #          goal, sold#, sold%, +/-, sales-per-prospect
+                    ints = [c for c in nums if _INT_RE.match(c)]
+                    if len(ints) < 4:
+                        raise ValueError(f"Executive Snapshot: channel '{channel}' funnel row unreadable: {nums}")
+                    leads, appts, shows, cohort = _i(ints[0]), _i(ints[1]), _i(ints[2]), _i(ints[3])
+                if channel not in recs:
+                    recs[channel] = {"source": channel, "leads": 0, "contact": 0, "appts": 0,
+                                     "shows": 0, "sales": 0, "cohort_sales": 0}
+                    order.append(channel)
+                rec = recs[channel]
+                rec["leads"] += leads
+                rec["appts"] += appts
+                rec["shows"] += shows
+                rec["sales"] += total_sales
+                rec["cohort_sales"] += cohort
+                if funnel_na and channel not in info["funnel_na_sources"]:
+                    info["funnel_na_sources"].append(channel)
+                if channel.upper().endswith("UST") and channel not in info["ust_sources"]:
+                    info["ust_sources"].append(channel)
+                i = j + 3
+                continue
+            if cells and cells[0] == "Totals":
+                # Totals: labels row then numbers row
+                # Prospects (minus UST) | Appointments Scheduled | Shows | Test Drives | Write-Ups |
+                # Conquest Sales | Loyalty Sales | DMS Sold
+                k = i + 1
+                while k < n and k < i + 4:
+                    ck = [c for c in rows[k] if c]
+                    if ck and ck[0] == "Prospects (minus UST)":
+                        lab = ck
+                        num = [c for c in rows[k + 1] if c]
+                        t = dict(zip(lab, num))
+                        info["report_totals"] = {
+                            "leads_minus_ust": _i(t["Prospects (minus UST)"]),
+                            "appts": _i(t["Appointments Scheduled"]),
+                            "shows": _i(t["Shows"]),
+                            "sales": _i(t["DMS Sold"]),
+                        }
+                        break
+                    k += 1
+                i = k + 2
+                continue
+            i += 1
+
+    out = [recs[c] for c in order]
+    if len(out) < 2:
+        raise ValueError("Momentum Executive Snapshot recognized but fewer than 2 channel blocks parsed.")
+    info["cohort_sales"] = {r["source"]: r["cohort_sales"] for r in out}
+    info["total_cohort_sales"] = sum(r["cohort_sales"] for r in out)
+    return out, info
 
 
 def _get(d, *names):
@@ -532,6 +658,26 @@ def ingest(path, rollup=None):
             if mism:
                 raise ValueError(f"Parsed source rows do not add up to the report's Totals row: {mism}")
             extra_meta["totals_check"] = "PASSED " + ", ".join(f"{k}={got[k]}" for k in got)
+    elif ext == ".xls" and _parse_momentum_snapshot(_read_xls_sheets(path))[0] is not None:
+        recs, info = _parse_momentum_snapshot(_read_xls_sheets(path))
+        fmt = "momentum_snap"
+        use_rollup = False  # channels, not vendors: never roll up
+        rows = _aggregate([{k: r[k] for k in ("source", "leads", "contact", "appts", "shows", "sales")}
+                           for r in recs], use_rollup, cmap)
+        raw_rows_n = len(recs)
+        extra_meta = dict(info, contact_available=False)
+        tot = info.get("report_totals") or {}
+        if tot:
+            ust = set(info.get("ust_sources") or [])
+            got = {"leads_minus_ust": sum(r["leads"] for r in recs if r["source"] not in ust),
+                   "appts": sum(r["appts"] for r in recs), "shows": sum(r["shows"] for r in recs),
+                   "sales": sum(r["sales"] for r in recs)}
+            mism = {k: (got[k], tot[k]) for k in got if k in tot and got[k] != tot[k]}
+            if mism:
+                raise ValueError(f"Parsed channel blocks do not add up to the report's Totals row: {mism}")
+            extra_meta["totals_check"] = "PASSED " + ", ".join(f"{k}={got[k]}" for k in got)
+        else:
+            raise ValueError("Momentum Executive Snapshot: Totals row not found, cannot cross-check the parse.")
     else:
         headers, raw = _read_table(path)
         fmt = detect_format(headers)

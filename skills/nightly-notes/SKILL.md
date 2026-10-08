@@ -62,7 +62,7 @@ generated-by: nightly-notes
 Then `# Dayname, Month D, YYYY`, a `## Where you were` section, `## Mileage` if applicable, **one `##` section per client** using the client's name and code (MCP, SBMW, NCBMW, NOI, CHC, Atlas, PAG, LPA, CBH), and a short `## Open at end of day` list. CDHD (Chuck Deluxe Harley-Davidson) is a former client since 2026-09-23: no CDHD section; only log emails about its two open offboarding items (the Google Ads account billing Drew's card, and check #28005) under Drew's admin notes until they close.
 
 - **One note per date.** If it already exists, APPEND, never create a second file, never overwrite existing content. Another skill's run may have written to it earlier the same day; preserve that verbatim.
-- Keep it under ~8KB. Quick list up top, 2 to 3 line per-client summaries. Deep detail goes in the context log, wikilinked from the daily rather than duplicated.
+- Keep it under ~16KB (raised from 8KB 2026-10-07). Quick list up top, 2 to 3 line per-client summaries. Deep detail goes in the context log, wikilinked from the daily rather than duplicated.
 - Use `[[wikilinks]]` for people, companies, and vendors.
 - Include real names, times, dollar amounts, ticket/case numbers, and VINs exactly as they appear.
 - Frontmatter must include status: active and a tags list that starts with daily-note, followed by the lowercase code of every client touched that day (mcp, sbmw, ncbmw, noi, chc, atlas, pag, lpa, cbh). When appending to a note that already exists, add status or tags if they're missing, and add any new client codes to tags. Never remove existing frontmatter fields.
@@ -73,7 +73,7 @@ Then `# Dayname, Month D, YYYY`, a `## Where you were` section, `## Mileage` if 
 Every client touched today gets an entry in its own running context log. This is where the depth lives and what feeds the monthly report.
 
 - **Newest entry at top**, under the current `### {Month} {Year}` heading. Use a `### YYYY-MM-DD · title` heading for each entry, never `##`. Never remove old entries.
-- Prospect-stage work stays in the root `Daily/` note only (Drew corrected 2026-08-17): no project folder, no roster code, no context log until Drew says the prospect signed. `Projects/_Prospects/` was retired 2026-08-30.
+- Prospects Drew is actively pursuing live at `Projects/_Prospects/{Name}/`; create `context-log.md` there if it does not exist yet. No roster code until Drew says the prospect signed (Drew confirmed 2026-10-07).
 - Check before writing: another skill's run may already have logged today's entry (the `cars-act-check` skill writes its own). Do not duplicate it.
 - Lead each entry with `**Daily log:** [[Daily/YYYY-MM-DD]]` and any deliverable wikilink.
 

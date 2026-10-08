@@ -23,8 +23,11 @@ Vendor Waste Watch
                                          ignored = Drew said ignore the cost; a new month's row for the same
                                          store and vendor starts ignored too
   L vendor list [--store S] [--month M] [--all] [--date D]
-  L vendor month-end --month M           keep-or-cut list per store; close rates graded against the NADA
-                                         table in the score-leads skill (reference/nada_benchmarks.json)
+  L vendor month-end --month M [--force] keep-or-cut list per store; close rates graded against the NADA
+                                         table in the score-leads skill (reference/nada_benchmarks.json).
+                                         Keeps the existing file and writes nothing when no CRM snapshot for M
+                                         is left in the shift folders, or fewer stores have one than the file
+                                         records (the folders went to the archive); --force rebuilds anyway
 Asks and wins
   L asks seed [--force]
   L asks add --store S --owner O --label L --ask T --evidence T --date D [--needs-store]
@@ -60,12 +63,22 @@ Standing rulings
   L rulings list [--store S] [--lane L] [--date D] [--all] [--md]
                  --md prints one compact block to paste into spawn prompts (expired ones only with --all)
 Shift ledger and month pack
-  L shift append --date D                rows for every target date found in outputs/ai-team/D/
+  L shift append --date D                rows for every target date found in outputs/ai-team/D/. A date whose
+                                         data folder is gone (or holds no GA4, Ads, Meta or CRM file any more)
+                                         keeps its ledger rows: nothing is rewritten
   L shift backfill --from D --to D
   L shift set --date D --store S --field F --value V --source T [--target-date D]
   L shift set --file PATH                bulk overrides, a JSON list of the same keys
   L shift list [--date D]
-  L month --month YYYY-MM                month-pack-{M}.json and .md
+  L month --month YYYY-MM [--final] [--force]
+                                         month-pack-{M}.json and .md. A plain run is a draft; --final stamps
+                                         final true (the rebuild after M's late restatements settle, before
+                                         M's day folders go to the archive). Keeps the existing pack and writes
+                                         nothing when: it is final (unless --force); no shift folder holds data
+                                         for M any more (even with --force); or the new pack's coverage score is
+                                         lower than the one on file (unless --force). Coverage score: per store,
+                                         GA4 + Google Ads + Meta days covered, plus the CRM period_end day.
+                                         A rebuild without --final never clears a final flag.
   L week --date D [--out DIR]            Saturday wrap: Mon to Fri before D vs the week before, per store,
                                          to outputs/ai-team/D/data/week.md and week.json
   L ads-dump --date D                    save each Ads export Sheet's campaign_daily_30d (and meta tab)
@@ -305,6 +318,25 @@ def save_text(path, text):
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(scrub(text))
     os.replace(tmp, path)
+
+
+def on_file(path, force, cmd):
+    """The JSON object already at path, or None when there is none. A file that is there but cannot be read stops
+    the run (exit 1) unless --force, so a month file is never replaced on a guess about what it held."""
+    if not os.path.exists(path):
+        return None
+    try:
+        data, err = load_json(path, None), None
+    except (ValueError, OSError) as e:
+        data, err = None, str(e)
+    if err is None and not isinstance(data, dict):
+        err = "not a JSON object"
+    if err:
+        if not force:
+            die("%s is on file but cannot be read (%s). Look at it first; '%s --force' rebuilds it."
+                % (rel(path), err, cmd))
+        return None
+    return data
 
 
 def iso(s, what="date"):
@@ -863,8 +895,31 @@ def build_rows(date):
     return rows, stats
 
 
+def shift_has_data(dirs):
+    """True while the shift's data folders still hold a GA4, Ads, Meta or CRM file, the files build_rows reads."""
+    return bool(ga4_files(dirs) or ads_files(dirs) or meta_files(dirs) or crm_files(dirs))
+
+
+def shift_gone(date):
+    """Why the ledger rows for date must be left alone, or None. Added 2026-10-07 for the month archive: a day
+    folder that left the vault (or kept only its carry files) used to rebuild as nothing and drop that date's rows."""
+    dirs = data_dirs(date)
+    if not dirs:
+        return "no data folder in outputs/ai-team/%s" % date
+    if not shift_has_data(dirs) and any(r.get("date") == date for r in read_ledger()):
+        return "no GA4, Ads, Meta or CRM file left in outputs/ai-team/%s (archived?)" % date
+    return None
+
+
 def cmd_shift_append(args, quiet=False):
+    """Returns the rows written, or None when the date's shift data is gone and the ledger was left as it was."""
     date = iso(args.date)
+    why = shift_gone(date)
+    if why:
+        if not quiet:
+            kept = sum(1 for r in read_ledger() if r.get("date") == date)
+            print("shift append %s: %s. Ledger not rewritten, %d row(s) for %s kept as they were." % (date, why, kept, date))
+        return None
     rows, stats = build_rows(date)
     ledger = [r for r in read_ledger() if r.get("date") != date]
     write_ledger(ledger + rows)
@@ -883,16 +938,24 @@ def cmd_shift_append(args, quiet=False):
 
 def cmd_shift_backfill(args):
     a, b = iso(args.from_date, "--from"), iso(args.to_date, "--to")
-    done = []
+    done, kept = [], []
     for sd in shift_dates():
         if a <= sd <= b:
             ns = argparse.Namespace(date=sd)
             rows = cmd_shift_append(ns, quiet=True)
-            done.append((sd, len(rows)))
+            if rows is None:
+                kept.append(sd)
+            else:
+                done.append((sd, len(rows)))
+    ledger = read_ledger()
     for sd, n in done:
         print("  %s: %d rows" % (sd, n))
-    print("shift backfill %s to %s: %d shift folders, %d rows. Ledger now %d rows."
-          % (a, b, len(done), sum(n for _, n in done), len(read_ledger())))
+    for sd in kept:
+        print("  %s: no shift data left in the folder, %d ledger row(s) kept as they were"
+              % (sd, sum(1 for r in ledger if r.get("date") == sd)))
+    print("shift backfill %s to %s: %d shift folders, %d rows%s. Ledger now %d rows."
+          % (a, b, len(done), sum(n for _, n in done), ", %d folder(s) left alone" % len(kept) if kept else "",
+             len(ledger)))
 
 
 def parse_value(v):
@@ -941,10 +1004,16 @@ def cmd_shift_set(args):
     save_json(LP("shift-overrides.json"), {"_about": "Hand-entered values for shift-ledger rows, each with its source. "
                                            "Applied on every shift append, so a re-run keeps them.",
                                            "overrides": sorted(ovs, key=lambda o: (o["date"], o["store"], o["field"]))})
+    gone = []
     for d in sorted(touched):
-        cmd_shift_append(argparse.Namespace(date=d), quiet=True)
-    print("shift set: %d override(s) saved for %s, rows rebuilt. %d overrides on file."
-          % (len(items), ", ".join(sorted(touched)), len(ovs)))
+        if cmd_shift_append(argparse.Namespace(date=d), quiet=True) is None:
+            gone.append(d)
+    rebuilt = [d for d in sorted(touched) if d not in gone]
+    print("shift set: %d override(s) saved for %s, %s. %d overrides on file."
+          % (len(items), ", ".join(sorted(touched)), "rows rebuilt" if not gone else
+             "rows rebuilt for %s; NOT rebuilt for %s (no shift data folder: the ledger rows stay as they were, "
+             "and the override applies once the folder is restored from the archive)"
+             % (", ".join(rebuilt) or "none", ", ".join(gone)), len(ovs)))
 
 
 def cmd_shift_list(args):
@@ -1018,20 +1087,55 @@ def harvest_meta(month):
     return best
 
 
+def month_score(pack, month):
+    """Coverage score of a month pack: per store, GA4 + Google Ads + Meta days covered, plus the day of the month of
+    the CRM period_end when it falls in the month. A rebuild that scores lower than the pack on file lost folders."""
+    score = 0
+    for st in (pack.get("stores") or {}).values():
+        if not isinstance(st, dict):
+            continue
+        for k in ("ga4", "google_ads", "meta"):
+            score += int(num(((st.get(k) or {}).get("coverage") or {}).get("count")) or 0)
+        pe = str(((st.get("crm") or {}).get("coverage") or {}).get("period_end") or "")
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", pe) and pe[:7] == month:
+            score += int(pe[8:10])
+    return score
+
+
+def pack_kind(pack):
+    return "final" if pack.get("final") else "draft"
+
+
 def cmd_month(args):
     month = month_of(args.month)
+    force, final = bool(getattr(args, "force", False)), bool(getattr(args, "final", False))
+    out_json = LP("month-pack-%s.json" % month)
+    old = on_file(out_json, force, "ledgers.py month --month %s" % month)
+    if old is not None and old.get("final") and not force:
+        print("month %s: kept the final pack on file (built %s, finalized %s, through %s); nothing written. "
+              "--force rebuilds it." % (month, old.get("generated_at"), old.get("finalized_at"), old.get("through")))
+        return
     ledger = [r for r in read_ledger() if str(r.get("target_date", "")).startswith(month)]
     ga4 = harvest_ga4(month)
     ads = harvest_ads(month)
     meta = harvest_meta(month)
     snaps = crm_snapshots(month)
+    if old is not None and not (ga4 or ads or meta or snaps):
+        print("month %s: kept the %s pack on file (built %s, coverage score %d); no shift folder holds %s data any more, "
+              "so a rebuild would be empty. Nothing written, even with --force: restore the folders from the archive "
+              "first." % (month, pack_kind(old), old.get("generated_at"), month_score(old, month), month))
+        return
     vendors = [v for v in (load_json(LP("vendor-watch.json"), {"rows": []}) or {}).get("rows", []) if v.get("month") == month]
     asks = (load_json(LP("asks.json"), {"asks": []}) or {}).get("asks", [])
-    pack = {"schema": "month-pack.v1", "month": month, "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
+    now = dt.datetime.now().isoformat(timespec="seconds")
+    pack = {"schema": "month-pack.v1", "month": month, "generated_at": now, "final": False,
             "how_to_use": ("A source covers the month for a store only when stores[STORE][source].coverage.complete is true "
                            "(GA4, Google Ads, Meta: every day of the month present; CRM: a month-to-date snapshot from the "
                            "first to the last day of the month). Otherwise pull that source live as before. Store keys are "
-                           "the ai-team codes; the monthly-client-report registry code Atlas is ATLAS here."),
+                           "the ai-team codes; the monthly-client-report registry code Atlas is ATLAS here. final is true "
+                           "once the pack was rebuilt after the month's late restatements settled (ledgers.py month --final, "
+                           "before the month's day folders go to the archive); a final pack is never rebuilt without "
+                           "--force. final false is a draft, month to date as of generated_at."),
             "built_from": ["outputs/ai-team/{date}/data/ga4_{STORE}.json channel_daily_last7 (latest pull wins per day)",
                            "outputs/ai-team/{date}/data/{STORE}_campaign_daily_30d.* (latest shift wins per day)",
                            "outputs/ai-team/{date}/data/meta_campaigns*.json daily windows (latest shift wins per day)",
@@ -1149,10 +1253,23 @@ def cmd_month(args):
         st["ledger_rows"] = len([r for r in ledger if r["store"] == s])
         pack["stores"][s] = st
     pack["through"] = max(through) if through else None
-    out_json = LP("month-pack-%s.json" % month)
+    score = month_score(pack, month)
+    old_score = month_score(old, month) if old is not None else None
+    if old is not None and score < old_score and not force:
+        print("month %s: kept the %s pack on file (built %s): coverage score %d on file, %d from the shift folders now "
+              "(day folders archived or missing). Nothing written; --force writes the smaller pack."
+              % (month, pack_kind(old), old.get("generated_at"), old_score, score))
+        return
+    if final:
+        pack["final"], pack["finalized_at"] = True, now
+    elif old is not None and old.get("final"):  # only with --force: a rebuild without --final keeps the final flag
+        pack["final"], pack["finalized_at"] = True, old.get("finalized_at")
+    pack["coverage_score"] = score
     save_json(out_json, pack)
     save_text(LP("month-pack-%s.md" % month), month_pack_md(pack))
-    print("month %s: wrote %s and .md, through %s." % (month, rel(out_json), pack["through"]))
+    print("month %s: wrote %s and .md (%s), through %s, coverage score %d%s." % (
+        month, rel(out_json), pack_kind(pack), pack["through"], score,
+        "" if old_score is None else " (the pack on file scored %d)" % old_score))
     for s in STORES:
         st = pack["stores"][s]
         print("  %-5s ga4 %2d/%d days, gads %2d, meta %2d, crm %s%s" % (
@@ -1171,11 +1288,17 @@ def _span(cov):
 
 
 def month_pack_md(pack):
-    L = ["---", "type: ai-team-month-pack", "date: %s" % pack["generated_at"][:10], "status: generated",
-         "tags: [ai-team, ledgers, monthly-report]", "---", "",
-         "# AI team month pack, %s" % pack["month"], "",
+    final = bool(pack.get("final"))
+    L = ["---", "type: ai-team-month-pack", "date: %s" % pack["generated_at"][:10],
+         "status: %s" % ("final" if final else "draft"), "tags: [ai-team, ledgers, monthly-report]", "---", "",
+         "# AI team month pack, %s (%s)" % (pack["month"], "Final" if final else "Draft"), "",
          "Built by `ledgers.py month` from the night-shift folders, month to date through %s. " % pack["through"]
-         + "A source covers the month only when its coverage is complete; monthly-client-report pulls live otherwise.", ""]
+         + "A source covers the month only when its coverage is complete; monthly-client-report pulls live otherwise.",
+         "",
+         ("Final: built %s after the month's late restatements settled (finalized %s). Later runs keep it unless "
+          "forced." % (pack["generated_at"][:10], str(pack.get("finalized_at") or "")[:10])) if final else
+         ("Draft: built %s, before the month's late restatements settle. The final rebuild (`ledgers.py month "
+          "--final`) replaces it before the month's day folders go to the archive." % pack["generated_at"][:10]), ""]
     for s, st in pack["stores"].items():
         g, a, m, c = st["ga4"], st["google_ads"], st["meta"], st["crm"]
         L.append("## [[%s]] (%s)" % (s if s != "ATLAS" else "Atlas", st["name"]))
@@ -1721,14 +1844,30 @@ def verdict(e, bench, min_leads):
 
 def cmd_vendor_month_end(args):
     month = month_of(args.month)
-    bench = load_bench()
-    rows = [r for r in vendor_load()["rows"] if r["month"] == month]
+    force = bool(getattr(args, "force", False))
+    out_path = LP("vendor-month-end-%s.json" % month)
+    old = on_file(out_path, force, "ledgers.py vendor month-end --month %s" % month)
     snaps = {}
     for sd, p, n in crm_snapshots(month):
         if n.get("source_kind") == "category":
             continue
         if n["store"] not in snaps or (n["period_end"] or "") >= (snaps[n["store"]][2]["period_end"] or ""):
             snaps[n["store"]] = (sd, p, n)
+    if old is not None and not force:
+        had = [s for s, st in (old.get("stores") or {}).items() if isinstance(st, dict) and st.get("crm_snapshot")]
+        if not snaps:
+            print("vendor month-end %s: kept %s (built %s); no CRM snapshot for %s is left in the shift folders. "
+                  "Nothing written; --force rebuilds it from vendor-watch.json alone."
+                  % (month, rel(out_path), old.get("generated_at"), month))
+            return
+        if len(snaps) < len(had):
+            print("vendor month-end %s: kept %s (built %s): CRM snapshots for %d store(s) on file (%s), %d in the shift "
+                  "folders now (%s). Nothing written; --force rebuilds it."
+                  % (month, rel(out_path), old.get("generated_at"), len(had), ", ".join(had), len(snaps),
+                     ", ".join(s for s in STORES if s in snaps)))
+            return
+    bench = load_bench()
+    rows = [r for r in vendor_load()["rows"] if r["month"] == month]
     yard = None
     if bench:
         y = bench["data"].get("cost_yardsticks", {}).get("ad_cost_per_new_unit_usd", {})
@@ -1783,7 +1922,7 @@ def cmd_vendor_month_end(args):
         entries.sort(key=lambda e: -(e["spend"] or 0))
         out["stores"][s] = {"tier": tier, "crm_snapshot": rel(snap[1]) if snap else None,
                             "crm_period_end": snap[2]["period_end"] if snap else None, "vendors": entries}
-    save_json(LP("vendor-month-end-%s.json" % month), out)
+    save_json(out_path, out)
     save_text(LP("vendor-month-end-%s.md" % month), vendor_month_end_md(out, bench))
     n = sum(len(v["vendors"]) for v in out["stores"].values())
     cut = sum(1 for v in out["stores"].values() for e in v["vendors"] if e["verdict"].startswith(("cut", "confirm")))
@@ -4242,6 +4381,145 @@ def cmd_selftest(_args):
         check("coaching.json and settled.json hold no em dash",
               EMDASH not in open(LP("coaching.json"), encoding="utf-8").read()
               and EMDASH not in open(LP("settled.json"), encoding="utf-8").read())
+
+        # archive guards (added 2026-10-07): the month pack, the vendor month-end and the shift ledger survive the
+        # month's day folders leaving the vault
+        stash_dir = os.path.join(tmp, "stash")
+
+        def stash(date):
+            os.makedirs(stash_dir, exist_ok=True)
+            os.rename(P(date), os.path.join(stash_dir, date))
+
+        def unstash(date):
+            os.rename(os.path.join(stash_dir, date), P(date))
+
+        def snap(*paths):
+            return [open(p, encoding="utf-8").read() for p in paths]
+
+        mk = dict(final=False, force=False)
+        mj, mmd = LP("month-pack-2026-09.json"), LP("month-pack-2026-09.md")
+        o = run(cmd_month, month="2026-09", **mk)
+        pk = load_json(mj)
+        check("month: same coverage rebuilds as a draft with its coverage score",
+              o.startswith("month 2026-09: wrote") and "(draft)" in o and pk["final"] is False and "finalized_at" not in pk
+              and pk["coverage_score"] == month_score(pk, "2026-09") == 8 and "\nstatus: draft\n" in snap(mmd)[0]
+              and "# AI team month pack, 2026-09 (Draft)" in snap(mmd)[0], (o, pk.get("coverage_score")))
+        o = run(cmd_month, month="2026-09", **dict(mk, final=True))
+        pk = load_json(mj)
+        check("month --final stamps final and finalized_at, the md says Final",
+              o.startswith("month 2026-09: wrote") and "(final)" in o and pk["final"] is True
+              and pk["finalized_at"] == pk["generated_at"] and "\nstatus: final\n" in snap(mmd)[0]
+              and "# AI team month pack, 2026-09 (Final)" in snap(mmd)[0], o)
+        before = snap(mj, mmd)
+        o = run(cmd_month, month="2026-09", **mk)
+        o2 = run(cmd_month, month="2026-09", **dict(mk, final=True))
+        check("month: a final pack is kept, one line, nothing written (with or without --final)",
+              o.startswith("month 2026-09: kept the final pack on file") and o.count("\n") == 1
+              and o2.startswith("month 2026-09: kept") and snap(mj, mmd) == before, (o, o2))
+        o = run(cmd_month, month="2026-09", **dict(mk, force=True))
+        pk2 = load_json(mj)
+        check("month --force without --final rebuilds but never clears the final flag",
+              o.startswith("month 2026-09: wrote") and pk2["final"] is True and pk2["finalized_at"] == pk["finalized_at"], o)
+        lj = LP("shift-ledger.jsonl")
+        led = snap(lj)
+        stash("2026-09-02")
+        o = run(cmd_shift_append, date="2026-09-02")
+        check("shift append: a date with no data folder leaves the ledger alone",
+              o == "shift append 2026-09-02: no data folder in outputs/ai-team/2026-09-02. Ledger not rewritten, "
+                   "5 row(s) for 2026-09-02 kept as they were.\n" and snap(lj) == led, o)
+        o = run(cmd_shift_set, file=None, date="2026-09-02", store="NOI", field="key_events_note", value="form fires twice",
+                source="kobe.md line 30", source_file=None, target_date=None)
+        check("shift set on a gone folder saves the override and keeps the rows",
+              "NOT rebuilt for 2026-09-02" in o and snap(lj) == led
+              and any(x["field"] == "key_events_note" for x in load_overrides()), o)
+        before = snap(mj, mmd)
+        o = run(cmd_month, month="2026-09", **dict(mk, force=True))
+        check("month: no shift folder holds the month's data, the pack is kept even with --force",
+              o.startswith("month 2026-09: kept the final pack on file") and "no shift folder holds 2026-09 data" in o
+              and o.count("\n") == 1 and snap(mj, mmd) == before, o)
+        os.makedirs(P("2026-09-02", "data", "cars_SBMW"))
+        save_json(P("2026-09-02", "data", "dashboards.json"), {"stores": {}})
+        save_json(P("2026-09-02", "data", "cars_SBMW", "summary.json"), {"ok": True})
+        o = run(cmd_shift_append, date="2026-09-02")
+        check("shift append: a folder left with carry files only keeps its rows",
+              "no GA4, Ads, Meta or CRM file left in outputs/ai-team/2026-09-02 (archived?)" in o and snap(lj) == led, o)
+        o = run(cmd_shift_backfill, from_date="2026-09-01", to_date="2026-09-30")
+        check("shift backfill leaves those dates alone",
+              "  2026-09-02: no shift data left in the folder, 5 ledger row(s) kept as they were" in o
+              and "2 folder(s) left alone" in o and snap(lj) == led, o)
+        shutil.rmtree(P("2026-09-02"))
+        unstash("2026-09-02")
+        o = run(cmd_shift_append, date="2026-09-02")
+        noi = next(r for r in read_ledger() if r["date"] == "2026-09-02" and r["store"] == "NOI")
+        check("shift append rebuilds once the folder is restored, with the override saved while it was away",
+              o.startswith("shift append 2026-09-02: 5 rows") and noi["key_events_note"] == "form fires twice"
+              and noi["clean_key_events"] == 4, o)
+        for d, ymd, pe in (("2026-10-02", "20261001", "2026-10-01"), ("2026-10-03", "20261002", "2026-10-02")):
+            save_json(P(d, "data", "ga4_NOI.json"), {
+                "store": "NOI", "target_date": pe, "pulled_at": d + "T01:00:00", "errors": [], "channel_daily_last7": [
+                    {"date": ymd, "sessionDefaultChannelGroup": "Direct", "sessions": 10, "engagedSessions": 2, "keyEvents": 1}]})
+            crm = json.loads(json.dumps(CRM_SHAPE))
+            crm.update({"period_start": "2026-10-01", "period_end": pe, "pulled_at_shift": d})
+            save_json(P(d, "data", "crm_mtd_NOI.json"), crm)
+        oj, omd = LP("month-pack-2026-10.json"), LP("month-pack-2026-10.md")
+        o = run(cmd_month, month="2026-10", **mk)
+        check("month: a draft from two shift folders", o.startswith("month 2026-10: wrote")
+              and load_json(oj)["coverage_score"] == 4, o)
+        before = snap(oj, omd)
+        stash("2026-10-03")
+        o = run(cmd_month, month="2026-10", **mk)
+        o2 = run(cmd_month, month="2026-10", **dict(mk, final=True))
+        check("month: a lower coverage score keeps the pack on file, one line, nothing written (--final too)",
+              o.startswith("month 2026-10: kept the draft pack on file")
+              and "coverage score 4 on file, 2 from the shift folders now" in o and o.count("\n") == 1
+              and o2.startswith("month 2026-10: kept") and snap(oj, omd) == before and load_json(oj)["final"] is False, (o, o2))
+        o = run(cmd_month, month="2026-10", **dict(mk, force=True))
+        check("month --force writes the smaller pack", o.startswith("month 2026-10: wrote")
+              and load_json(oj)["coverage_score"] == 2, o)
+        before = snap(oj, omd)
+        stash("2026-10-02")
+        o = run(cmd_month, month="2026-10", **dict(mk, force=True))
+        check("month: a draft month with no folder data left is kept even with --force",
+              o.startswith("month 2026-10: kept the draft pack on file") and "even with --force" in o
+              and snap(oj, omd) == before, o)
+        unstash("2026-10-02")
+        unstash("2026-10-03")
+        o = run(cmd_month, month="2026-10", **dict(mk, final=True))
+        pk = load_json(oj)
+        check("month --final with the folders back writes the final pack", o.startswith("month 2026-10: wrote")
+              and "(final)" in o and pk["final"] is True and pk["coverage_score"] == 4, o)
+        save_text(LP("month-pack-2026-11.json"), "{not json")
+        check("month: a pack on file that cannot be read stops the run and stays as it was",
+              expect_exit(cmd_month, argparse.Namespace(month="2026-11", **mk))
+              and snap(LP("month-pack-2026-11.json")) == ["{not json"])
+        crm = json.loads(json.dumps(CRM_SHAPE))
+        crm.update({"store": "MCP", "period_start": "2026-09-01", "period_end": "2026-09-02", "pulled_at_shift": "2026-09-03"})
+        save_json(P("2026-09-03", "data", "crm_mtd_MCP.json"), crm)
+        vk = dict(month="2026-09", force=False)
+        vj, vmd = LP("vendor-month-end-2026-09.json"), LP("vendor-month-end-2026-09.md")
+        o = run(cmd_vendor_month_end, **vk)
+        vm = load_json(vj)
+        check("vendor month-end records each store's CRM snapshot", not o.startswith("vendor month-end 2026-09: kept")
+              and [s for s in STORES if vm["stores"][s]["crm_snapshot"]] == ["NOI", "MCP"], o)
+        before = snap(vj, vmd)
+        stash("2026-09-03")
+        o = run(cmd_vendor_month_end, **vk)
+        check("vendor month-end: fewer stores with a snapshot keeps the file, one line, nothing written",
+              o.startswith("vendor month-end 2026-09: kept") and "CRM snapshots for 2 store(s) on file (NOI, MCP), "
+              "1 in the shift folders now (NOI)" in o and o.count("\n") == 1 and snap(vj, vmd) == before, o)
+        stash("2026-09-02")
+        o = run(cmd_vendor_month_end, **vk)
+        check("vendor month-end: no CRM snapshot left keeps the file", o.startswith("vendor month-end 2026-09: kept")
+              and "no CRM snapshot for 2026-09 is left" in o and snap(vj, vmd) == before, o)
+        o = run(cmd_vendor_month_end, **dict(vk, force=True))
+        vm = load_json(vj)
+        check("vendor month-end --force rebuilds from vendor-watch.json alone",
+              not o.startswith("vendor month-end 2026-09: kept") and not any(st["crm_snapshot"] for st in vm["stores"].values())
+              and [e["vendor"] for e in vm["stores"]["NOI"]["vendors"]] == ["Auto Credit Express"], o)
+        unstash("2026-09-02")
+        unstash("2026-09-03")
+        check("month packs and vendor month-end hold no em dash", not any(
+            EMDASH in t or ENDASH in t for t in snap(mj, mmd, oj, omd, vj, vmd)))
         check("script source has no em dash", EMDASH not in open(os.path.abspath(__file__), encoding="utf-8").read())
     finally:
         ROOT = real_root
@@ -4284,7 +4562,9 @@ def main():
     p = v.add_parser("list")
     p.add_argument("--store"); p.add_argument("--month"); p.add_argument("--date"); p.add_argument("--all", action="store_true")
     p.set_defaults(fn=cmd_vendor_list)
-    p = v.add_parser("month-end"); p.add_argument("--month", required=True); p.set_defaults(fn=cmd_vendor_month_end)
+    p = v.add_parser("month-end"); p.add_argument("--month", required=True)
+    p.add_argument("--force", action="store_true", help="rebuild even when fewer CRM snapshots are left than the file records")
+    p.set_defaults(fn=cmd_vendor_month_end)
 
     a = sub.add_parser("asks").add_subparsers(dest="sub", required=True)
     p = a.add_parser("seed"); p.add_argument("--force", action="store_true"); p.set_defaults(fn=cmd_asks_seed)
@@ -4346,7 +4626,10 @@ def main():
     p.set_defaults(fn=cmd_shift_set)
     p = s.add_parser("list"); p.add_argument("--date"); p.set_defaults(fn=cmd_shift_list)
 
-    p = sub.add_parser("month"); p.add_argument("--month", required=True); p.set_defaults(fn=cmd_month)
+    p = sub.add_parser("month"); p.add_argument("--month", required=True)
+    p.add_argument("--final", action="store_true", help="stamp the pack final (the rebuild before the month is archived)")
+    p.add_argument("--force", action="store_true", help="rebuild a final pack, or write a pack that covers less")
+    p.set_defaults(fn=cmd_month)
     p = sub.add_parser("week"); p.add_argument("--date", required=True); p.add_argument("--out")
     p.set_defaults(fn=cmd_week)
     p = sub.add_parser("ads-dump"); p.add_argument("--date", required=True); p.set_defaults(fn=cmd_ads_dump)

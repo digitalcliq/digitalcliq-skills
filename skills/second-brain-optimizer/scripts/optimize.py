@@ -319,6 +319,8 @@ def apply_fixes(root, state, do_emdash, do_h1):
     bdir = state / "backups" / stamp
     touched, results = set(), {}
     for f in findings:
+        if f.get("fix_status") == "declined":
+            continue  # per-item decline from the walk (e.g. a file a routine rewrites daily)
         if f["check"] == "P2.1" and do_emdash or f["check"] == "P2.2" and do_h1:
             touched.add(f["path"])
     for rel in sorted(touched):
@@ -330,7 +332,8 @@ def apply_fixes(root, state, do_emdash, do_h1):
         shutil.copy2(p, dst)
         lines = p.read_text(errors="replace").splitlines()
         fm, body_start = split_frontmatter(lines)
-        dup = next((f for f in findings if f["check"] == "P2.2" and f["path"] == rel), None)
+        dup = next((f for f in findings if f["check"] == "P2.2" and f["path"] == rel
+                    and f.get("fix_status") != "declined"), None)
         out, in_fence, removed = [], False, 0
         for n, line in enumerate(lines, start=1):
             if do_h1 and dup and n == dup["line"]:

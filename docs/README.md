@@ -27,6 +27,7 @@ Skill material lives in five places, each with one role. Do not let copies drift
 The seven subfolders that actually exist here, each holding design notes and change logs for its skill:
 
 - [[Skills/ai-team/notes|ai-team]]: the AI night-shift team (Magic lead, Kobe GA4, Shaq Google Ads, Worthy SEO/GEO/AEO, Nick CRM) on Claude Code agent teams. Locally hosted at `.claude/skills/ai-team/` with player definitions in `.claude/agents/`. Triggers: `/ai-team dry-run`, `/ai-team shift`, "run the team", "tip off". Started from the terminal by `scripts/tipoff.sh`, not from the desktop app.
+- vault-archive: month-end vault archive. Moves old files out of the vault into verified zips in `~/Desktop/DigitalCLIQ Vault Archive/` (plan first, dry run by default, protected folders refused, originals removed only after every file in the zip checks out). Locally hosted at `.claude/skills/vault-archive/`. Triggers: "archive the vault", "vault cleanup", "month-end vault archive", `/vault-archive`. Never touches `outputs/ai-team/`, which `month_close.py` in the ai-team skill closes out monthly.
 - [[Skills/blog-content/notes|blog-content]]: blog + landing-page engine for any brand; voice research, SEO/AEO engineering, Magnific heroes, branded Word docs + Excel tracker.
 - [[Skills/daily-work-log/notes|daily-work-log]]: end-of-day sweep across every connected surface into the root Daily note + per-client context logs.
 - [[Skills/mcpeeks-site-watch/notes|mcpeeks-site-watch]]: twice-weekly mcpeeks.com compliance/accuracy/health watch; GM-facing branded Excel workbook since 2026-09-04 (Summary, Fix List, Scorecard, detail tabs, Phone Checklist, What Changed).
@@ -89,6 +90,7 @@ These skills depend on canonical vault content:
 
 - 2026-09-23: all 22 custom skills (automotive-intelligence added same day) backed up to a new git repo at `~/Desktop/digitalcliq-skills` with a `sync.sh` refresh script. Runtime copies on `main`, the drifted `~/Desktop/Skills` copy on `desktop-source`. The vault `.claude/skills/synced/` folder is a stale account download (dead Brain/Brain paths, missing fixes), never restore from it.
 - 2026-09-26: multi-agent review of the five reporting and analytics skills. Fixes for auto-trends, monthly-client-report, dealership-forecast-tool and the ai-team GA4 flags built, tested and deployed 2026-09-26; account copies still need a re-upload. Recommended retiring `morning-coffee` and `compare-weeks` (Drew's decision).
+- 2026-10-08: `vault-archive` built and the ai-team month close added (`month_close.py`, ledgers.py guards); first sweep moved 72 files (10.1 MB) off-vault; Drew's Rule 26 (summarize, then zip off-vault, never hard-delete).
 ## Open Items
 
 - Workshop whether to consolidate `brand-check` + `dealership-compliance-audit` into one super-audit, or keep them split. (Any resulting work item goes to [[Notion]] TASKS, root Rule 11.)
