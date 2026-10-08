@@ -1476,6 +1476,92 @@ def _ftc_lease_das_fee(page_key, page, ctx):
                        page_url=page.get("url", ""))
 
 
+# ── FTC staff remarks, 2026-09-30 (Dingman, NAMVBC; ComplyAuto summary 2026-10-05) ──
+# Added 2026-10-08. Staff views, federal and current: warnings with human review.
+FTC_REMARKS = "FTC staff remarks 2026-09-30"
+
+SAVINGS_CLAIM_RE = re.compile(
+    r"(?:save|savings\s*(?:of)?)\s*(?:up\s*to\s*)?\$\s?\d[\d,]{2,}|\$\s?\d[\d,]{2,}\s*(?:off\b|in\s*savings)", re.I)
+SAVINGS_SCOPE_RE = re.compile(
+    r"select|stock\s*(?:#|no\.?|number)|stk|\bvin\b|#\s?[A-Z0-9]{5,}|\b20\d\d\b|\bmodel\b|\btrim\b|"
+    r"this\s+(?:vehicle|unit|offer)|\bmsrp\b", re.I)
+
+
+@check("FTC-SAVINGS-SCOPE", "FTC", "FTC Pricing Transparency", ["homepage", "specials", "vlp"])
+def _ftc_savings_scope(page_key, page, ctx):
+    """Staff remarks 2026-09-30: 'Save $10,000' must not read as inventory-wide when it
+    applies to one unit or trim. Flags a dollar savings claim with no scope nearby."""
+    text = _all_text(page)
+    for m in SAVINGS_CLAIM_RE.finditer(text):
+        window = text[max(0, m.start() - 200): m.end() + 200]
+        if SAVINGS_SCOPE_RE.search(window):
+            continue
+        return CheckResult("FTC-SAVINGS-SCOPE", "FTC", "FTC Pricing Transparency", page_key,
+                           status="fail", confidence="medium", severity="warning",
+                           rule_id="FTC-SAVE-001", statute=FTC_FAQ + " Q5, Q9; " + FTC_REMARKS,
+                           evidence="'%s' on %s with no model, trim, stock number, or unit named within 200 characters." % (_short(m.group(0), 60), page_key),
+                           recommendation="NEEDS HUMAN REVIEW AND VERIFICATION: state which unit, model, or trim the saving applies to next to the claim, and disclose any financing or trade-in condition beside it. FTC staff (2026-09-30) say a savings claim may not imply it applies across inventory, and disclosing a condition never makes a subset-only price the most prominent price. California adds the Veh. Code 11713.1(i) quantity disclosure for class pricing.",
+                           needs_human_review=True, page_url=page.get("url", ""))
+    return None
+
+
+CTA_LOWER_PRICE_RE = re.compile(
+    r"unlock\s+(?:savings|(?:your|my|the)\s+(?:(?:lower|better|best|special|internet|e-?|real)\s+)?(?:price|pricing|savings|deal)|price|pricing)"
+    r"|get\s+(?:my|your|our|a|the)?\s*(?:lower|better|best|special|internet|e-?|today'?s|secret|hidden|real)\s*price"
+    r"|(?:click|call|text|tap)\s+(?:here\s+)?(?:for|to\s+(?:see|get|unlock|reveal))\s+(?:your|our|a|the)?\s*(?:lower|better|best|special|internet|e-?|secret|hidden)\s*price"
+    r"|see\s+(?:your|our)\s+(?:lower|better|best|special)\s+price|reveal\s+(?:your\s+|the\s+)?(?:price|savings)", re.I)
+
+
+@check("FTC-CTA-LOWER-PRICE", "FTC", "FTC Pricing Transparency", ["vdp", "vlp", "specials", "homepage"])
+def _ftc_cta_lower_price(page_key, page, ctx):
+    """Staff remarks 2026-09-30: a price CTA may sit beside the advertised price but may not
+    suggest a lower price is waiting, or obscure the displayed one."""
+    text = _all_text(page)
+    m = CTA_LOWER_PRICE_RE.search(text)
+    if not m or not PRICE_RE.search(text):
+        return None  # no price on the page: California CA-CARS-026 covers CTA-in-place-of-price
+    return CheckResult("FTC-CTA-LOWER-PRICE", "FTC", "FTC Pricing Transparency", page_key,
+                       status="fail", confidence="medium", severity="warning",
+                       rule_id="FTC-CTA-001", statute=FTC_FAQ + " Q4; " + FTC_REMARKS,
+                       evidence="'%s' on %s beside a displayed price implies a lower or hidden price." % (_short(m.group(0), 60), page_key),
+                       recommendation="NEEDS HUMAN REVIEW AND VERIFICATION: if no lower price is actually available, reword the button to a neutral action ('Get My Price', 'Check Availability', 'Contact Us'). FTC staff (2026-09-30) allow a price CTA beside the advertised price only when it does not suggest a lower price falsely and does not obscure or contradict the displayed price. In California the total price must already be on the page (CA-CARS-026).",
+                       needs_human_review=True, page_url=page.get("url", ""))
+
+
+UNBUILT_RE = (r"(?:in\s+production|not\s+yet\s+(?:built|shipped|produced)|being\s+built|factory[\s-]*order(?:ed)?|"
+              r"build[\s-]*to[\s-]*order|scheduled\s+for\s+production|awaiting\s+production)")
+INTRANSIT_RE = r"in[\s-]*transit"
+INTRANSIT_UNBUILT_RE = re.compile(
+    INTRANSIT_RE + r"[\s\S]{0,160}?" + UNBUILT_RE + r"|" + UNBUILT_RE + r"[\s\S]{0,160}?" + INTRANSIT_RE, re.I)
+INTRANSIT_ONLY_RE = re.compile(INTRANSIT_RE, re.I)
+ARRIVAL_RE = re.compile(r"arriv|\beta\b|expected|estimated|delivery\s+date|due\s+(?:in|on|by)\b|\d{1,2}/\d{1,2}", re.I)
+
+
+@check("FTC-INTRANSIT-STATUS", "FTC", "FTC Pricing Transparency", ["vdp", "vlp", "specials", "homepage"])
+def _ftc_intransit_status(page_key, page, ctx):
+    """FAQ Q10 plus staff remarks 2026-09-30: 'in transit' means already shipped. A unit that
+    is also described as unbuilt is mislabeled; an in-transit unit with no arrival information
+    is an advisory for the store to confirm status and date."""
+    text = _all_text(page)
+    m = INTRANSIT_UNBUILT_RE.search(text)
+    if m:
+        return CheckResult("FTC-INTRANSIT-STATUS", "FTC", "FTC Pricing Transparency", page_key,
+                           status="fail", confidence="high", severity="warning",
+                           rule_id="FTC-AVAIL-003", statute=FTC_FAQ + " Q10; " + FTC_REMARKS,
+                           evidence="'%s' on %s labels a unit in transit while also describing it as not yet built or shipped." % (_short(m.group(0), 120), page_key),
+                           recommendation="Describe the unit by its real status (in production, factory order, build to order) with no 'in transit' label until it has shipped. FTC staff (2026-09-30): consumers read 'in transit' as already on its way; stated arrival dates must reflect what the store actually knows; the unit must be available on arrival and not allocated to another paid order.",
+                           page_url=page.get("url", ""))
+    m2 = INTRANSIT_ONLY_RE.search(text)
+    if m2 and not ARRIVAL_RE.search(text):
+        return CheckResult("FTC-INTRANSIT-STATUS", "FTC", "FTC Pricing Transparency", page_key,
+                           status="fail", confidence="low", severity="advisory",
+                           rule_id="FTC-AVAIL-003", statute=FTC_FAQ + " Q10; " + FTC_REMARKS,
+                           evidence="'%s' on %s with no arrival or delivery information captured." % (_short(m2.group(0), 40), page_key),
+                           recommendation="NEEDS HUMAN REVIEW AND VERIFICATION: confirm the unit has actually shipped, add the arrival information the store can support, and confirm it is not allocated to another customer's paid order (FTC FAQ Q10; FTC staff 2026-09-30). The arrival date may sit in a widget the crawl missed.",
+                           needs_human_review=True, page_url=page.get("url", ""))
+    return None
+
+
 @check("CA-NEWUSED-001", "DISCLOSURE", "Used Vehicle Labeling", ["used"])
 def _used_label(page_key, page, ctx):
     title_url = (page.get("title", "") + " " + page.get("url", ""))

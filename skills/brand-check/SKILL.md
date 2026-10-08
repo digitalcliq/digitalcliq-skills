@@ -77,7 +77,23 @@ Federal law (`Resources/automotive-guidelines/federal-ad-rules-index.md`, root R
 - **Payment creative** without the Reg Z or Reg M trigger set; and, where a payment is put in writing during negotiation, without the total of payments and assumed consideration (Civ. Code §1784.41(c)).
 - **Social posts**, including employee personal accounts, are dealer advertisements and carry every rule above (FAQ Q20).
 
-Federal DPC note: FTC staff (April 2026) want the DPC inside the most prominent price; California keeps it out. CNCDA's dual presentation (Total Price / Document processing charge (not a governmental fee) / Price including document processing charge, equal prominence, never "out-the-door") satisfies both. Flag a creative that shows neither the DPC nor a DPC-inclusive price as a Warning with that fix.
+### FTC Pricing Transparency overlay (federal, every client in every state, current, no grace period)
+
+Source: `Resources/automotive-guidelines/ftc-advertising-compliance.md` (FTC staff FAQs of September 2026, digested question by question, and the FTC staff remarks of 2026-09-30). Cite as "FTC FAQ QN" or "FTC staff remarks 2026-09-30". Apply to any creative, page, post, email, SMS, or call script that states a price, payment, savings figure, or availability. Federal is checked before the California layer; where California is looser (doc fee, electronic filing, and emission charges outside total price) the federal reading wins for the most prominent price.
+
+- **Most prominent price is the any-consumer price** (Q2, Q4, Q5). Exclude only charges the government requires the consumer to pay directly. Doc fee inside it at the highest mandatory amount, $40,000 plus $85 advertises as $40,085 (Q6); state doc-fee rules are additive (Q7). FTC staff (2026-09-30): a state cap or authorization does not make a fee governmental, and the electronic filing and emission testing charges go in the price when the dealer requires them. Critical when a dealer-required fee sits outside the headline price.
+- **Prominence is size AND placement** (Q5). A smaller MSRP, payment, or "you save" figure placed where the eye lands first defeats a larger price. "The price you'll get" near two numbers is confusing. Warning, human review on any layout call.
+- **Conditional discounts beside the price, never inside it** (Q5, Q9): military, first responder, loyalty, conquest, college, trade-in, dealer or captive financing. Critical when deducted in the headline.
+- **Savings claims scoped honestly** (FTC staff 2026-09-30): "Save $10,000" may not read as inventory-wide when it is one unit or trim; financing or trade-in conditions sit beside the claim. Warning.
+- **Price CTA buttons** (FTC staff 2026-09-30): "Get My Price" or "Call for Price" may sit beside the price only if it does not imply a lower price falsely and does not hide the shown price. In California the price must already be on the page (CTA in place of price is the Critical above).
+- **Lease due-at-signing includes upfront fees** (Q8); "$0 due at signing" fails if any fee is due. Warning.
+- **Add-ons** (Q9; FTC staff 2026-09-30): "optional" means the buyer can decline it and pay the advertised price; no "cannot be removed"; mandatory items inside the price. Critical.
+- **Availability** (Q10; FTC staff 2026-09-30): not-on-lot units say so plainly; "in transit" only for units already shipped, unbuilt units get their real status, arrival dates match what the store knows, and no unit already sold to a paid order. Warning.
+- **Photos** (Q11): stock or representative images only on new or in-transit units that truly match; never on used or CPO creative. Warning.
+- **Every medium** (Q3): social posts, employee posts, roadside signs, and BDC calls and texts that quote a price are ads. **Shared responsibility** (Q12): the dealer still owns OEM-originated and vendor-built creative under its name; keep the written correction request on file and report an unresolvable OEM or platform block to ReportFraud.ftc.gov.
+- **AI-generated creative** (FTC staff 2026-09-30): same duties; review AI copy and imagery against the live feed before ship, and never let AI imagery stand in for a specific unit (especially used).
+
+Federal DPC note for California creative: CNCDA's dual presentation (Total Price / Document processing charge (not a governmental fee) / Price including document processing charge, never "out-the-door") bridges the two regimes, with the inclusive figure the most prominent price (the FAQs ask for most prominent, not merely equal). Flag a California creative that shows neither the DPC nor a DPC-inclusive price as a Warning with that fix.
 
 ### Step 2: Classify Content Type
 

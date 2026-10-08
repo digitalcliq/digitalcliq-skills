@@ -1,7 +1,7 @@
 {
   "jurisdiction": "California",
   "source": "2022 CNCDA Advertising Law Manual + California Vehicle Code + California Code of Regulations Title 13 + SB 766 California CARS Act (Chapter 354, 2025) + California DMV CARS Act consumer summary (checked 2026-09-10) + CNCDA CARS Act Compliance Guide v1.2 (2026-08-07) + CNCDA Webinar FAQ (2026-08-31), folded in 2026-09-14 + FTC Automobile Industry Pricing Transparency FAQs (September 2026) with ComplyAuto analysis, folded in 2026-09-16",
-  "last_updated": "2026-09-16",
+  "last_updated": "2026-10-08",
   "rules": [
     {
       "id": "CA-PRICE-001",
@@ -1393,9 +1393,9 @@
       "id": "FTC-PRICE-001",
       "category": "Price Advertising",
       "title": "FTC: Advertised Price Is the Price Any Consumer Can Walk In and Pay",
-      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q1, Q2",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q1, Q2; FTC staff remarks 2026-09-30",
       "effective_date": null,
-      "description": "The advertised price must be the actual price any consumer can walk in and pay. Only amounts a federal, state, or local agency requires the consumer to pay directly (taxes, registration) may be excluded. Dealer fees the government authorizes but does not mandate, and charges the government imposes on the dealer that the dealer passes on, must be included.",
+      "description": "The advertised price must be the actual price any consumer can walk in and pay. Only amounts a federal, state, or local agency requires the consumer to pay directly (taxes, registration) may be excluded. Dealer fees the government authorizes but does not mandate, and charges the government imposes on the dealer that the dealer passes on, must be included. FTC staff (2026-09-30): the test is who is legally obligated to pay. A state law that authorizes or caps a doc fee does not make it a government charge. Electronic filing and emission testing charges follow the same test by name: if the government does not require the consumer to pay them but the dealer does, they are in the price; the label does not decide it, and the dealer may absorb them instead.",
       "trigger_patterns": [
         "plus\\s+(dealer|processing|service|admin(istrative)?|reconditioning|prep)\\s*(fee|charge)",
         "(does\\s+not|doesn't)\\s+include\\s+[^.]{0,60}(fee|charge)",
@@ -1404,7 +1404,7 @@
       ],
       "fail_condition": "A price shown with any dealer-imposed or passed-through charge (dealer, processing, reconditioning, electronic titling convenience, pass-through smog) added on top, rather than inside the price",
       "severity": "critical",
-      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
     },
     {
       "id": "FTC-PRICE-002",
@@ -1427,7 +1427,7 @@
       "title": "FTC: Actual Price Is the Most Prominent Amount on Every Page Stating Any Amount",
       "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q4, Q5",
       "effective_date": null,
-      "description": "Any webpage that states any amount a consumer may pay, including inventory-search (SRP/VLP) pages and vehicle-listing (VDP) pages, must show the actual price as the most prominent amount. Prominence is judged by font size AND placement: a smaller MSRP, payment, savings figure, or conditional price placed where it draws the eye defeats the actual price. Wording such as 'the price you'll get' near both MSRP and the actual price is confusing.",
+      "description": "Any webpage that states any amount a consumer may pay, including inventory-search (SRP/VLP) pages and vehicle-listing (VDP) pages, must show the actual price as the most prominent amount. Prominence is judged by font size AND placement: a smaller MSRP, payment, savings figure, or conditional price placed where it draws the eye defeats the actual price. Wording such as 'the price you'll get' near both MSRP and the actual price is confusing. FTC staff (2026-09-30): itemized breakdowns (MSRP, rebates, discounts, included fees) are fine once the most prominent price is the any-consumer price, but a fee's name must not imply a benefit the customer does not receive, and state fee-naming rules still apply.",
       "trigger_patterns": [
         "the\\s+price\\s+you'?ll\\s+(get|pay)",
         "your\\s+price",
@@ -1436,7 +1436,7 @@
       ],
       "fail_condition": "An SRP or VDP where MSRP, a payment, a savings number, or a conditional price is visually more prominent (size or placement) than the actual price, or where price labels blur which figure the buyer pays. Visual finding: human review required",
       "severity": "warning",
-      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
     },
     {
       "id": "FTC-PRICE-004",
@@ -1458,9 +1458,9 @@
       "id": "FTC-ADDON-001",
       "category": "Disclosures",
       "title": "FTC: Optional Items Presented Honestly",
-      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q9",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q9; FTC staff remarks 2026-09-30",
       "effective_date": null,
-      "description": "Dealers may offer protection packages, accessories, and other goods and services, but may not suggest an optional add-on is required, imply an installed 'option' cannot be removed and must be paid for, misstate an option's cost, or charge for options the consumer did not agree to. The FTC states it has sued over this conduct and will continue to.",
+      "description": "Dealers may offer protection packages, accessories, and other goods and services, but may not suggest an optional add-on is required, imply an installed 'option' cannot be removed and must be paid for, misstate an option's cost, or charge for options the consumer did not agree to. The FTC states it has sued over this conduct and will continue to. FTC staff (2026-09-30): calling a product optional is not enough; the customer must actually be able to decline it and buy the vehicle at the advertised price. If an add-on is in fact mandatory, its cost is in the advertised price.",
       "trigger_patterns": [
         "(required|mandatory|must\\s+(purchase|buy|pay\\s+for))\\s+[^.]{0,40}(package|protection|accessor|add[\\s-]*on)",
         "(cannot|can't|can\\s+not)\\s+be\\s+removed",
@@ -1468,7 +1468,7 @@
       ],
       "fail_condition": "Website or ad language that presents an optional product as required, an installed option as non-removable and payable, or misstates its cost",
       "severity": "critical",
-      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
     },
     {
       "id": "FTC-LEASE-001",
@@ -1492,7 +1492,7 @@
       "title": "FTC: Vehicles Not on the Lot Plainly Labeled",
       "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q10",
       "effective_date": null,
-      "description": "Vehicles in transit from the manufacturer, stored offsite, or available through inventory sharing may be advertised only if the ad plainly states the car is not physically on the lot. An in-transit unit may use a representative photo but must actually be in transit and not allocated to another consumer's paid order. In-production or build-to-order units are not addressed and carry more risk.",
+      "description": "Vehicles in transit from the manufacturer, stored offsite, or available through inventory sharing may be advertised only if the ad plainly states the car is not physically on the lot. An in-transit unit may use a representative photo but must actually be in transit and not allocated to another consumer's paid order. In-production or build-to-order units are not addressed and carry more risk. FTC staff (2026-09-30): consumers read 'in transit' as already on its way to the store; a unit not yet built or shipped must be described by its actual status. See FTC-AVAIL-003.",
       "trigger_patterns": [
         "in[\\s-]*transit",
         "arriving\\s+soon",
@@ -1503,7 +1503,7 @@
       ],
       "fail_condition": "An inventory listing for a unit that is in transit, offsite, shared, or in production with no plain not-on-the-lot statement, or an in-transit unit already allocated to another buyer's paid order",
       "severity": "warning",
-      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
     },
     {
       "id": "FTC-AVAIL-002",
@@ -1545,7 +1545,7 @@
       "trigger_patterns": [],
       "fail_condition": "Not website-verifiable. Advisory reminder: BDC call scripts, SMS templates, and CRM auto-texts that state a price must use the all-in advertised price",
       "severity": "advisory",
-      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
     },
     {
       "id": "FTC-RESP-001",
@@ -1553,11 +1553,11 @@
       "title": "FTC: Shared Responsibility Across Dealer, Vendors, and OEM",
       "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q12",
       "effective_date": null,
-      "description": "Everyone with control over an ad is responsible for the actual price being the most prominent amount. Dealers must give third parties the actual price, take all steps within their control to make it most prominent, and make sure no one at the store gives contradictory instructions. Third-party advertisers must show it most prominently. OEM policies must not conflict. Dealers remain responsible for every ad under their name, including OEM-originated ads.",
+      "description": "Everyone with control over an ad is responsible for the actual price being the most prominent amount. Dealers must give third parties the actual price, take all steps within their control to make it most prominent, and make sure no one at the store gives contradictory instructions. Third-party advertisers must show it most prominently. OEM policies must not conflict. Dealers remain responsible for every ad under their name, including OEM-originated ads. FTC staff (2026-09-30): where an OEM requirement or a listing-platform limitation blocks a most-prominent actual price or an in-transit label and the dealer cannot resolve it, report the OEM or platform to the FTC at ReportFraud.ftc.gov; more than one party can be responsible for the same ad.",
       "trigger_patterns": [],
       "fail_condition": "Advisory: third-party listings, OEM co-op templates, or agency creative show a different or less prominent price than the dealer's actual price, and there is no written correction request on file",
       "severity": "advisory",
-      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
     },
     {
       "id": "FTC-ENF-001",
@@ -1565,11 +1565,61 @@
       "title": "FTC: No Grace Period, and Competitors Can Report You",
       "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q13, Q14",
       "effective_date": null,
-      "description": "Price transparency under Section 5 is not new and has no compliance window; anyone misleading consumers about price risks FTC action now. The FTC invites the public, including competing dealers, to report violations with ad copies or contracts at ReportFraud.ftc.gov.",
+      "description": "Price transparency under Section 5 is not new and has no compliance window; anyone misleading consumers about price risks FTC action now. The FTC invites the public, including competing dealers, to report violations with ad copies or contracts at ReportFraud.ftc.gov. FTC staff (2026-09-30): scam websites impersonating a dealership go to ReportFraud@ftc.gov with the URL and what was copied (branding, inventory, photos).",
       "trigger_patterns": [],
       "fail_condition": "Advisory for every report: federal exposure is current, not future-dated, unlike the California CARS Act posture",
       "severity": "advisory",
-      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
+    },
+    {
+      "id": "FTC-SAVE-001",
+      "category": "Price Advertising",
+      "title": "FTC: Savings and Discount Claims Scoped and Conditioned Honestly",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q5, Q9; FTC staff remarks 2026-09-30",
+      "effective_date": null,
+      "description": "A savings or discount claim must be truthful in the context of the whole ad. 'Save $10,000' may not create the impression that the saving applies across inventory when it applies to one vehicle, model, or trim; conditions such as dealer financing, a trade-in, time limits, or model and trim restrictions must be clearly disclosed. Disclosing a condition does not permit a price available only to qualifying buyers to be the most prominent price (FTC staff, 2026-09-30). California adds Veh. Code §11713.1(i) quantity disclosure for class pricing and bars used-vehicle savings claims against MSRP.",
+      "trigger_patterns": [],
+      "fail_condition": "A homepage, specials, or search-results page shows a dollar savings or discount claim with no adjacent scope (which unit, model, trim, or stock number) or with an undisclosed financing or trade-in condition. Judgment and human review; the FTC-SAVINGS-SCOPE check flags the pattern",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
+    },
+    {
+      "id": "FTC-CTA-001",
+      "category": "Price Advertising",
+      "title": "FTC: Price CTA Buttons Beside the Price, Never Implying a Lower Price",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q4; FTC staff remarks 2026-09-30",
+      "effective_date": null,
+      "description": "Buttons such as 'Get My Price' or 'Call for Price' may appear alongside the advertised price (dealers remain free to negotiate), but the wording and presentation must be truthful: the button may not suggest that clicking or calling produces a lower price when it does not, and it may not obscure or contradict the advertised price (FTC staff, 2026-09-30). This is the federal view only. California bars a CTA that stands in place of the total price (CA-CARS-026, CNCDA FAQ Q6 and Q10), so for California stores the price must be on the page and the button may only sit beside it.",
+      "trigger_patterns": [],
+      "fail_condition": "A priced page carries a CTA whose text promises a lower, special, or unlocked price ('Unlock savings', 'Get my lower price', 'Click for e-price', 'See your best price') with no such lower price actually available, or a CTA that hides the displayed price. Human review; the FTC-CTA-LOWER-PRICE check flags the wording",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
+    },
+    {
+      "id": "FTC-AVAIL-003",
+      "category": "Vehicle Description",
+      "title": "FTC: 'In Transit' Means Already Shipped; Arrival Dates Must Be Real",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q10; FTC staff remarks 2026-09-30",
+      "effective_date": null,
+      "description": "Consumers understand 'in transit' to mean the vehicle is already on its way to the dealership. A unit that has not been built or shipped must be described by its actual status (in production, factory order, build to order), not as in transit. An advertised in-transit unit must be available for purchase on arrival and not allocated to another customer's paid order. The Commission has previously pointed to delivery within one to two business days as acceptable; delays outside the dealer's control are judged case by case (an isolated shipping-damage delay differs from a routine pattern), and any stated arrival date or timeline must reflect what the dealer actually knows (FTC staff, 2026-09-30).",
+      "trigger_patterns": [
+        "in[\\s-]*transit[^.]{0,120}(in\\s+production|not\\s+yet\\s+(built|shipped|produced)|being\\s+built|factory[\\s-]*order|build[\\s-]*to[\\s-]*order|scheduled\\s+for\\s+production)"
+      ],
+      "fail_condition": "A listing labeled in transit that also describes the unit as in production, not yet built, or a factory order; an in-transit unit with no arrival information or with an arrival date the store cannot support; an in-transit unit already allocated to a paid order",
+      "severity": "warning",
+      "source": "FTC staff, Automobile Industry Pricing Transparency: FAQs (September 2026), https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs; ComplyAuto analysis (2026-09-16), https://complyauto.com/ftc-issues-dealer-advertising-faqs/; FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
+    },
+    {
+      "id": "FTC-AI-001",
+      "category": "Vehicle Description",
+      "title": "FTC: AI-Generated Ad Copy and Imagery Carry the Same Duties",
+      "statute": "FTC Act §5 (15 U.S.C. §45); FTC staff remarks 2026-09-30",
+      "effective_date": null,
+      "description": "Using AI to create an advertisement does not change the advertiser's obligations or shift responsibility for misleading content. AI-generated text and visuals must be accurate and not deceptive. Practical step from FTC staff (2026-09-30): review AI-generated copy and images before publication to confirm they accurately represent the vehicle, its features, its price, and its availability. For DigitalCLIQ work this means AI imagery is never presented as a specific VIN (especially used units, FAQ Q11), and AI-drafted price or payment copy is checked against the live feed before it ships.",
+      "trigger_patterns": [],
+      "fail_condition": "Not website-verifiable. Advisory for every report and a hard gate inside DigitalCLIQ's own creative skills: no AI-generated image or copy ships as a representation of a specific vehicle, price, or availability without a human check against the feed",
+      "severity": "advisory",
+      "source": "FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
     }
   ],
   "cars_act_reference": {
@@ -1721,8 +1771,9 @@
       "source": "ComplyAuto, Brad Miller, 'FTC Issues Dealer Advertising FAQs', 2026-09-16",
       "url": "https://complyauto.com/ftc-issues-dealer-advertising-faqs/",
       "follow_ups": [
-        "ComplyAuto webinar on the FAQs, Monday 2026-09-21, 2:00 PM ET",
-        "ComplyAuto promised a separate state-by-state document on whether electronic titling, smog, and emissions charges are excludable"
+        "ComplyAuto webinar on the FAQs (2026-09-21) was held; recording on demand at complyauto.com, not yet reviewed line by line",
+        "ComplyAuto promised a separate state-by-state document on whether electronic titling, smog, and emissions charges are excludable: still pending as of 2026-10-08 (for California the 2026-09-30 staff remarks already answer it)",
+        "CNCDA reconciliation of the CARS Act total price with the FTC most-prominent all-in price: still pending as of 2026-10-08"
       ]
     },
     "faq_digest": {
@@ -1743,16 +1794,45 @@
     },
     "open_questions_resolved": {
       "document_processing_charge": "Answered: must be inside the most prominent advertised price (Q6), and state doc-fee disclosure rules are additive (Q7).",
-      "electronic_filing_and_emission_testing_charges": "Answered in principle, not by name: a charge the government authorizes but does not mandate, or imposes on the dealer who passes it on, must be in the price (Q2). Exclusion turns on whether an agency requires the consumer to pay it directly. ComplyAuto state-by-state analysis pending.",
+      "electronic_filing_and_emission_testing_charges": "Answered by Q2 in principle and BY NAME in the 2026-09-30 staff remarks: if the government does not require the consumer to pay the charge but the dealer does, it belongs in the advertised price; the label does not resolve it, the underlying legal obligation does; the dealer may absorb the cost instead of charging it. ComplyAuto state-by-state analysis still pending.",
       "either_or_oem_incentives": "Largely answered by the Q5 dealer-financing example: a finance-conditioned discount may be advertised alongside the price, but the most prominent price must be the one a buyer using any financing pays.",
       "as_low_as_and_subset_pricing": "Not addressed by name; Q9 bars an advertised price based on a discount only some buyers get, and Q5 requires the all-comers price be most prominent.",
-      "no_price_listings": "Not addressed. Q4 applies once a page states any amount. California separately bars call-for-price from 2026-10-01 (CA-CARS-026).",
-      "in_production_units": "Not addressed; Q10 says in-transit units must actually be in transit. Treat in-production listings with caution."
+      "no_price_listings": "Not addressed by the FAQs. 2026-09-30 staff remarks: 'Get My Price' or 'Call for Price' buttons may appear ALONGSIDE the advertised price if they do not imply a lower price or obscure the real one (FTC-CTA-001). California separately bars call-for-price and price-gating CTAs from 2026-10-01 (CA-CARS-026).",
+      "in_production_units": "Answered in substance by the 2026-09-30 staff remarks: consumers read 'in transit' as already on its way, so a unit not yet built or shipped must be described by its actual status, never as in transit (FTC-AVAIL-003). Stated arrival dates must reflect what the dealer knows."
     },
     "california_tension": {
       "summary": "California Veh. Code §11713.1 and the CARS Act total-price definition keep the document processing charge (capped), electronic filing charge, and emission testing charge outside the advertised total price, and the CA Plus Disclosure names them as extra. FTC Q2, Q6, and Q7 say dealer-imposed and passed-through charges belong inside the most prominent price regardless of state doc-fee rules.",
       "cncda_format_before_faq": "CNCDA Guide v1.2 dual format: Total Price, then 'Document processing charge (not a governmental fee)', then 'Price including document processing charge', with the DPC-inclusive figure at least as prominent as total price, never labeled out-the-door.",
-      "interpretive_posture": "INTERPRETIVE, confirm with counsel and the next CNCDA update. The FAQ asks that the all-in figure be THE most prominent amount, not merely equal. Conservative presentation for California stores: make the price including the document processing charge (and any electronic filing or emission charge the dealer passes on) the single most prominent figure, show the CARS Act total price and the Plus Disclosure less prominently beneath it, and never label either figure out-the-door. Skill findings on this point ship as warnings with human review, not criticals, while the state and federal positions are reconciled."
+      "interpretive_posture": "INTERPRETIVE, confirm with counsel and the next CNCDA update. The FAQ asks that the all-in figure be THE most prominent amount, not merely equal. Conservative presentation for California stores: make the price including the document processing charge (and any electronic filing or emission charge the dealer passes on) the single most prominent figure, show the CARS Act total price and the Plus Disclosure less prominently beneath it, and never label either figure out-the-door. Skill findings on this point ship as warnings with human review, not criticals, while the state and federal positions are reconciled.",
+      "update_2026_10_08": "The 2026-09-30 staff remarks name the electronic filing and emission testing charges: under the federal test they belong in the price when the dealer requires them. The conservative California layout now covers all three Plus Disclosure extras: price including the document processing charge, electronic filing charge, and emission testing charge as the single most prominent figure; CARS Act total price and the verbatim Plus Disclosure beneath it; neither labeled out-the-door. Still a warning with human review until CNCDA responds."
+    },
+    "staff_remarks_2026_09_30": {
+      "source": "FTC Bureau of Consumer Protection staff remarks (Michael Dingman, Assistant Director, NAMVBC, 2026-09-30; his own views, not the Commission's), summarized by ComplyAuto (Hao Nguyen, 2026-10-05), https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/",
+      "url": "https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/",
+      "binding_status": "Assistant Director's own views, not the Commission's or any Commissioner's; they do not amend the FAQs. Best available read of how FTC staff will apply Section 5 to the scenarios the FAQs left open. Treat as INTERPRETIVE.",
+      "digest": {
+        "government_fee_test": "Excludable only when the consumer is legally obligated to pay the charge to the government (taxes, consumer-owed title and registration). A state law authorizing or capping a doc fee does not make it governmental. A government fee imposed on the dealer and passed through is in the price. Emission testing and electronic filing charges: same test, by name; the dealer may absorb them.",
+        "itemization": "Breakdowns of MSRP, rebates, discounts, and included fees are allowed once the most prominent price is the any-consumer price. A fee name must not imply a benefit not provided; state fee-identification rules apply.",
+        "optional_add_ons": "Optional must be real: the customer can decline and buy at the advertised price. A mandatory add-on is in the price. No charging for products not agreed to; costs accurately described.",
+        "savings_claims": "Judged in context. 'Save $10,000' may not imply inventory-wide savings when it is one unit or trim. Financing or trade-in conditions must be clear. Disclosing a condition does not let a subset-only price be the most prominent price.",
+        "cta_buttons": "'Get My Price' / 'Call for Price' may sit alongside the advertised price. Must not suggest a lower price is available if untrue, and must not obscure or contradict the advertised price.",
+        "in_transit": "'In transit' means already on its way. Not yet built or shipped: describe that status instead. In-transit units must be available on arrival and not allocated to another paid order.",
+        "delivery_timelines": "The Commission has previously pointed to delivery within one to two business days. Delays outside the dealer's control are judged case by case (routine vs isolated); stated arrival dates must match what the dealer knows.",
+        "third_party_control": "Each party controlling an ad can be responsible (dealer, OEM, vendor, listing site). Report OEM policies or platform limitations that block compliant display to ReportFraud.ftc.gov with documentation.",
+        "cloned_websites": "Report impersonating sites to ReportFraud@ftc.gov with the URL and what was copied.",
+        "ai_in_advertising": "AI does not change the obligation. Review AI-generated copy and images before publication for accuracy on vehicle, features, price, and availability."
+      },
+      "rules_added_2026_10_08": [
+        "FTC-SAVE-001",
+        "FTC-CTA-001",
+        "FTC-AVAIL-003",
+        "FTC-AI-001"
+      ],
+      "checks_added_2026_10_08": [
+        "FTC-SAVINGS-SCOPE",
+        "FTC-CTA-LOWER-PRICE",
+        "FTC-INTRANSIT-STATUS"
+      ]
     }
   }
 }

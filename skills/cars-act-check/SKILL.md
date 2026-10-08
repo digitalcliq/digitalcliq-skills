@@ -1,6 +1,6 @@
 ---
 name: cars-act-check
-description: One-click California CARS Act (SB 766, Cal. Civ. Code § 1784.20 et seq., effective 2026-10-01) compliance suite for DigitalCLIQ dealership clients. Fans out parallel subagents for website monitoring, a 110-point ad compliance scan (statute plus CNCDA guidance), record retention backup to the client's Google Drive, and violation alerts, then a final reviewer agent verifies everything before delivery. Also generates per-client first-communication templates (CRM-aware), a customizable compliance policy, and a role-based training program. Use whenever Drew says /cars-act-check, "CARS Act", "SB 766", "cars act check for [client]", "is [client] CARS compliant", or a scheduled CARS check fires. Syntax: /cars-act-check -{client} [-policy | -training | -first-comm | -full].
+description: One-click California CARS Act (SB 766, Cal. Civ. Code § 1784.20 et seq., effective 2026-10-01) compliance suite for DigitalCLIQ dealership clients. Fans out parallel subagents for website monitoring, a 120-point ad compliance scan (statute, CNCDA guidance, and the federal FTC Pricing Transparency overlay), record retention backup to the client's Google Drive, and violation alerts, then a final reviewer agent verifies everything before delivery. Also generates per-client first-communication templates (CRM-aware), a customizable compliance policy, and a role-based training program. Use whenever Drew says /cars-act-check, "CARS Act", "SB 766", "cars act check for [client]", "is [client] CARS compliant", or a scheduled CARS check fires. Syntax: /cars-act-check -{client} [-policy | -training | -first-comm | -full].
 ---
 
 # CARS Act Check
@@ -75,7 +75,7 @@ python3 "$SKILL/scripts/checks.py" --data "$DATA" --rules "$SKILL/config/rules.j
 
 Token-slim rules (this runs often, so this matters):
 1. `crawl.py` is **incremental**: it hashes each page body and only re-downloads/re-checks pages whose content hash changed since `$STATE/hashcache.json`, plus new URLs and a rotating 10% re-verify sample. First run per client is full; steady-state runs typically touch < 15% of pages.
-2. All machine-checkable inspection points (roughly 70 of the 110, tagged `machine` in `config/rules.json`) run in Python. Agent A reads only the printed counts and exits.
+2. All machine-checkable inspection points (roughly 77 of the 120, tagged `machine` in `config/rules.json`; 111 to 117 are the federal FTC overlay added 2026-10-08) run in Python. Agent A reads only the printed counts and exits.
 3. If crawl.py exits 3 (circuit breaker, site refusing connections): STOP all requests, probe once per minute, tell Drew immediately. Same politeness rule as mcpeeks-site-watch; a hot crawl once took a production site down.
 
 ### Agent B: Browser judgment pass (agent-only points, capped at ~8 pages)

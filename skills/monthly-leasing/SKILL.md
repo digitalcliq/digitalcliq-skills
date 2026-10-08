@@ -121,7 +121,7 @@ python3 "/Users/drewmoon/Desktop/DigitalCLIQ Brain HQ/.claude/skills/monthly-lea
 The merge script will:
 - Find all per-brand JSON files for the month in `/tmp/`
 - Include brands from previous runs that still have files on disk
-- Validate offers and flag issues
+- Validate offers and flag issues (including the four FTC info flags from `references/extraction-spec.md`: `DAS_EXCL_FEE`, `ZERO_DAS_FEE`, `COND_INSIDE`, `IN_TRANSIT`; any of them on a DigitalCLIQ client's own offer gets one line in the Step 4 message so Drew can route it to `/brand-check`)
 - Deduplicate (same dealer + model + trim + payment + term + DAS = duplicate)
 - Produce a combined JSON in `/tmp/`
 

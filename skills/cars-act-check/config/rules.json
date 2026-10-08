@@ -1,497 +1,595 @@
 {
- "note": "Machine-tagged inspection points from references/inspection-points.md (points 1 to 110; 101 to 110 are the CNCDA guidance addendum added 2026-09-14). Pattern rules operate on extracted page text. Extend here, never in checks.py. jsonld/status/selfcheck points (1,17,77,78,83,85) are built into checks.py. Citations: CC = Cal. Civ. Code, VC = Cal. Veh. Code; CC 1784.41 holds the price/first-communication/payment/add-on DISCLOSURES, CC 1784.42 holds the add-on BENEFIT and 10-day payment rules, CC 1784.40 letters (a) to (m) map to CNCDA's numbered categories 1 to 13.",
- "rules": [
-  {
-   "id": "A03",
-   "point": 3,
-   "type": "flag_pattern",
-   "page_types": [
-    "vdp",
-    "srp",
-    "specials"
-   ],
-   "pattern": "call\\s+(us\\s+)?for\\s+(price|pricing)|contact\\s+(us\\s+|dealer\\s+|the\\s+dealer\\s+)?for\\s+(price|pricing)|price\\s+(upon|on|available\\s+upon)\\s+request|inquire\\s+for\\s+price|see\\s+dealer\\s+for\\s+price",
-   "severity": "C",
-   "citation": "CC 1784.41(a)(1); CNCDA Guide Part 2",
-   "summary": "Vehicle advertised without a total price (Call for Price)"
-  },
-  {
-   "id": "A10",
-   "point": 10,
-   "type": "require_pattern",
-   "page_types": [
-    "specials"
-   ],
-   "pattern": "\\b(vin|stk|stock)\\s*#?\\s*[a-z0-9]{5,}",
-   "required": "(total\\s+price|selling\\s+price|sale\\s+price|our\\s+price)\\s*:?\\s*\\$",
-   "severity": "C",
-   "citation": "CC 1784.41(a)(1)",
-   "summary": "Vehicle-specific special without a labeled total price"
-  },
-  {
-   "id": "A11",
-   "point": 11,
-   "type": "require_pattern",
-   "page_types": [
-    "specials",
-    "vdp"
-   ],
-   "pattern": "\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
-   "required": "(total|price)\\s*(of|:)?\\s*\\$\\s?\\d{4,}",
-   "severity": "C",
-   "citation": "CC 1784.41(a)(2); CNCDA FAQ Q19",
-   "summary": "Payment or lease offer for an identified unit without the vehicle's total price"
-  },
-  {
-   "id": "A13",
-   "point": 13,
-   "type": "require_pattern",
-   "page_types": [
-    "specials"
-   ],
-   "pattern": "(offer|special|lease|apr)",
-   "required": "(expires?|valid\\s+(through|until)|offer\\s+ends|\\d{1,2}/\\d{1,2}/\\d{2,4})",
-   "severity": "M",
-   "citation": "VC 11713.1(e); CNCDA FAQ Q16, Q17",
-   "summary": "Price or offer without an expiration date (advertised price is a ceiling while the unit is unsold)"
-  },
-  {
-   "id": "A14",
-   "point": 14,
-   "type": "require_pattern",
-   "page_types": [
-    "specials"
-   ],
-   "pattern": "(20\\d{2})\\s+(bmw|nissan|jeep|ram|dodge|chrysler|chevrolet|toyota|honda|ford|lexus)",
-   "required": "\\bvin\\b\\s*#?\\s*:?\\s*[a-z0-9]{6,}|license\\s*(no\\.?|number|#|plate)",
-   "severity": "M",
-   "citation": "VC 11713.1(a); CNCDA Appendix A",
-   "summary": "Single-vehicle offer missing VIN or license number (a stock number alone is not sufficient)"
-  },
-  {
-   "id": "B21",
-   "point": 21,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "guaranteed\\s+(credit\\s+)?(financing|approval)|everyone('?s| is)?\\s+approved|100%\\s+approval|no\\s+credit\\s+check",
-   "severity": "C",
-   "citation": "CC 1784.40(e), (f) [categories 5, 6]",
-   "summary": "Financing guarantee claim"
-  },
-  {
-   "id": "B22",
-   "point": 22,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "guaranteed\\s+trade([- ]in)?\\s+(value|offer)|we\\s+guarantee\\s+your\\s+trade",
-   "severity": "M",
-   "citation": "CC 1784.40(e) [category 5]; VC 11713.1(l)",
-   "summary": "Trade-in guarantee claim"
-  },
-  {
-   "id": "B24",
-   "point": 24,
-   "type": "require_pattern",
-   "page_types": [
-    "specials"
-   ],
-   "pattern": "\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
-   "required": "\\b(lease|purchase|finance|financing|buy)\\b",
-   "severity": "M",
-   "citation": "CC 1784.40(c) [category 3]",
-   "summary": "Payment offer doesn't state whether it is a lease or purchase"
-  },
-  {
-   "id": "B27",
-   "point": 27,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "deposit(s)?\\s+(is|are)\\s+non[- ]?refundable|non[- ]?refundable\\s+deposit",
-   "severity": "M",
-   "citation": "CC 1784.40(g) [category 7]",
-   "summary": "Non-refundable deposit claim pre-contract"
-  },
-  {
-   "id": "B28",
-   "point": 28,
-   "type": "flag_pattern",
-   "page_types": [
-    "finance",
-    "page"
-   ],
-   "pattern": "you('re| are)\\s+(pre[- ]?)?approved!?|instant\\s+approval",
-   "severity": "M",
-   "citation": "CC 1784.40(e), (f) [categories 5, 6]",
-   "summary": "Approval-outcome promise in financing copy"
-  },
-  {
-   "id": "B31",
-   "point": 31,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "(can'?t|cannot|won'?t)\\s+(be\\s+)?repossess",
-   "severity": "m",
-   "citation": "CC 1784.40(k) [category 11]",
-   "summary": "Repossession claim requiring review"
-  },
-  {
-   "id": "D43",
-   "point": 43,
-   "type": "require_pattern",
-   "page_types": [
-    "vdp",
-    "specials",
-    "finance"
-   ],
-   "pattern": "\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo(nth)?",
-   "required": "total\\s+(amount|of\\s+payments|to\\s+be\\s+paid|payments)",
-   "severity": "C",
-   "citation": "CC 1784.41(c)(1); CNCDA FAQ Q39",
-   "summary": "Monthly payment shown without total amount to be paid"
-  },
-  {
-   "id": "D44",
-   "point": 44,
-   "type": "require_pattern",
-   "page_types": [
-    "vdp",
-    "specials",
-    "finance"
-   ],
-   "pattern": "(72|75|84|96)\\s*[- ]?mo",
-   "required": "(extended\\s+term|longer\\s+term|increase.{0,40}total)",
-   "severity": "C",
-   "citation": "CC 1784.41(d)",
-   "summary": "Extended-term payment without extended-term disclosure"
-  },
-  {
-   "id": "D46",
-   "point": 46,
-   "type": "require_pattern",
-   "page_types": [
-    "specials",
-    "finance"
-   ],
-   "pattern": "\\d(\\.\\d+)?%\\s*apr",
-   "required": "(on\\s+approved\\s+credit|o\\.?a\\.?c\\.?|well[- ]qualified|credit\\s+approval)",
-   "severity": "M",
-   "citation": "CC 1784.40(a) [category 1]; VC 11713.1; Reg Z",
-   "summary": "APR offer without credit qualification language"
-  },
-  {
-   "id": "D47",
-   "point": 47,
-   "type": "require_pattern",
-   "page_types": [
-    "specials"
-   ],
-   "pattern": "lease.{0,200}\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
-   "required": "(due\\s+at\\s+signing|das\\b).{0,400}(\\d{1,2},?\\d{3}\\s*miles|mileage)",
-   "severity": "M",
-   "citation": "CC 1784.41(a)(2); Reg M; VC 11713.16",
-   "summary": "Lease payment missing due-at-signing or mileage terms"
-  },
-  {
-   "id": "D49",
-   "point": 49,
-   "type": "require_pattern",
-   "page_types": [
-    "specials",
-    "finance"
-   ],
-   "pattern": "0(\\.0+)?%\\s*(apr|financing)",
-   "required": "(qualif|approved\\s+credit|select\\s+(models|buyers)|in\\s+lieu\\s+of)",
-   "severity": "M",
-   "citation": "CC 1784.40(a) [category 1]",
-   "summary": "0% financing without eligibility disclosure"
-  },
-  {
-   "id": "D51",
-   "point": 51,
-   "type": "require_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "(beat|match)\\s+(any(one'?s)?\\s+)?(price|payment|deal)",
-   "required": "(restrictions|exclusions|see\\s+dealer|written\\s+(offer|quote))",
-   "severity": "m",
-   "citation": "CC 1784.40(a), (i) [categories 1, 9]",
-   "summary": "Price/payment match claim without qualification"
-  },
-  {
-   "id": "E53",
-   "point": 53,
-   "type": "require_pattern",
-   "page_types": [
-    "page",
-    "vdp"
-   ],
-   "pattern": "(protection\\s+(package|plan)|paint\\s+protection|window\\s+(tint|etch)|nitrogen[- ]filled|appearance\\s+package|theft\\s+(protection|deterrent)|gps\\s+track)",
-   "required": "(optional|not\\s+required|may\\s+decline|without\\s+(the\\s+)?(add[- ]?on|product))",
-   "severity": "C",
-   "citation": "CC 1784.41(b); CNCDA Guide Part 3",
-   "summary": "Add-on marketed without optional-status disclosure"
-  },
-  {
-   "id": "E55",
-   "point": 55,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "(ev|electric\\s+vehicle|tesla|ioniq|leaf|i4|ix)\\b.{0,80}oil\\s+change",
-   "severity": "C",
-   "citation": "CC 1784.42(a)(5)",
-   "summary": "Oil change marketed for electric vehicles"
-  },
-  {
-   "id": "E56",
-   "point": 56,
-   "type": "require_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "nitrogen[- ](filled|inflat)",
-   "required": "9[5-9](\\.\\d+)?\\s*%",
-   "severity": "M",
-   "citation": "CC 1784.42(a)(1)",
-   "summary": "Nitrogen tire product without 95% purity claim"
-  },
-  {
-   "id": "F65",
-   "point": 65,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "(california|there)\\s+(has|is)\\s+no\\s+cooling[- ]?off|no\\s+cooling[- ]?off\\s+period|all\\s+sales\\s+(are\\s+)?final|contract\\s+cancellation\\s+option|cancellation\\s+option\\s+agreement|(two|2)[- ]?day\\s+(contract\\s+)?(cancel|return)|72[- ]?hour\\s+(return|cancel|option)|\\$\\s?40,000",
-   "severity": "C",
-   "citation": "CC 1784.43; VC 11713.21 (repealed 2026-10-01); CNCDA FAQ Q56, Q57",
-   "summary": "Pre-CARS 'no cooling-off / all sales final' copy, or the repealed two-day purchased option, 72-hour option, or $40,000 threshold"
-  },
-  {
-   "id": "F67",
-   "point": 67,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "(purchase|buy|add).{0,40}(3|three)[- ]day\\s+(return|cancel)|return\\s+option\\s+for\\s+(only\\s+)?\\$",
-   "severity": "C",
-   "citation": "CC 1784.43(a)(1) (right is free); CNCDA Guide Part 5",
-   "summary": "3-day cancellation right marketed as a paid product (must be free)"
-  },
-  {
-   "id": "F68",
-   "point": 68,
-   "type": "require_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "restocking\\s+fee",
-   "required": "(1\\.5\\s*%|\\$\\s?200|\\$\\s?600)",
-   "severity": "M",
-   "citation": "CC 1784.31(g); CC 1784.43(a)(2)",
-   "summary": "Restocking fee described without statutory limits"
-  },
-  {
-   "id": "F72",
-   "point": 72,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "waiv(e|es|ing).{0,60}(right\\s+to\\s+cancel|cancellation|cooling)",
-   "severity": "C",
-   "citation": "CC 1784.21 (waivers void), CC 1784.22",
-   "summary": "Language purporting to waive the cancellation right"
-  },
-  {
-   "id": "G84",
-   "point": 84,
-   "type": "require_pattern",
-   "page_types": [
-    "page"
-   ],
-   "pattern": "contact\\s+us",
-   "required": "(email|form|message)",
-   "severity": "m",
-   "citation": "CC 1784.44(a)(5)",
-   "summary": "No loggable written complaint intake path detected"
-  },
-  {
-   "id": "H92",
-   "point": 92,
-   "type": "flag_pattern",
-   "page_types": [
-    "srp"
-   ],
-   "pattern": "\\$\\s?0\\b(?!\\s*(down|due))",
-   "severity": "m",
-   "citation": "CC 1784.41(a)(1)",
-   "summary": "Possible $0-priced vehicle card on results page"
-  },
-  {
-   "id": "H97",
-   "point": 97,
-   "type": "require_pattern",
-   "page_types": [
-    "vdp",
-    "specials"
-   ],
-   "pattern": "doc(ument)?(ary)?\\s+(processing\\s+)?(fee|charge)",
-   "required": "\\$\\s?(8[0-9]|9[0-9])(\\.\\d{2})?",
-   "severity": "M",
-   "citation": "VC 11713.1 (verify current cap)",
-   "summary": "Doc fee referenced without a stated amount near the legal cap"
-  },
-  {
-   "id": "H100",
-   "point": 100,
-   "type": "flag_pattern",
-   "page_types": [
-    "page"
-   ],
-   "pattern": "cars\\s+act|sb\\s?766",
-   "severity": "m",
-   "citation": "CC 1784.20 et seq.; CNCDA Guide",
-   "summary": "CARS Act referenced on site: verify accuracy of the description manually"
-  },
-  {
-   "id": "I101",
-   "point": 101,
-   "type": "require_pattern",
-   "page_types": [
-    "vdp",
-    "specials",
-    "srp"
-   ],
-   "pattern": "\\$\\s?\\d{1,3},\\d{3}",
-   "required": "plus\\s+government\\s+fees\\s+and\\s+taxes,\\s+any\\s+finance\\s+charges,\\s+any\\s+dealer\\s+document\\s+processing\\s+charge,\\s+any\\s+electronic\\s+filing\\s+charge,\\s+and\\s+any\\s+emission\\s+testing\\s+charge",
-   "severity": "M",
-   "citation": "VC 11713.1(c)(2); CNCDA Guide Part 2, Appendix A",
-   "summary": "Price displayed without the verbatim statutory Plus Disclosure (no abbreviations allowed)"
-  },
-  {
-   "id": "I102",
-   "point": 102,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "msrp\\s+(is\\s+)?not\\s+(the\\s+)?(selling|advertised|sale|dealer'?s?|actual)\\s+price|price\\s+shown\\s+is\\s+(the\\s+)?msrp|msrp\\s+only\\b",
-   "severity": "C",
-   "citation": "CC 1784.41(a); CC 1784.31(j); CNCDA Guide Part 2, Appendix D Ex. 3; FAQ Q4",
-   "summary": "MSRP presented in place of the dealer's total price ('MSRP is not the selling price' pattern)"
-  },
-  {
-   "id": "I103",
-   "point": 103,
-   "type": "require_pattern",
-   "page_types": [
-    "vdp",
-    "srp",
-    "specials"
-   ],
-   "pattern": "(get|see|unlock|reveal|click|request|check|view)\\s+(here\\s+)?(for\\s+|your\\s+|our\\s+|the\\s+|my\\s+)?(e-?price|internet\\s+price|best\\s+price|sale\\s+price|special\\s+price|price|pricing|payments?)\\b|(unlock|reveal)\\s+(savings|pricing|discount)|scan\\s+(the\\s+)?(qr|code)\\s+for\\s+(price|pricing)",
-   "required": "\\$\\s?\\d{1,3},\\d{3}",
-   "severity": "C",
-   "citation": "CC 1784.41(a)(1); CNCDA FAQ Q6, Q10",
-   "summary": "Price CTA stands in place of the total price (gated behind a click, form, login, or scan)"
-  },
-  {
-   "id": "I104",
-   "point": 104,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "(excludes?|does\\s+not\\s+include|not\\s+included\\s+in\\s+(the\\s+)?price)[^.]{0,80}(dealer[\\s-]*(installed|added)|installed\\s+(accessor|option|equipment|item|product)|accessor(y|ies)|add[\\s-]*ons?|protection\\s+(package|product)|appearance\\s+package)|(removed|remove)\\s+at\\s+(the\\s+)?customer'?s?\\s+(option|request)|purchased\\s+for\\s+an\\s+additional\\s+(cost|charge)|does\\s+not\\s+apply\\s+to\\s+vehicles\\s+with\\s+dealer[\\s-]*(added|installed)|plus\\s+(dealer[\\s-]*)?(installed|added)\\s+(accessor|option|equipment)|pay\\s+or\\s+remove",
-   "severity": "C",
-   "citation": "CC 1784.31(j)(2); CC 1784.41(a)(1); CNCDA Guide Part 2 'Superseded practices', Appendix D Ex. 1",
-   "summary": "Installed items excluded from the advertised price (pay-or-remove or class-ad accessory disclaimer on an identified unit)"
-  },
-  {
-   "id": "I105",
-   "point": 105,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "\\baddendum\\b[^.]{0,160}(optional|\\$\\s?0\\b|available\\s+for\\s+purchase)|supplemental\\s+(price\\s+)?sticker[^.]{0,120}(used|pre-?owned)",
-   "severity": "M",
-   "citation": "VC 11713.1(q); CC 1784.31(j)(2); CNCDA FAQ Q3, Q5, Q21",
-   "summary": "Addendum or supplemental sticker used for optional / $0 products or on a used vehicle"
-  },
-  {
-   "id": "I106",
-   "point": 106,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "after\\s+(all\\s+)?(rebates?|incentives?|offers)|cash\\s+back|up\\s+to\\s+\\$[\\d,]+\\s+(in\\s+)?(rebates?|savings|incentives?|off)|dealer\\s+rebate|(price|sale\\s+price)\\s+after\\s+rebate|with\\s+all\\s+(offers|rebates|incentives)",
-   "severity": "M",
-   "citation": "CC 1784.31(j)(3); CC 1784.41(f); VC 11713.1(j); VC 11713.16(e); CNCDA Appendix D Ex. 2",
-   "summary": "Rebate presentation to verify: after-rebate figure must be labeled 'net cost' under a stated total price; no dealer cash back, no 'up to' rebates, no conflicting stacks"
-  },
-  {
-   "id": "I107",
-   "point": 107,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "pre[\\s-]*(installed|loaded)\\s+(on\\s+)?(every|all|each)|every\\s+(vehicle|unit)\\s+(is\\s+)?(equipped|comes)\\s+with|all\\s+(of\\s+our\\s+)?(vehicles|units|inventory)\\s+(are\\s+|is\\s+)?(equipped|come|comes)\\s+with|activat(e|ion)\\s+(fee|required)|free\\s+(with\\s+)?(subscription|activation|enrollment)",
-   "severity": "M",
-   "citation": "CC 1784.31(a), (j)(2); CC 1784.42(a), (c); CNCDA Guide Part 4; FAQ Q46 to Q48",
-   "summary": "Pre-installed device or product structure to verify (hybrid product, 'free' hardware recovered through a subscription, installed-on-every-unit optionality)"
-  },
-  {
-   "id": "I108",
-   "point": 108,
-   "type": "require_pattern",
-   "page_types": [
-    "specials",
-    "vdp"
-   ],
-   "pattern": "(lease|finance)\\s+(special|offer)|\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
-   "required": "(expires?|valid\\s+(through|until|thru)|offer\\s+ends|good\\s+(through|until|thru)|\\d{1,2}/\\d{1,2}/\\d{2,4})",
-   "severity": "M",
-   "citation": "VC 11713.1(e); CC 1784.40(d); CNCDA Guide Part 2 'date your offers'",
-   "summary": "Priced offer with no expiration date (dealer must honor an undated price to anyone while the unit is unsold)"
-  },
-  {
-   "id": "I109",
-   "point": 109,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "(truecar|costco\\s+auto)[^.]{0,120}(price|savings|discount)|member\\s+(price|pricing)\\s*:?\\s*\\$",
-   "severity": "m",
-   "citation": "CC 1784.41(f); VC 11713.1(e); CNCDA FAQ Q12",
-   "summary": "Program or member pricing on site: verify it is a separate conditional discount under the same total price, not a lower vehicle price"
-  },
-  {
-   "id": "I110",
-   "point": 110,
-   "type": "flag_pattern",
-   "page_types": [
-    "*"
-   ],
-   "pattern": "out[\\s-]*the[\\s-]*door\\s+price",
-   "severity": "M",
-   "citation": "CNCDA Guide Appendix D (federal presentation notes); FTC Act §5",
-   "summary": "'Out-the-door' price label found (taxes and government fees are excluded from total price and from the DPC-inclusive figure, so the label is misleading)"
-  }
- ]
+  "note": "Machine-tagged inspection points from references/inspection-points.md (points 1 to 120; 101 to 110 are the CNCDA guidance addendum added 2026-09-14; 111 to 117 are the federal FTC Pricing Transparency overlay added 2026-10-08, with 118 to 120 agent-only). Pattern rules operate on extracted page text. Extend here, never in checks.py. jsonld/status/selfcheck points (1,17,77,78,83,85) are built into checks.py. Citations: CC = Cal. Civ. Code, VC = Cal. Veh. Code; CC 1784.41 holds the price/first-communication/payment/add-on DISCLOSURES, CC 1784.42 holds the add-on BENEFIT and 10-day payment rules, CC 1784.40 letters (a) to (m) map to CNCDA's numbered categories 1 to 13.",
+  "rules": [
+    {
+      "id": "A03",
+      "point": 3,
+      "type": "flag_pattern",
+      "page_types": [
+        "vdp",
+        "srp",
+        "specials"
+      ],
+      "pattern": "call\\s+(us\\s+)?for\\s+(price|pricing)|contact\\s+(us\\s+|dealer\\s+|the\\s+dealer\\s+)?for\\s+(price|pricing)|price\\s+(upon|on|available\\s+upon)\\s+request|inquire\\s+for\\s+price|see\\s+dealer\\s+for\\s+price",
+      "severity": "C",
+      "citation": "CC 1784.41(a)(1); CNCDA Guide Part 2",
+      "summary": "Vehicle advertised without a total price (Call for Price)"
+    },
+    {
+      "id": "A10",
+      "point": 10,
+      "type": "require_pattern",
+      "page_types": [
+        "specials"
+      ],
+      "pattern": "\\b(vin|stk|stock)\\s*#?\\s*[a-z0-9]{5,}",
+      "required": "(total\\s+price|selling\\s+price|sale\\s+price|our\\s+price)\\s*:?\\s*\\$",
+      "severity": "C",
+      "citation": "CC 1784.41(a)(1)",
+      "summary": "Vehicle-specific special without a labeled total price"
+    },
+    {
+      "id": "A11",
+      "point": 11,
+      "type": "require_pattern",
+      "page_types": [
+        "specials",
+        "vdp"
+      ],
+      "pattern": "\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
+      "required": "(total|price)\\s*(of|:)?\\s*\\$\\s?\\d{4,}",
+      "severity": "C",
+      "citation": "CC 1784.41(a)(2); CNCDA FAQ Q19",
+      "summary": "Payment or lease offer for an identified unit without the vehicle's total price"
+    },
+    {
+      "id": "A13",
+      "point": 13,
+      "type": "require_pattern",
+      "page_types": [
+        "specials"
+      ],
+      "pattern": "(offer|special|lease|apr)",
+      "required": "(expires?|valid\\s+(through|until)|offer\\s+ends|\\d{1,2}/\\d{1,2}/\\d{2,4})",
+      "severity": "M",
+      "citation": "VC 11713.1(e); CNCDA FAQ Q16, Q17",
+      "summary": "Price or offer without an expiration date (advertised price is a ceiling while the unit is unsold)"
+    },
+    {
+      "id": "A14",
+      "point": 14,
+      "type": "require_pattern",
+      "page_types": [
+        "specials"
+      ],
+      "pattern": "(20\\d{2})\\s+(bmw|nissan|jeep|ram|dodge|chrysler|chevrolet|toyota|honda|ford|lexus)",
+      "required": "\\bvin\\b\\s*#?\\s*:?\\s*[a-z0-9]{6,}|license\\s*(no\\.?|number|#|plate)",
+      "severity": "M",
+      "citation": "VC 11713.1(a); CNCDA Appendix A",
+      "summary": "Single-vehicle offer missing VIN or license number (a stock number alone is not sufficient)"
+    },
+    {
+      "id": "B21",
+      "point": 21,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "guaranteed\\s+(credit\\s+)?(financing|approval)|everyone('?s| is)?\\s+approved|100%\\s+approval|no\\s+credit\\s+check",
+      "severity": "C",
+      "citation": "CC 1784.40(e), (f) [categories 5, 6]",
+      "summary": "Financing guarantee claim"
+    },
+    {
+      "id": "B22",
+      "point": 22,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "guaranteed\\s+trade([- ]in)?\\s+(value|offer)|we\\s+guarantee\\s+your\\s+trade",
+      "severity": "M",
+      "citation": "CC 1784.40(e) [category 5]; VC 11713.1(l)",
+      "summary": "Trade-in guarantee claim"
+    },
+    {
+      "id": "B24",
+      "point": 24,
+      "type": "require_pattern",
+      "page_types": [
+        "specials"
+      ],
+      "pattern": "\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
+      "required": "\\b(lease|purchase|finance|financing|buy)\\b",
+      "severity": "M",
+      "citation": "CC 1784.40(c) [category 3]",
+      "summary": "Payment offer doesn't state whether it is a lease or purchase"
+    },
+    {
+      "id": "B27",
+      "point": 27,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "deposit(s)?\\s+(is|are)\\s+non[- ]?refundable|non[- ]?refundable\\s+deposit",
+      "severity": "M",
+      "citation": "CC 1784.40(g) [category 7]",
+      "summary": "Non-refundable deposit claim pre-contract"
+    },
+    {
+      "id": "B28",
+      "point": 28,
+      "type": "flag_pattern",
+      "page_types": [
+        "finance",
+        "page"
+      ],
+      "pattern": "you('re| are)\\s+(pre[- ]?)?approved!?|instant\\s+approval",
+      "severity": "M",
+      "citation": "CC 1784.40(e), (f) [categories 5, 6]",
+      "summary": "Approval-outcome promise in financing copy"
+    },
+    {
+      "id": "B31",
+      "point": 31,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "(can'?t|cannot|won'?t)\\s+(be\\s+)?repossess",
+      "severity": "m",
+      "citation": "CC 1784.40(k) [category 11]",
+      "summary": "Repossession claim requiring review"
+    },
+    {
+      "id": "D43",
+      "point": 43,
+      "type": "require_pattern",
+      "page_types": [
+        "vdp",
+        "specials",
+        "finance"
+      ],
+      "pattern": "\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo(nth)?",
+      "required": "total\\s+(amount|of\\s+payments|to\\s+be\\s+paid|payments)",
+      "severity": "C",
+      "citation": "CC 1784.41(c)(1); CNCDA FAQ Q39",
+      "summary": "Monthly payment shown without total amount to be paid"
+    },
+    {
+      "id": "D44",
+      "point": 44,
+      "type": "require_pattern",
+      "page_types": [
+        "vdp",
+        "specials",
+        "finance"
+      ],
+      "pattern": "(72|75|84|96)\\s*[- ]?mo",
+      "required": "(extended\\s+term|longer\\s+term|increase.{0,40}total)",
+      "severity": "C",
+      "citation": "CC 1784.41(d)",
+      "summary": "Extended-term payment without extended-term disclosure"
+    },
+    {
+      "id": "D46",
+      "point": 46,
+      "type": "require_pattern",
+      "page_types": [
+        "specials",
+        "finance"
+      ],
+      "pattern": "\\d(\\.\\d+)?%\\s*apr",
+      "required": "(on\\s+approved\\s+credit|o\\.?a\\.?c\\.?|well[- ]qualified|credit\\s+approval)",
+      "severity": "M",
+      "citation": "CC 1784.40(a) [category 1]; VC 11713.1; Reg Z",
+      "summary": "APR offer without credit qualification language"
+    },
+    {
+      "id": "D47",
+      "point": 47,
+      "type": "require_pattern",
+      "page_types": [
+        "specials"
+      ],
+      "pattern": "lease.{0,200}\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
+      "required": "(due\\s+at\\s+signing|das\\b).{0,400}(\\d{1,2},?\\d{3}\\s*miles|mileage)",
+      "severity": "M",
+      "citation": "CC 1784.41(a)(2); Reg M; VC 11713.16",
+      "summary": "Lease payment missing due-at-signing or mileage terms"
+    },
+    {
+      "id": "D49",
+      "point": 49,
+      "type": "require_pattern",
+      "page_types": [
+        "specials",
+        "finance"
+      ],
+      "pattern": "0(\\.0+)?%\\s*(apr|financing)",
+      "required": "(qualif|approved\\s+credit|select\\s+(models|buyers)|in\\s+lieu\\s+of)",
+      "severity": "M",
+      "citation": "CC 1784.40(a) [category 1]",
+      "summary": "0% financing without eligibility disclosure"
+    },
+    {
+      "id": "D51",
+      "point": 51,
+      "type": "require_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "(beat|match)\\s+(any(one'?s)?\\s+)?(price|payment|deal)",
+      "required": "(restrictions|exclusions|see\\s+dealer|written\\s+(offer|quote))",
+      "severity": "m",
+      "citation": "CC 1784.40(a), (i) [categories 1, 9]",
+      "summary": "Price/payment match claim without qualification"
+    },
+    {
+      "id": "E53",
+      "point": 53,
+      "type": "require_pattern",
+      "page_types": [
+        "page",
+        "vdp"
+      ],
+      "pattern": "(protection\\s+(package|plan)|paint\\s+protection|window\\s+(tint|etch)|nitrogen[- ]filled|appearance\\s+package|theft\\s+(protection|deterrent)|gps\\s+track)",
+      "required": "(optional|not\\s+required|may\\s+decline|without\\s+(the\\s+)?(add[- ]?on|product))",
+      "severity": "C",
+      "citation": "CC 1784.41(b); CNCDA Guide Part 3",
+      "summary": "Add-on marketed without optional-status disclosure"
+    },
+    {
+      "id": "E55",
+      "point": 55,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "(ev|electric\\s+vehicle|tesla|ioniq|leaf|i4|ix)\\b.{0,80}oil\\s+change",
+      "severity": "C",
+      "citation": "CC 1784.42(a)(5)",
+      "summary": "Oil change marketed for electric vehicles"
+    },
+    {
+      "id": "E56",
+      "point": 56,
+      "type": "require_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "nitrogen[- ](filled|inflat)",
+      "required": "9[5-9](\\.\\d+)?\\s*%",
+      "severity": "M",
+      "citation": "CC 1784.42(a)(1)",
+      "summary": "Nitrogen tire product without 95% purity claim"
+    },
+    {
+      "id": "F65",
+      "point": 65,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "(california|there)\\s+(has|is)\\s+no\\s+cooling[- ]?off|no\\s+cooling[- ]?off\\s+period|all\\s+sales\\s+(are\\s+)?final|contract\\s+cancellation\\s+option|cancellation\\s+option\\s+agreement|(two|2)[- ]?day\\s+(contract\\s+)?(cancel|return)|72[- ]?hour\\s+(return|cancel|option)|\\$\\s?40,000",
+      "severity": "C",
+      "citation": "CC 1784.43; VC 11713.21 (repealed 2026-10-01); CNCDA FAQ Q56, Q57",
+      "summary": "Pre-CARS 'no cooling-off / all sales final' copy, or the repealed two-day purchased option, 72-hour option, or $40,000 threshold"
+    },
+    {
+      "id": "F67",
+      "point": 67,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "(purchase|buy|add).{0,40}(3|three)[- ]day\\s+(return|cancel)|return\\s+option\\s+for\\s+(only\\s+)?\\$",
+      "severity": "C",
+      "citation": "CC 1784.43(a)(1) (right is free); CNCDA Guide Part 5",
+      "summary": "3-day cancellation right marketed as a paid product (must be free)"
+    },
+    {
+      "id": "F68",
+      "point": 68,
+      "type": "require_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "restocking\\s+fee",
+      "required": "(1\\.5\\s*%|\\$\\s?200|\\$\\s?600)",
+      "severity": "M",
+      "citation": "CC 1784.31(g); CC 1784.43(a)(2)",
+      "summary": "Restocking fee described without statutory limits"
+    },
+    {
+      "id": "F72",
+      "point": 72,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "waiv(e|es|ing).{0,60}(right\\s+to\\s+cancel|cancellation|cooling)",
+      "severity": "C",
+      "citation": "CC 1784.21 (waivers void), CC 1784.22",
+      "summary": "Language purporting to waive the cancellation right"
+    },
+    {
+      "id": "G84",
+      "point": 84,
+      "type": "require_pattern",
+      "page_types": [
+        "page"
+      ],
+      "pattern": "contact\\s+us",
+      "required": "(email|form|message)",
+      "severity": "m",
+      "citation": "CC 1784.44(a)(5)",
+      "summary": "No loggable written complaint intake path detected"
+    },
+    {
+      "id": "H92",
+      "point": 92,
+      "type": "flag_pattern",
+      "page_types": [
+        "srp"
+      ],
+      "pattern": "\\$\\s?0\\b(?!\\s*(down|due))",
+      "severity": "m",
+      "citation": "CC 1784.41(a)(1)",
+      "summary": "Possible $0-priced vehicle card on results page"
+    },
+    {
+      "id": "H97",
+      "point": 97,
+      "type": "require_pattern",
+      "page_types": [
+        "vdp",
+        "specials"
+      ],
+      "pattern": "doc(ument)?(ary)?\\s+(processing\\s+)?(fee|charge)",
+      "required": "\\$\\s?(8[0-9]|9[0-9])(\\.\\d{2})?",
+      "severity": "M",
+      "citation": "VC 11713.1 (verify current cap)",
+      "summary": "Doc fee referenced without a stated amount near the legal cap"
+    },
+    {
+      "id": "H100",
+      "point": 100,
+      "type": "flag_pattern",
+      "page_types": [
+        "page"
+      ],
+      "pattern": "cars\\s+act|sb\\s?766",
+      "severity": "m",
+      "citation": "CC 1784.20 et seq.; CNCDA Guide",
+      "summary": "CARS Act referenced on site: verify accuracy of the description manually"
+    },
+    {
+      "id": "I101",
+      "point": 101,
+      "type": "require_pattern",
+      "page_types": [
+        "vdp",
+        "specials",
+        "srp"
+      ],
+      "pattern": "\\$\\s?\\d{1,3},\\d{3}",
+      "required": "plus\\s+government\\s+fees\\s+and\\s+taxes,\\s+any\\s+finance\\s+charges,\\s+any\\s+dealer\\s+document\\s+processing\\s+charge,\\s+any\\s+electronic\\s+filing\\s+charge,\\s+and\\s+any\\s+emission\\s+testing\\s+charge",
+      "severity": "M",
+      "citation": "VC 11713.1(c)(2); CNCDA Guide Part 2, Appendix A",
+      "summary": "Price displayed without the verbatim statutory Plus Disclosure (no abbreviations allowed)"
+    },
+    {
+      "id": "I102",
+      "point": 102,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "msrp\\s+(is\\s+)?not\\s+(the\\s+)?(selling|advertised|sale|dealer'?s?|actual)\\s+price|price\\s+shown\\s+is\\s+(the\\s+)?msrp|msrp\\s+only\\b",
+      "severity": "C",
+      "citation": "CC 1784.41(a); CC 1784.31(j); CNCDA Guide Part 2, Appendix D Ex. 3; FAQ Q4",
+      "summary": "MSRP presented in place of the dealer's total price ('MSRP is not the selling price' pattern)"
+    },
+    {
+      "id": "I103",
+      "point": 103,
+      "type": "require_pattern",
+      "page_types": [
+        "vdp",
+        "srp",
+        "specials"
+      ],
+      "pattern": "(get|see|unlock|reveal|click|request|check|view)\\s+(here\\s+)?(for\\s+|your\\s+|our\\s+|the\\s+|my\\s+)?(e-?price|internet\\s+price|best\\s+price|sale\\s+price|special\\s+price|price|pricing|payments?)\\b|(unlock|reveal)\\s+(savings|pricing|discount)|scan\\s+(the\\s+)?(qr|code)\\s+for\\s+(price|pricing)",
+      "required": "\\$\\s?\\d{1,3},\\d{3}",
+      "severity": "C",
+      "citation": "CC 1784.41(a)(1); CNCDA FAQ Q6, Q10",
+      "summary": "Price CTA stands in place of the total price (gated behind a click, form, login, or scan)"
+    },
+    {
+      "id": "I104",
+      "point": 104,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "(excludes?|does\\s+not\\s+include|not\\s+included\\s+in\\s+(the\\s+)?price)[^.]{0,80}(dealer[\\s-]*(installed|added)|installed\\s+(accessor|option|equipment|item|product)|accessor(y|ies)|add[\\s-]*ons?|protection\\s+(package|product)|appearance\\s+package)|(removed|remove)\\s+at\\s+(the\\s+)?customer'?s?\\s+(option|request)|purchased\\s+for\\s+an\\s+additional\\s+(cost|charge)|does\\s+not\\s+apply\\s+to\\s+vehicles\\s+with\\s+dealer[\\s-]*(added|installed)|plus\\s+(dealer[\\s-]*)?(installed|added)\\s+(accessor|option|equipment)|pay\\s+or\\s+remove",
+      "severity": "C",
+      "citation": "CC 1784.31(j)(2); CC 1784.41(a)(1); CNCDA Guide Part 2 'Superseded practices', Appendix D Ex. 1",
+      "summary": "Installed items excluded from the advertised price (pay-or-remove or class-ad accessory disclaimer on an identified unit)"
+    },
+    {
+      "id": "I105",
+      "point": 105,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "\\baddendum\\b[^.]{0,160}(optional|\\$\\s?0\\b|available\\s+for\\s+purchase)|supplemental\\s+(price\\s+)?sticker[^.]{0,120}(used|pre-?owned)",
+      "severity": "M",
+      "citation": "VC 11713.1(q); CC 1784.31(j)(2); CNCDA FAQ Q3, Q5, Q21",
+      "summary": "Addendum or supplemental sticker used for optional / $0 products or on a used vehicle"
+    },
+    {
+      "id": "I106",
+      "point": 106,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "after\\s+(all\\s+)?(rebates?|incentives?|offers)|cash\\s+back|up\\s+to\\s+\\$[\\d,]+\\s+(in\\s+)?(rebates?|savings|incentives?|off)|dealer\\s+rebate|(price|sale\\s+price)\\s+after\\s+rebate|with\\s+all\\s+(offers|rebates|incentives)",
+      "severity": "M",
+      "citation": "CC 1784.31(j)(3); CC 1784.41(f); VC 11713.1(j); VC 11713.16(e); CNCDA Appendix D Ex. 2",
+      "summary": "Rebate presentation to verify: after-rebate figure must be labeled 'net cost' under a stated total price; no dealer cash back, no 'up to' rebates, no conflicting stacks"
+    },
+    {
+      "id": "I107",
+      "point": 107,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "pre[\\s-]*(installed|loaded)\\s+(on\\s+)?(every|all|each)|every\\s+(vehicle|unit)\\s+(is\\s+)?(equipped|comes)\\s+with|all\\s+(of\\s+our\\s+)?(vehicles|units|inventory)\\s+(are\\s+|is\\s+)?(equipped|come|comes)\\s+with|activat(e|ion)\\s+(fee|required)|free\\s+(with\\s+)?(subscription|activation|enrollment)",
+      "severity": "M",
+      "citation": "CC 1784.31(a), (j)(2); CC 1784.42(a), (c); CNCDA Guide Part 4; FAQ Q46 to Q48",
+      "summary": "Pre-installed device or product structure to verify (hybrid product, 'free' hardware recovered through a subscription, installed-on-every-unit optionality)"
+    },
+    {
+      "id": "I108",
+      "point": 108,
+      "type": "require_pattern",
+      "page_types": [
+        "specials",
+        "vdp"
+      ],
+      "pattern": "(lease|finance)\\s+(special|offer)|\\$\\s?\\d{2,4}\\s*(/|per\\s*)mo",
+      "required": "(expires?|valid\\s+(through|until|thru)|offer\\s+ends|good\\s+(through|until|thru)|\\d{1,2}/\\d{1,2}/\\d{2,4})",
+      "severity": "M",
+      "citation": "VC 11713.1(e); CC 1784.40(d); CNCDA Guide Part 2 'date your offers'",
+      "summary": "Priced offer with no expiration date (dealer must honor an undated price to anyone while the unit is unsold)"
+    },
+    {
+      "id": "I109",
+      "point": 109,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "(truecar|costco\\s+auto)[^.]{0,120}(price|savings|discount)|member\\s+(price|pricing)\\s*:?\\s*\\$",
+      "severity": "m",
+      "citation": "CC 1784.41(f); VC 11713.1(e); CNCDA FAQ Q12",
+      "summary": "Program or member pricing on site: verify it is a separate conditional discount under the same total price, not a lower vehicle price"
+    },
+    {
+      "id": "I110",
+      "point": 110,
+      "type": "flag_pattern",
+      "page_types": [
+        "*"
+      ],
+      "pattern": "out[\\s-]*the[\\s-]*door\\s+price",
+      "severity": "M",
+      "citation": "CNCDA Guide Appendix D (federal presentation notes); FTC Act §5",
+      "summary": "'Out-the-door' price label found (taxes and government fees are excluded from total price and from the DPC-inclusive figure, so the label is misleading)"
+    },
+    {
+      "id": "J111",
+      "point": 111,
+      "type": "flag_pattern",
+      "page_types": [
+        "vdp",
+        "srp",
+        "specials"
+      ],
+      "pattern": "in[\\s-]*transit[\\s\\S]{0,160}?(?:in\\s+production|not\\s+yet\\s+(?:built|shipped|produced)|being\\s+built|factory[\\s-]*order(?:ed)?|build[\\s-]*to[\\s-]*order|scheduled\\s+for\\s+production|awaiting\\s+production)|(?:in\\s+production|not\\s+yet\\s+(?:built|shipped|produced)|being\\s+built|factory[\\s-]*order(?:ed)?|build[\\s-]*to[\\s-]*order|scheduled\\s+for\\s+production|awaiting\\s+production)[\\s\\S]{0,160}?in[\\s-]*transit",
+      "severity": "M",
+      "citation": "FTC FAQ Q10; FTC staff remarks 2026-09-30; FTC Act §5",
+      "summary": "Unit labeled in transit but also described as in production / not yet built (in transit means already shipped)"
+    },
+    {
+      "id": "J112",
+      "point": 112,
+      "type": "flag_pattern",
+      "page_types": [
+        "vdp",
+        "srp",
+        "specials"
+      ],
+      "pattern": "unlock\\s+(?:savings|(?:your|my|the)\\s+(?:(?:lower|better|best|special|internet|e-?|real)\\s+)?(?:price|pricing|savings|deal)|price|pricing)|get\\s+(?:my|your|our|a|the)?\\s*(?:lower|better|best|special|internet|e-?|today'?s|secret|hidden|real)\\s*price|(?:click|call|text|tap)\\s+(?:here\\s+)?(?:for|to\\s+(?:see|get|unlock|reveal))\\s+(?:your|our|a|the)?\\s*(?:lower|better|best|special|internet|e-?|secret|hidden)\\s*price|see\\s+(?:your|our)\\s+(?:lower|better|best|special)\\s+price|reveal\\s+(?:your\\s+|the\\s+)?(?:price|savings)",
+      "severity": "M",
+      "citation": "FTC staff remarks 2026-09-30; FTC FAQ Q4; FTC Act §5",
+      "summary": "Price CTA implies a lower or hidden price beside the displayed price (human review: confirm no lower price is actually offered)"
+    },
+    {
+      "id": "J113",
+      "point": 113,
+      "type": "flag_pattern",
+      "page_types": [
+        "homepage",
+        "specials",
+        "srp"
+      ],
+      "pattern": "(?:save|savings\\s*(?:of)?)\\s*(?:up\\s*to\\s*)?\\$\\s?\\d[\\d,]{2,}(?![^.]{0,160}(?:select|stock\\s*(?:#|no)|stk|\\bvin\\b|\\b20\\d\\d\\b|\\bmodel\\b|\\btrim\\b|this\\s+(?:vehicle|unit|offer)|\\bmsrp\\b))",
+      "severity": "m",
+      "citation": "FTC FAQ Q5, Q9; FTC staff remarks 2026-09-30",
+      "summary": "Dollar savings claim with no unit, model, trim, or stock number named in the same sentence (may read as inventory-wide)"
+    },
+    {
+      "id": "J114",
+      "point": 114,
+      "type": "flag_pattern",
+      "page_types": [
+        "vdp",
+        "specials",
+        "homepage"
+      ],
+      "pattern": "due\\s+at\\s+(?:lease\\s+)?signing[^.]{0,100}?(?:plus|excludes?|excluding|does\\s+not\\s+include|not\\s+including)[^.]{0,60}?(?:doc(?:ument(?:ary|ation)?)?\\.?\\s*(?:processing\\s*)?(?:fee|charge)|processing\\s*(?:fee|charge)|dealer\\s*(?:fee|charge)s?)",
+      "severity": "M",
+      "citation": "FTC FAQ Q8; Reg M 12 CFR 1013.7",
+      "summary": "Lease due-at-signing total excludes an upfront doc, processing, or dealer fee"
+    },
+    {
+      "id": "J115",
+      "point": 115,
+      "type": "flag_pattern",
+      "page_types": [
+        "vdp",
+        "srp",
+        "specials",
+        "homepage"
+      ],
+      "pattern": "(?:price|pricing)\\b[^.]{0,80}?\\b(?:includes?|reflects?|after|less)\\b[^.]{0,60}?(?:financ\\w*\\s*(?:bonus|cash|incentive|discount|rebate|allowance)|dealer[\\s-]*(?:arranged\\s*)?financ\\w*|(?:military|first[\\s-]*responder|college(?:\\s*grad(?:uate)?)?|loyalty|conquest)\\s*(?:rebate|discount|cash|bonus|incentive|program|offer)?)|must\\s+finance\\s+(?:with|through)|when\\s+you\\s+finance\\s+(?:with|through)|(?:price|pricing)\\s*(?:requires|assumes|is\\s*(?:contingent|conditional|based)\\s*on)\\s*[^.]{0,60}?financ\\w*",
+      "severity": "M",
+      "citation": "FTC FAQ Q5, Q9; FTC Act §5",
+      "summary": "Headline price deducts a finance-conditioned or group-limited discount (most prominent price must be the any-buyer, any-financing price)"
+    },
+    {
+      "id": "J116",
+      "point": 116,
+      "type": "flag_pattern",
+      "page_types": [
+        "vdp",
+        "srp"
+      ],
+      "pattern": "(?:\\bused\\b|pre[\\s-]*owned|certified)[\\s\\S]{0,400}?(?:stock|representative)\\s+(?:photo|image|picture)s?|(?:stock|representative)\\s+(?:photo|image|picture)s?[\\s\\S]{0,400}?(?:\\bused\\b|pre[\\s-]*owned)",
+      "severity": "m",
+      "citation": "FTC FAQ Q11; VC §11713(s)",
+      "summary": "Stock or representative photo language on a used / pre-owned listing (shoppers expect the exact car)"
+    },
+    {
+      "id": "J117",
+      "point": 117,
+      "type": "flag_pattern",
+      "page_types": [
+        "vdp",
+        "srp",
+        "specials"
+      ],
+      "pattern": "(?:cannot|can'?t|can\\s+not)\\s+be\\s+removed|non[\\s-]*removable|(?:required|mandatory|must\\s+(?:purchase|buy|pay\\s+for))\\s+[^.]{0,40}(?:package|protection|accessor|add[\\s-]*on)|pre[\\s-]*installed\\s+[^.]{0,40}(?:required|mandatory|non[\\s-]*removable)",
+      "severity": "M",
+      "citation": "FTC FAQ Q9; FTC staff remarks 2026-09-30; CC 1784.41(b)",
+      "summary": "Installed add-on presented as required or non-removable ('optional' must mean the buyer can decline it and pay the advertised price)"
+    }
+  ]
 }

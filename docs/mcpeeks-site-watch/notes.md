@@ -34,3 +34,16 @@ Known gaps carried forward (unchanged today): Lighthouse needs Node on the repor
 > - SKILL.md: 24 checks. Workbook and report scripts pick the new IDs up from the catalog without changes (verified by import and a two-vehicle smoke run).
 
 Runtime and the `~/Desktop/Skills/skills/mcpeeks-site-watch` source were synced from the runtime copy (the source had been behind since the 2026-09-04 workbook build). Still open from 2026-09-04: `fee_disclaimer_template.txt` and `lease_programs.json` need Drew's input; until the template is filled, C04 enforces the verbatim statutory sentence.
+
+## 2026-10-08: FTC Pricing Transparency layer (C02 rewritten, C25 added)
+
+[[Drew Moon]] sent [[ComplyAuto]]'s write-up of the FTC's September 2026 dealer-advertising FAQs and asked for every compliance skill, resource, and pricing check to carry the guidance. That post was already the source of the 2026-09-16 FTC layer in the compliance audit; what it closed here was the C02 gap left open that day, and the newer ComplyAuto post (2026-10-05) on the FTC staff remarks of 2026-09-30 added the in-transit rule. Vault source: [[Resources/automotive-guidelines/ftc-advertising-compliance]].
+
+> [!info] What changed in the package
+> - `scripts/check_catalog.py`: C02 now cites the written FAQs (Q6, Q7: doc fee inside the most prominent price at the highest amount, the $40,085 example) and the 2026-09-30 staff remarks (electronic filing and emission charges follow the same test), and the fix asks for the DPC-inclusive figure to be the biggest price on the page, not merely equal. C03 adds the FAQ Q4 and Q5 placement rule for search pages and VDPs. C06 adds the staff view that a Get My Price button may sit beside a shown price but may not imply a lower one. C12 adds FAQ Q11 (no stock photos on used units). C22 adds FAQ Q9 (optional means declinable). New **C25**: in-transit unit mislabeled (also described as in production or not yet built) or with no arrival information.
+> - `scripts/crawl.py`: three per-vehicle flags (`in_transit_language`, `unbuilt_language`, `arrival_language`).
+> - `scripts/checks.py`: C25 emitted as a compliance finding when in-transit and unbuilt wording meet, as a data-accuracy finding when an in-transit unit has no arrival wording.
+> - SKILL.md and `build_workbook.py` docstring: 25 checks. Workbook and report pick C25 up from the catalog (import verified, `CHECK_IDS` = 25).
+
+Runtime and the `~/Desktop/Skills/skills/mcpeeks-site-watch` source were synced from runtime (the source had been behind since the 2026-09-29 run fixes). Still open: `fee_disclaimer_template.txt` and `lease_programs.json` need Drew's input.
+

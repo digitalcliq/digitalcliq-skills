@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic compliance + data-accuracy checks over inventory.json.
 
-Covers checks C01-C13, C21, and C22-C24 (CNCDA CARS Act additions, 2026-09-14) from the dealer-principal list (see SKILL.md).
+Covers checks C01-C13, C21, C22-C24 (CNCDA CARS Act additions, 2026-09-14), and C25 (FTC in-transit status, 2026-10-08) from the dealer-principal list (see SKILL.md).
 Reads inventory.json + state (first-seen dates, approved vendors, disclaimer
 template, optional lease programs). Emits findings.json — the ONLY file the
 model needs to read afterwards.
@@ -142,6 +142,15 @@ def main():
             F.append(finding("C24", SEV_COMPLIANCE, url,
                 "MSRP presented as the price or 'MSRP is not the selling price' wording", vin,
                 f"labels={labels}"))
+
+        # C25 — in-transit status (FTC FAQ Q10; FTC staff remarks 2026-09-30, added 2026-10-08)
+        if v.get("in_transit_language") and v.get("unbuilt_language"):
+            F.append(finding("C25", SEV_COMPLIANCE, url,
+                "Unit labeled in transit but also described as in production / not yet built", vin,
+                v.get("disclaimer_text", "")[:200]))
+        elif v.get("in_transit_language") and not v.get("arrival_language"):
+            F.append(finding("C25", SEV_DATA, url,
+                "In-transit unit shows no arrival information", vin))
 
         # C07 — used price without expiration disclaimer
         if cond == "USED" and (selling or msrp) and not v.get("price_expiration"):

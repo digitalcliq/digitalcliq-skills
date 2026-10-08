@@ -222,7 +222,9 @@ def build_ai_review_items(crawl_data, brand, brand_rules):
     ftc_signal_pat = re.compile(
         r'msrp|you\s*save|your\s*price|price\s*you.?ll|rebate|discount|incentive|financ|'
         r'in[\s-]*transit|arriving|in\s*production|off[\s-]*site|stock\s*(?:photo|image)|'
-        r'representative\s*(?:photo|image)|illustration|doc(?:ument)?\s*(?:processing\s*)?(?:fee|charge)|due\s*at\s*signing',
+        r'representative\s*(?:photo|image)|illustration|doc(?:ument)?\s*(?:processing\s*)?(?:fee|charge)|due\s*at\s*signing|'
+        r'save\s*(?:up\s*to\s*)?\$|\$\s?[\d,]+\s*off|unlock|get\s*(?:my|e-?|your|internet|best)\s*price|'
+        r'(?:estimated|expected)\s*(?:arrival|delivery)|factory\s*order|build\s*to\s*order|electronic\s*filing|emission\s*testing',
         re.I)
     for pk, pd, text in iter_pages(crawl_data):
         if not (pk.startswith("vdp") or pk in ("vlp", "specials", "used", "cpo", "homepage")):
@@ -239,7 +241,11 @@ def build_ai_review_items(crawl_data, brand, brand_rules):
                        "all-in price the most prominent amount by size AND placement; are conditional discounts "
                        "outside it; doc fee inside it at the highest amount (California: DPC-inclusive price most "
                        "prominent); due-at-signing includes upfront fees; not-on-lot units labeled; used listings "
-                       "use actual photos. Cite FAQ question numbers.",
+                       "use actual photos. FTC staff remarks 2026-09-30: savings claims scoped to the unit or trim; "
+                       "price CTAs beside the price never implying a lower one; 'in transit' only for shipped units "
+                       "with real arrival dates; electronic filing and emission charges inside the federal price; "
+                       "AI-generated imagery never standing in for a specific unit. Cite FAQ question numbers or "
+                       "'FTC staff remarks 2026-09-30'.",
             "signals": signals[:15],
             "disclaimers": pd.get("disclaimers", [])[:10],
             "text_first_3000": text[:3000],

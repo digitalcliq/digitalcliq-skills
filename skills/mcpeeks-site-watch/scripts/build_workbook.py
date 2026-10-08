@@ -11,7 +11,7 @@ Audience: the dealership General Manager and owner. Every tab answers a GM
 question in plain English before it shows any data:
   Summary            where the store stands, in one screen
   Fix List           what to fix, why it matters, who fixes it, how
-  Scorecard          all 24 checks, this run vs last, pass / watch / action
+  Scorecard          all 25 checks, this run vs last, pass / watch / action
   Legal & Pricing    per-vehicle detail for the legal items
   Inventory Accuracy per-vehicle detail for photo / payment / pricing-data items
   Site Health        scripts, consent, SSL, redirects, page speed

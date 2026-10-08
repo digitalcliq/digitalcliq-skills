@@ -158,6 +158,7 @@ Every file this skill ships (PDF, DOCX, XLSX, PPTX, HTML) is built to `Resources
 - NCBMW is excluded on purpose (already gets this from Constellation). Never add without Drew.
 - **Ship no matter what.** A failed dealer (even the client) never holds the deliverable: mark `failed` in Run Log, exclude from rank denominators (scripts already do), lead the final message with it. Never fight a surface past its time-box; a shipped report with a failed-dealer note beats a dead run.
 - Unattended runs: never stall on a browser surface, never ask questions; make the reasonable choice and log it.
+- Compliance signals are not the deliverable, but do not bury them (added 2026-10-08). When the CLIENT store's own specials or VDP rows show a due-at-signing figure that excludes a doc or processing fee, a "plus doc fee" price, a finance-conditioned price, a used unit on a stock photo, or an in-transit unit also described as in production, put one line in the Step 6 message so Drew can route it to `/brand-check` or `/dealership-compliance-audit` (FTC Pricing Transparency FAQs, September 2026, and FTC staff remarks 2026-09-30; see `Resources/automotive-guidelines/ftc-advertising-compliance.md`). Competitor rows are context only; never report a competitor's compliance to a client.
 
 ## Final QA Gate: deliverable-reviewer agent (MANDATORY, added 2026-08-13)
 

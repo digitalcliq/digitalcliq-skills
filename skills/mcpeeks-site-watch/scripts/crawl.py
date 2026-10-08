@@ -175,6 +175,14 @@ def extract_vdp(url, html):
     rec["msrp_not_price_language"] = bool(re.search(
         r"msrp (?:is )?not (?:the )?(?:selling|advertised|sale|dealer'?s?|actual) price|price shown is (?:the )?msrp|msrp only\b",
         text, re.I))
+    # FTC FAQ Q10 + FTC staff remarks 2026-09-30 (added 2026-10-08): C25 in-transit status.
+    # "in transit" means already shipped; an unbuilt unit must carry its real status.
+    rec["in_transit_language"] = bool(re.search(r"in[\s-]*transit|arriving soon|coming soon", text, re.I))
+    rec["unbuilt_language"] = bool(re.search(
+        r"in production|not yet (?:built|shipped|produced)|being built|factory[\s-]*order|build[\s-]*to[\s-]*order"
+        r"|scheduled for production|awaiting production", text, re.I))
+    rec["arrival_language"] = bool(re.search(
+        r"(?:estimated|expected|est\.?)\s+(?:arrival|delivery)|\beta\b|arriv(?:es|ing) (?:on|by|in|the week)", text, re.I))
     return rec
 
 

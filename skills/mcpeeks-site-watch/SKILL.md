@@ -1,6 +1,6 @@
 ---
 name: mcpeeks-site-watch
-description: Twice-weekly (Mon/Fri) automated compliance + accuracy + health watch for McPeek's CDJR of Anaheim (mcpeeks.com). Crawls all VDPs via sitemap, runs 24 dealer-principal checks (CA pricing-stack law, CARS Act total price per CNCDA guidance, doc fee, verbatim fee disclaimer, Call-for-Price and price-gating CTAs, installed-item exclusions, repealed cancellation-option wording, MSRP-as-price, lease accuracy, photos/spin media, Lighthouse, scripts/cookies, CIPA pre-consent trackers, SSL, domain redirects, phones), diffs week-over-week, and ships a DigitalCLIQ-branded Excel workbook written for the General Manager (Summary, Fix List, Scorecard, per-vehicle detail tabs, Phone Checklist, What Changed) to the McPeek's Google Drive folder. Use when Drew says /mcpeeks-site-watch, "McPeeks site check", "run the McPeeks audit", or the scheduled Mon/Fri task fires.
+description: Twice-weekly (Mon/Fri) automated compliance + accuracy + health watch for McPeek's CDJR of Anaheim (mcpeeks.com). Crawls all VDPs via sitemap, runs 25 dealer-principal checks (CA pricing-stack law, CARS Act total price per CNCDA guidance, FTC Pricing Transparency FAQs and the 2026-09-30 FTC staff remarks on the doc fee, prominence, CTAs, and in-transit status, verbatim fee disclaimer, Call-for-Price and price-gating CTAs, installed-item exclusions, repealed cancellation-option wording, MSRP-as-price, lease accuracy, photos/spin media, Lighthouse, scripts/cookies, CIPA pre-consent trackers, SSL, domain redirects, phones), diffs week-over-week, and ships a DigitalCLIQ-branded Excel workbook written for the General Manager (Summary, Fix List, Scorecard, per-vehicle detail tabs, Phone Checklist, What Changed) to the McPeek's Google Drive folder. Use when Drew says /mcpeeks-site-watch, "McPeeks site check", "run the McPeeks audit", or the scheduled Mon/Fri task fires.
 ---
 
 # McPeek's Site Watch
@@ -80,7 +80,7 @@ python3 "$SKILL/scripts/sitehealth.py" --skill "$SKILL" --data "$DATA"   # SSL +
 > all requests, probe once per minute from Bash, and tell Drew immediately,
 > do not resume until the site answers 200 and never twice in a row.
 
-Covers checks C01–C02, C04–C13, C15, C18–C19, C21, C22–C24. Read only the printed
+Covers checks C01–C02, C04–C13, C15, C18–C19, C21, C22–C25. Read only the printed
 counts. If crawl.py exits 2 (>20% fetch failures but site is up), follow the
 multi-strategy fallback: retry once, then switch to the Claude Browser pane
 (`mcp__Claude_Browser__preview_start`, then `javascript_tool` same-origin
@@ -155,7 +155,7 @@ ranks the Fix List, writes `$DATA/report.json` (the workbook's only input) and
    in reading order: **Summary** (stat band, area status, executive summary,
    top 3 fixes, how to read), **Fix List** (one row per problem type: what, why
    it matters to the store, who fixes it, the fix, example vehicle), **Scorecard**
-   (all 21 checks, this run vs last, ACTION / WATCH / CLEAR / MANUAL),
+   (all 25 checks, this run vs last, ACTION / WATCH / CLEAR / MANUAL),
    **Legal & Pricing**, **Inventory Accuracy**, **Site Health** (per-item detail
    with page links, filterable), **Phone Checklist** (blank columns for the
    person making the test calls), **What Changed** (new items with the reason,

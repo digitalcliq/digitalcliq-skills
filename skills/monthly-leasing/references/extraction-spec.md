@@ -29,5 +29,11 @@ Scan each disclaimer for these keywords and record as pipe-delimited flags:
 - `TRADE_REQ`: trade required
 - `APR_CREDIT`: on approved credit / tiered credit
 - `DEALER_CONTRIB`: dealer contribution
+- `DAS_EXCL_FEE`: the due-at-signing figure is stated as plus or excluding a doc, processing, or dealer fee (FTC FAQ Q8: upfront fees belong inside the advertised due-at-signing total; added 2026-10-08)
+- `ZERO_DAS_FEE`: "$0 due at signing" or "nothing due at signing" while the disclaimer lists any fee due at signing (FTC FAQ Q8)
+- `COND_INSIDE`: the payment or price already reflects a finance-conditioned, loyalty, conquest, military, or first-responder discount rather than showing it separately (FTC FAQ Q5, Q9)
+- `IN_TRANSIT`: the offer unit is described as in transit, arriving soon, or in production (FTC FAQ Q10; FTC staff remarks 2026-09-30: in transit means already shipped)
 
-Example: `LOYALTY|ACQ_FEE|TTL`
+The four FTC flags are competitive-intelligence signals, not legal findings: for a DigitalCLIQ client's own offer, surface them to Drew in the Step 4 message so they can be routed to `/brand-check`; for a competitor they are context only. Source: `Resources/automotive-guidelines/ftc-advertising-compliance.md`.
+
+Example: `LOYALTY|ACQ_FEE|TTL|DAS_EXCL_FEE`

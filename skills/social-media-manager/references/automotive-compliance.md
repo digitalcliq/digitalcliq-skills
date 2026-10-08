@@ -84,8 +84,34 @@ Every row in the calendar that carries a price, payment, or identified unit is f
 "Compliance sign-off required" and routed through `/brand-check` (its California CARS Act overlay)
 before it ships.
 
+## FTC Pricing Transparency (federal, every client in every state, enforced now)
+
+Source: `Resources/automotive-guidelines/ftc-advertising-compliance.md` (FTC staff FAQs of September
+2026 and the FTC staff remarks of 2026-09-30). The FTC says every medium is an ad, social included,
+and so are DMs, comment replies, and texts from staff that quote a price (FTC FAQ Q3). Hard rules for
+any priced, payment, savings, or identified-unit post, Story, Reel, or paid social ad:
+
+- **The price in the graphic is the any-buyer price** with every dealer-required fee inside it (doc
+  fee at the highest amount, and for California the electronic filing and emission charges too per
+  the 2026-09-30 staff remarks). Exclude only taxes and government fees the buyer pays directly.
+- **Prominence is placement, not just size** (FTC FAQ Q5). In a square or vertical graphic the first
+  number the eye hits must be the actual price; MSRP, "you save", and payments go smaller and below.
+- **Conditional cash beside the price, never inside it** (Q5, Q9): military, first responder,
+  loyalty, conquest, trade-in, dealer-financing bonuses. A "Save $X" headline must say which unit,
+  model, or trim it applies to (staff remarks 2026-09-30); never imply it is store-wide.
+- **Lease due-at-signing includes upfront fees** (Q8). "$0 due at signing" dies if any fee is due.
+- **Availability**: in transit only for units already shipped; unbuilt units say in production or
+  factory order; never boost a sold unit (Q10; staff remarks 2026-09-30).
+- **Photos**: stock or representative imagery only for new or in-transit units that truly match;
+  used and CPO posts show the exact car (Q11).
+- **AI imagery and copy** (staff remarks 2026-09-30): Magnific or any AI image is brand, lifestyle,
+  or concept only and never represents a specific VIN; AI-drafted price or payment copy is checked
+  against the live feed before it ships. The generation guardrail above is now a federal expectation.
+- **CTA wording**: "Get My Price" beside a shown price is fine; "Unlock a lower price" when none
+  exists is not (staff remarks 2026-09-30). For California the price must already be in the post.
+
 ## Workflow
 1. Load `cdjr-quick-reference.md` (or the matching OEM file) first.
 2. Draft captions/graphics within the rules above.
-3. For any price/lease/finance claim or identified unit: apply the CARS Act block above, mark the calendar row **"Compliance sign-off required"**, and never invent numbers.
+3. For any price/lease/finance claim or identified unit: apply the FTC block and the CARS Act block above, mark the calendar row **"Compliance sign-off required"**, and never invent numbers.
 4. Optionally route final creative through `/brand-check` before delivery.

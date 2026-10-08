@@ -90,18 +90,19 @@
       "id": "FTC-SEC5-DEALER-ADS",
       "name": "FTC Section 5 dealer advertising posture (post-CARS Rule)",
       "authority": "FTC Act §5 (15 U.S.C. §45); TILA/Reg Z 12 CFR 1026.24; CLA/Reg M 12 CFR 1013.7",
-      "status": "active enforcement; March 2026 warning letters to 97 dealer groups; FTC staff Automobile Industry Pricing Transparency FAQs ISSUED September 2026 (14 questions, staff views, not binding): all-in price with only consumer-paid government charges excluded, doc fee inside the price at the highest mandatory amount, most prominent amount on SRPs and VDPs, calls and texts are ads, lease upfront processing fees in due-at-signing, not-on-lot labeling, representative photo limits, shared dealer/vendor/OEM responsibility",
+      "status": "active enforcement; March 2026 warning letters to 97 dealer groups; FTC staff Automobile Industry Pricing Transparency FAQs ISSUED September 2026 (14 questions, staff views, not binding): all-in price with only consumer-paid government charges excluded, doc fee inside the price at the highest mandatory amount, most prominent amount on SRPs and VDPs, calls and texts are ads, lease upfront processing fees in due-at-signing, not-on-lot labeling, representative photo limits, shared dealer/vendor/OEM responsibility; FTC Bureau of Consumer Protection staff remarks 2026-09-30 (Dingman, NAMVBC; via ComplyAuto 2026-10-05): government-fee test turns on who is legally obligated, electronic filing and emission charges in the price by name, 'in transit' means already shipped, CTA buttons beside the price only if they do not imply a lower price, savings claims scoped honestly, AI-generated ads carry the same duty",
       "effective_date": null,
       "controls_for_ca": true,
-      "last_verified": "2026-09-16",
-      "watch": "FTC FAQs issued September 2026 and folded into rules/ca_hard_rules.json on 2026-09-16 (ftc_reference block, FTC-* rules, CA-DISC-004 citation corrected) and checks/registry.py (FTC-DOCFEE-CA, FTC-COND-PRICE, FTC-USED-STOCK-PHOTO, FTC-LEASE-DAS-FEE). Answered: (1) DPC must be inside the most prominent price (Q6) and state doc-fee rules are additive (Q7); electronic filing and emission charges answered in principle by Q2 (only charges an agency requires the consumer to pay directly are excludable) but not by name; (2) either/or and finance-conditioned incentives: may be shown, not inside the most prominent price (Q5); (3) as-low-as and subset pricing: Q9 bars a price only some buyers get; (4) no-price listings: NOT addressed. Still open: ComplyAuto state-by-state list of excludable titling/smog/emission charges (promised); ComplyAuto webinar 2026-09-21 2:00 PM ET; CNCDA response on reconciling the CARS Act total price with the FTC most-prominent all-in price (CNCDA's pre-FAQ dual format only required equal prominence); in-production vehicles. Also update mcpeeks-site-watch check_catalog.py C02 and Resources/automotive-guidelines/ftc-advertising-compliance.md when those land.",
+      "last_verified": "2026-10-08",
+      "watch": "2026-10-08: staff remarks of 2026-09-30 folded into rules/ca_hard_rules.json (ftc_reference.staff_remarks_2026_09_30; FTC-SAVE-001, FTC-CTA-001, FTC-AVAIL-003, FTC-AI-001; FTC-PRICE-001/003, FTC-ADDON-001, FTC-AVAIL-001, FTC-RESP-001, FTC-ENF-001 descriptions extended) and checks/registry.py (FTC-SAVINGS-SCOPE, FTC-CTA-LOWER-PRICE, FTC-INTRANSIT-STATUS). mcpeeks-site-watch check_catalog.py C02 updated the same day (closes the item left open 2026-09-16). Still open: ComplyAuto state-by-state list of excludable titling/smog/emission charges (promised, not published as of 2026-10-08); ComplyAuto 2026-09-21 webinar recording not yet reviewed; CNCDA response reconciling the CARS Act total price with the FTC most-prominent all-in price; any FTC enforcement settlement announcements. Re-check ftc.gov business guidance and complyauto.com monthly.",
       "sources": [
         "https://www.ftc.gov/news-events/news/press-releases",
         "Resources/automotive-guidelines/ftc-advertising-compliance.md (vault)",
         "CNCDA Guide v1.2 Part 2 Federal Note (vault PDF)",
         "https://www.ftc.gov/business-guidance/resources/automobile-industry-pricing-transparency-faqs",
         "https://www.ftc.gov/news-events/news/press-releases/2026/09/ftc-publishes-price-transparency-faqs-auto-dealers",
-        "https://complyauto.com/ftc-issues-dealer-advertising-faqs/"
+        "https://complyauto.com/ftc-issues-dealer-advertising-faqs/",
+        "https://complyauto.com/ftc-consumer-protection-official-shares-perspective-on-pricing-transparency-for-dealers/"
       ]
     }
   ]

@@ -233,6 +233,17 @@ Every suggestion follows a strict format:
 
 Never outputs "you should" or "reallocate X to Y." Always framed as discussion starters.
 
+### Ad and Landing-Page Compliance Cross-Check (not a waste rule, added 2026-10-08)
+
+Paid search, Performance Max, and paid social ads that state a price, payment, or savings figure are dealer advertisements under the FTC's September 2026 Pricing Transparency FAQs (Q3), and the dealer, the agency, and the platform share responsibility for the price shown (Q12). While reading the ad-copy and landing-page exports:
+
+- A price, payment, or "save $X" in headline, description, sitelink, or asset text must match the landing page and VDP (FTC FAQ Q12; CA price parity). A mismatch is a **Potential risk** row in Suggestions, never silently fixed.
+- A landing page where MSRP, a payment, or a conditional price is bigger or higher than the actual price, or where the price is gated behind a "Get ePrice" or "Unlock" CTA, goes to `/brand-check` (its FTC Pricing Transparency overlay) and is named in the Executive Summary as a compliance item, not a waste item.
+- Ad copy that quotes a doc-fee-excluded price, a finance-conditioned price, or "$0 due at signing" with a fee due is flagged the same way (FTC FAQ Q5, Q6, Q8).
+- AI-generated ad assets (Performance Max image or text generation) carry the same duty; note any asset the platform generated that misstates a unit, price, or availability (FTC staff remarks 2026-09-30).
+
+Source and detail: `Resources/automotive-guidelines/ftc-advertising-compliance.md`. Keep the tone of the Suggestion format: observation, worth discussing, context needed, potential risk.
+
 ### Delta Tracking
 
 Each run is saved to `runs/{client_slug}_{period}.json`. When `--compare-prior` is used, the most recent prior-period file is loaded for MoM comparison.

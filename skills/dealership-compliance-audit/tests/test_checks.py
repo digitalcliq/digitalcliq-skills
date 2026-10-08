@@ -293,12 +293,23 @@ for cid in ["PRIV-001", "PRIV-002", "PRIV-004", "PRIV-005", "PRIV-006", "PRIV-00
 ks_cars = [r for r in ks_res if r.framework == "CARS" and r.status == "fail"]
 test("CARS findings carry the federal-vacated / CA-controls note",
      ks_cars and all(registry.CARS_FED_NOTE in (r.statute or "") for r in ks_cars))
-test("pre-operative CARS findings are not criticals (forward-looking)",
-     not registry._cars_operative() and all(r.severity != "critical" for r in ks_cars),
-     "severities: %s" % [(r.check_id, r.severity) for r in ks_cars])
-test("CARS recommendation flags it as a California (not federal) requirement",
-     all("CALIFORNIA requirement" in (r.recommendation or "").upper() or
-         "California" in (r.recommendation or "") for r in ks_cars))
+# Posture is date-aware (CARS_CA_OPERATIVE = 2026-10-01). Before that date every CARS
+# finding is softened one step and prefixed with the California framing; from that date
+# findings keep their intended severity and carry no "takes effect" prefix. (Made
+# date-aware 2026-10-08; the suite had assumed pre-operative forever.)
+if registry._cars_operative():
+    test("operative CARS findings keep their intended severity (no softening)",
+         ks_cars and any(r.severity == "critical" for r in ks_cars),
+         "severities: %s" % [(r.check_id, r.severity) for r in ks_cars])
+    test("operative CARS recommendations carry no 'takes effect' prefix",
+         all("takes effect October 1, 2026" not in (r.recommendation or "") for r in ks_cars))
+else:
+    test("pre-operative CARS findings are not criticals (forward-looking)",
+         all(r.severity != "critical" for r in ks_cars),
+         "severities: %s" % [(r.check_id, r.severity) for r in ks_cars])
+    test("CARS recommendation flags it as a California (not federal) requirement",
+         all("CALIFORNIA requirement" in (r.recommendation or "").upper() or
+             "California" in (r.recommendation or "") for r in ks_cars))
 
 # privacy checks must NOT fire when the crawl never captured a privacy object
 no_priv = {"url": "x", "pages": {"homepage": {"url": "x", "title": "T",
@@ -556,6 +567,35 @@ _ftc_ok = registry.run_checks(_ftc_site({
 }), brand="cdjr")
 _ftc_ok_fail = sorted(r.check_id for r in _ftc_ok if r.status == "fail" and r.framework == "FTC")
 test("FTC checks quiet on compliant FTC-style copy", not _ftc_ok_fail, "fired: %s" % _ftc_ok_fail)
+
+print("\nFTC staff remarks 2026-09-30 checks (added 2026-10-08) fire on violations and stay quiet on clean text")
+_rem_bad = registry.run_checks(_ftc_site({
+    "homepage": {"text_excerpt": "Fall Sales Event. Save $10,000 on a new Ram today! Shop now and drive home happy."},
+    "specials": {"text_excerpt": "2026 Jeep Grand Cherokee Laredo. Total Price $42,500. Unlock your lower price now."},
+    "vdp": {"text_excerpt": "2026 Ram 1500 Big Horn. Total Price $58,900. In transit. This vehicle is currently in production at the factory."},
+}), brand="cdjr")
+_rem_fail = {r.check_id: r for r in _rem_bad if r.status == "fail"}
+for cid in ["FTC-SAVINGS-SCOPE", "FTC-CTA-LOWER-PRICE", "FTC-INTRANSIT-STATUS"]:
+    test("remarks check %s fires" % cid, cid in _rem_fail, "fails were: %s" % sorted(_rem_fail))
+test("remarks findings are never criticals",
+     all(r.severity != "critical" for r in _rem_bad if r.framework == "FTC" and r.status == "fail"))
+test("remarks findings cite the FAQ and the 2026-09-30 remarks",
+     all("Pricing Transparency FAQs" in (r.statute or "") and "2026-09-30" in (r.statute or "")
+         for r in _rem_bad if r.check_id in ("FTC-SAVINGS-SCOPE", "FTC-CTA-LOWER-PRICE", "FTC-INTRANSIT-STATUS") and r.status == "fail"))
+test("in-transit + in-production is a warning, not advisory",
+     _rem_fail.get("FTC-INTRANSIT-STATUS") is not None and _rem_fail["FTC-INTRANSIT-STATUS"].severity == "warning")
+_rem_ok = registry.run_checks(_ftc_site({
+    "homepage": {"text_excerpt": "Save $3,000 on stock #R12345, a new 2026 Ram 1500 Big Horn, through October 31. Plus tax and license."},
+    "specials": {"text_excerpt": "2026 Jeep Grand Cherokee Laredo. Total Price $42,500. Get my price. Check availability."},
+    "vdp": {"text_excerpt": "2026 Ram 1500 Big Horn. Total Price $58,900. In transit, estimated arrival October 20. Photos of the actual vehicle."},
+}), brand="cdjr")
+_rem_ok_fail = sorted(r.check_id for r in _rem_ok if r.status == "fail" and r.framework == "FTC")
+test("remarks checks quiet on scoped savings, neutral CTA, and dated in-transit copy", not _rem_ok_fail, "fired: %s" % _rem_ok_fail)
+_rem_noprice = registry.run_checks(_ftc_site({
+    "vdp": {"text_excerpt": "2026 Jeep Wrangler Rubicon. Unlock your price now."},
+}), brand="cdjr")
+test("CTA check defers to CA-CARS-026 when no price is on the page",
+     not any(r.check_id == "FTC-CTA-LOWER-PRICE" and r.status == "fail" for r in _rem_noprice))
 
 
 # ── Summary ──────────────────────────────────────────────────
