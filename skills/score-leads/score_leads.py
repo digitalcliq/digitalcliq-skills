@@ -192,6 +192,74 @@ CONTACT_NA_NOTE = (
     "(Sale Rate 44%, Show Rate 22%, Volume 17%, Appt Rate 17%)."
 )
 
+
+def _row_weights(weights, funnel_na=False):
+    """Per-row weights: a channel whose CRM reports appointments and shows as N/A
+    (Momentum's Showroom block) is scored on the remaining factors, renormalized."""
+    if not funnel_na:
+        return weights
+    w = dict(weights)
+    w["show_rate"] = 0.0
+    w["appt_rate"] = 0.0
+    tot = sum(w.values()) or 1.0
+    return {k: v / tot for k, v in w.items()}
+
+
+def funnel_na_note(rows, contact_available=True):
+    """Note for channels the CRM reports without appointments / shows."""
+    names = [r["source"] for r in rows if r.get("funnel_na")]
+    if not names:
+        return None
+    weights = dict(WEIGHTS)
+    if not contact_available:
+        weights["contact_rate"] = 0.0
+        tot = sum(weights.values())
+        weights = {k: v / tot for k, v in weights.items()}
+    w = _row_weights(weights, True)
+    parts = [f"Sale Rate {w['sale_rate']*100:.0f}%", f"Volume {w['sales_volume']*100:.0f}%"]
+    if w.get("contact_rate", 0) > 0:
+        parts.append(f"Contact Rate {w['contact_rate']*100:.0f}%")
+    return (f"{', '.join(names)}: the CRM reports appointments and shows as N/A for this channel "
+            f"(walk-in traffic does not set an appointment), so the Appt and Show cells read n/a and the "
+            f"channel is scored on the factors it does report ({', '.join(parts)}). Its NADA comparison "
+            f"uses the walk-in benchmark.")
+
+
+def over_100_note(rows):
+    """Note for rows whose appointments exceed leads (set in the window on earlier prospects)."""
+    hits = [r for r in rows if r["leads"] > 0 and r["appts"] > r["leads"] and not r.get("is_credit_app")]
+    if not hits:
+        return None
+    parts = [f"{r['source']} ({r['appts']} appointments on {r['leads']} leads)" for r in hits]
+    return (f"{'; '.join(parts)}: appointments were set in the window on customers whose prospect "
+            f"records were created earlier, so the rate exceeds 100%. The row shows the actual figure; "
+            f"the rate is capped at 100% for scoring.")
+
+
+def snapshot_sales_note(meta):
+    """Note for the Momentum Executive Snapshot: period sales vs same-window cohort sales, and UST."""
+    tot = meta.get("report_totals") or {}
+    cohort = meta.get("cohort_sales") or {}
+    ranked = sorted(((k, v) for k, v in cohort.items() if v), key=lambda kv: -kv[1])
+    zeros = [k for k, v in cohort.items() if not v]
+    parts = [f"{k} {v}" for k, v in ranked]
+    txt = (f"Sales = DMS sales the CRM credited to each channel during the report window, whichever month the "
+           f"prospect was created (the report's Totals row DMS Sold: {tot.get('sales', 0):,}). Prospects created "
+           f"AND sold inside the window were {meta.get('total_cohort_sales', 0):,}: {', '.join(parts)}"
+           + (f" ({', '.join(zeros)} 0)" if zeros else "") + ".")
+    ust = meta.get("ust_sources") or []
+    if ust:
+        txt += (f" '{', '.join(ust)}' is the CRM's Unsold Showroom Traffic log: the report's headline prospect "
+                f"count ({tot.get('leads_minus_ust', 0):,}) leaves out its prospects, while its sales are "
+                f"inside the {tot.get('sales', 0):,}. Listed here so every sale in the window is visible.")
+    txt += (" How the channels were read: Inbound as inbound phone-ups (phone benchmark); Internet as website "
+            "and internet leads; Showroom and Showroom UST as walk-in traffic; Outbound and Lease Retention as "
+            "store-initiated call and lease-maturity lists (not benchmarked, outside the store close rate); "
+            "Financial as the finance-application form (not an acquisition source); Service and Parts as "
+            "owned-customer traffic; OEM as factory-referred leads.")
+    return txt
+
+
 # --- New vs Used Car Adjustment ---
 # New car leads naturally close at a lower rate than used car leads because
 # used inventory is 1-of-1 (unique VIN, miles, price), creating higher urgency.
@@ -221,10 +289,14 @@ CREDIT_APP_PATTERNS = [
     "quick qualify",
 ]
 
+# Whole-name matches only (a substring "financial" would swallow "BMW Financial Services" lists).
+# Momentum's "Financial" prospect channel is the finance-application form.
+CREDIT_APP_EXACT_NAMES = {"financial", "finance", "finance app", "finance application", "credit"}
+
 CREDIT_APP_DISCLAIMER = (
-    "Credit applications are not an acquisition source. These customers originated "
-    "from another lead channel and were re-attributed when they submitted a credit "
-    "application during the purchase process. Scoring is not applicable."
+    "a credit or finance application is not an acquisition source. Credit applications are "
+    "typically filed by customers who arrived through another channel and were re-attributed "
+    "when they applied during the purchase process, so the row is not scored."
 )
 
 # --- Unattributed-sale bucket exclusion ---
@@ -303,6 +375,8 @@ BENCHMARK_CATEGORY_PATTERNS = [
         "re-engagement", "reengagement", "warranty exp", "cpo expiration",
         "lease customer intent", "loan customer intent", "back in market",
         "first watch", "hot list", "in market", "inmarketsolution",
+        # Momentum "Executive Snapshot" channels: lease-maturity and outbound call lists
+        "retention", "outbound",
     ]),
     # Floor / showroom / geo traffic: benchmarked at the walk-in rate (~25%),
     # checked before owned_equity so "walk-in" etc. don't fall into the 38% bucket.
@@ -315,8 +389,10 @@ BENCHMARK_CATEGORY_PATTERNS = [
         "repeat", "previous customer", "referral", "service drive",
         "service dept", "service referral", "service", "loyalty",
         "be-back", "be back", "equity",
+        "parts",  # Momentum "Parts" channel: counter / parts-desk inquiries, owned-customer work
     ]),
-    ("phone", ["phone", "call", "click to call", "click-to-call"]),
+    ("phone", ["phone", "call", "click to call", "click-to-call",
+               "inbound"]),  # Momentum "Inbound" channel = inbound phone-ups
     ("third_party", [
         "autotrader", "auto trader", "cars.com", "carscom", "cargurus",
         "car gurus", "edmunds", "truecar", "true car", "carfax",
@@ -518,6 +594,8 @@ def classify_source_type(source_name):
 def is_credit_app_source(source_name):
     """Check if a source is a credit application (not a true acquisition source)."""
     name_lower = source_name.lower()
+    if name_lower.strip() in CREDIT_APP_EXACT_NAMES:
+        return True
     for pattern in CREDIT_APP_PATTERNS:
         if pattern in name_lower:
             return True
@@ -610,25 +688,28 @@ def score_sources(rows, contact_available=True):
     # Find max values for relative scoring (using adjusted sale rate, scoreable only)
     max_sale_rate = max((r["adjusted_sales_pct"] for r in scoreable), default=1) or 1
     max_sales_vol = max((r["sales"] for r in scoreable), default=1) or 1
-    max_show_rate = max((r["shows_pct"] for r in scoreable), default=1) or 1
-    max_appt_rate = max((r["appts_pct"] for r in scoreable), default=1) or 1
+    # Rates are capped at 100% for scoring: appointments set in the window on prospects
+    # created earlier (Momentum Service channel) would otherwise set the curve for everyone.
+    max_show_rate = max((min(r["shows_pct"], 100.0) for r in scoreable if not r.get("funnel_na")), default=1) or 1
+    max_appt_rate = max((min(r["appts_pct"], 100.0) for r in scoreable if not r.get("funnel_na")), default=1) or 1
     max_contact_rate = max((r["contact_pct"] for r in scoreable), default=1) or 1
 
     for r in scoreable:
         # Normalize each factor to 0-1 range relative to best in report
         sale_rate_norm = r["adjusted_sales_pct"] / max_sale_rate
         sales_vol_norm = r["sales"] / max_sales_vol
-        show_rate_norm = r["shows_pct"] / max_show_rate
-        appt_rate_norm = r["appts_pct"] / max_appt_rate
+        show_rate_norm = min(r["shows_pct"], 100.0) / max_show_rate
+        appt_rate_norm = min(r["appts_pct"], 100.0) / max_appt_rate
         contact_rate_norm = min(r["contact_pct"], 100.0) / min(max_contact_rate, 100.0) if max_contact_rate > 0 else 0
 
-        # Weighted composite (0-1)
+        # Weighted composite (0-1); a funnel-N/A row drops the two unmeasured factors
+        rw = _row_weights(weights, r.get("funnel_na", False))
         composite = (
-            weights["sale_rate"] * sale_rate_norm
-            + weights["sales_volume"] * sales_vol_norm
-            + weights["show_rate"] * show_rate_norm
-            + weights["appt_rate"] * appt_rate_norm
-            + weights["contact_rate"] * contact_rate_norm
+            rw["sale_rate"] * sale_rate_norm
+            + rw["sales_volume"] * sales_vol_norm
+            + rw["show_rate"] * show_rate_norm
+            + rw["appt_rate"] * appt_rate_norm
+            + rw["contact_rate"] * contact_rate_norm
         )
 
         # Map to 1-10 scale (floor of 1, ceiling of 10)
@@ -700,9 +781,9 @@ TIER_LEGEND = [
 BENCH_LEGEND = [
     ("Above", "6B9DD4", "Closes 10%+ above the NADA industry rate for its source type"),
     ("At", "405FAB", "Within +/-10% of the NADA industry rate for its source type"),
-    ("Below", "070A15", "Closes 10%+ below the NADA industry rate - handling/process leak"),
-    ("Low vol", "949592", f"Fewer than {MIN_BENCHMARK_LEADS} leads - too small to benchmark reliably"),
-    ("N/A", "949592", "Not an acquisition source (data list / credit app) - not benchmarked"),
+    ("Below", "070A15", "Closes 10%+ below the NADA industry rate, a handling or process leak"),
+    ("Low vol", "949592", f"Fewer than {MIN_BENCHMARK_LEADS} leads, too small to benchmark reliably"),
+    ("N/A", "949592", "Not an acquisition source (data list / credit app), not benchmarked"),
 ]
 
 BENCH_NOTE = (
@@ -714,7 +795,8 @@ BENCH_NOTE = (
 
 
 def build_summary_tab(wb, rows, store_name, date_range, tier, store_bench,
-                      contact_available=True):
+                      contact_available=True, extra_notes=None,
+                      report_label="E-Commerce Lead Source Scorecard"):
     """Styled Summary tab, FIRST in tab order (Design-System §4).
 
     Title block, key stats as large Dosis cells with Sky Blue numbers, the
@@ -788,7 +870,7 @@ def build_summary_tab(wb, rows, store_name, date_range, tier, store_bench,
     ws["A4"].alignment = left
     ws.row_dimensions[4].height = 28
     ws.merge_cells("A5:F5")
-    ws["A5"] = (f"E-Commerce Lead Source Scorecard  |  {date_range}  |  "
+    ws["A5"] = (f"{report_label}  |  {date_range}  |  "
                 f"Benchmark tier: {tier_label}  |  Created by DigitalCLIQ")
     ws["A5"].font = Font(name="Roboto Slab", size=10, color=WARM_GREY)
     ws["A5"].alignment = left
@@ -922,6 +1004,7 @@ def build_summary_tab(wb, rows, store_name, date_range, tier, store_bench,
     legend_block("Tier Legend (1-10 relative score)",
                  TIER_LEGEND if credit else [e for e in TIER_LEGEND if e[0] != "N/A"])
     row += 1
+    ws.row_breaks.append(Break(id=row - 1))  # benchmark legend + notes on their own printed page
     legend_block("vs NADA Benchmark (absolute layer)", BENCH_LEGEND)
     row += 1
 
@@ -938,6 +1021,13 @@ def build_summary_tab(wb, rows, store_name, date_range, tier, store_bench,
         c.alignment = wrap
         ws.row_dimensions[row].height = 40
         row += 1
+    for extra in (extra_notes or []):
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=6)
+        c = ws.cell(row=row, column=1, value=extra)
+        c.font = Font(name="Roboto Slab", size=9, italic=True, color=WARM_GREY)
+        c.alignment = wrap
+        ws.row_dimensions[row].height = 54
+        row += 1
     row += 1
 
     ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=6)
@@ -951,11 +1041,70 @@ def build_summary_tab(wb, rows, store_name, date_range, tier, store_bench,
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
 
 
+_FONT_FILES = {
+    ("Roboto Slab", False): "Roboto-Slab-Regular.ttf",
+    ("Roboto Slab", True): "Roboto-Slab-Bold.ttf",
+    ("Dosis", False): "Dosis-Regular.ttf",
+    ("Dosis", True): "Dosis-Bold.ttf",
+}
+_FONT_DIRS = [
+    os.path.expanduser("~/Library/Fonts"),
+    "/Library/Fonts",
+    "/Users/drewmoon/Desktop/DigitalCLIQ Brain HQ/Resources/brand-assets/fonts",
+]
+_font_cache = {}
+
+
+def _brand_font(name, bold, pt):
+    """PIL ImageFont for the brand face at 4x point size (lengths / 4 give points),
+    or None when PIL or the TTF is not available."""
+    key = (name, bool(bold), pt)
+    if key in _font_cache:
+        return _font_cache[key]
+    font = None
+    fname = _FONT_FILES.get((name, bool(bold)))
+    if fname:
+        try:
+            from PIL import ImageFont
+            for d in _FONT_DIRS:
+                fp = os.path.join(d, fname)
+                if os.path.exists(fp):
+                    font = ImageFont.truetype(fp, int(round(pt * 4)))
+                    break
+        except Exception:
+            font = None
+    _font_cache[key] = font
+    return font
+
+
+def _wrapped_lines(text, font, width_pt, font_pt):
+    """Greedy word wrap measured with the real face; falls back to a character estimate."""
+    import math
+    if font is None:
+        chars_per_line = max(1, int(width_pt / (font_pt * 0.55)))
+        return sum(math.ceil(max(1, len(seg)) / chars_per_line) for seg in text.split("\n"))
+    lines = 0
+    for para in text.split("\n"):
+        cur, n = "", 1
+        for w in para.split(" "):
+            trial = (cur + " " + w).strip()
+            if not cur or font.getlength(trial) / 4 <= width_pt:
+                cur = trial
+            else:
+                n += 1
+                cur = w
+        lines += n
+    return lines
+
+
 def _autofit_wrapped_rows(ws):
-    """Raise any fixed row height that is too short for its wrapped text.
-    Excel never auto-grows a customHeight row, so a wrapped cell with more
-    lines than the height allows clips silently. Heights are only raised,
-    never shrunk, so deliberate spacing survives."""
+    """Size every fixed row that holds wrapped text to what the text needs.
+    Excel never auto-grows a customHeight row, so a wrapped cell with more lines
+    than the height allows clips silently; a row set far taller than its text
+    pads the sheet and pushes print page breaks into the middle of tables
+    (2026-10-08 reviewer finding). Lines are measured with the installed brand
+    TTFs (PIL); short rows are raised to 1.15x need, rows over 1.4x need are
+    brought down to 1.2x need. Rows without wrapped text are left alone."""
     import math
     from openpyxl.utils import get_column_letter
 
@@ -964,6 +1113,7 @@ def _autofit_wrapped_rows(ws):
         return dim.width if (dim and dim.width) else 8.43
 
     merged = {(rng.min_row, rng.min_col): rng for rng in ws.merged_cells.ranges}
+    need_by_row = {}
     for row in ws.iter_rows():
         for cell in row:
             if not isinstance(cell.value, str) or not cell.value:
@@ -972,29 +1122,36 @@ def _autofit_wrapped_rows(ws):
                 continue
             rng = merged.get((cell.row, cell.column))
             last_col = rng.max_col if rng else cell.column
-            width = sum(col_width(c) for c in range(cell.column, last_col + 1))
+            ncols = last_col - cell.column + 1
+            units = sum(col_width(c) for c in range(cell.column, last_col + 1))
+            # Excel column units -> pixels (7px per unit + 5px cell padding) -> points.
+            width_pt = (units * 7 + 5 * ncols) * 0.75 - 6
             font_pt = cell.font.size or 11
-            # Excel width units approximate 11pt characters; brand serif runs a
-            # touch wide, so estimate conservatively.
-            # Roboto Slab / Dosis run ~20% wider than the Calibri width unit;
-            # 0.72 keeps the last wrapped line from clipping in LibreOffice and Excel.
-            chars_per_line = max(1, int(width * 0.72 * 11 / font_pt))
-            lines = sum(math.ceil(max(1, len(seg)) / chars_per_line)
-                        for seg in cell.value.split("\n"))
-            # Roboto Slab line box is ~1.6x its point size in LibreOffice/Excel.
-            needed = lines * font_pt * 1.65 + 8
+            font = _brand_font(cell.font.name or "Roboto Slab", cell.font.bold, font_pt)
+            lines = _wrapped_lines(cell.value, font, width_pt, font_pt)
+            # Brand line box ~1.5x the point size, plus cell padding.
+            needed = lines * font_pt * 1.5 + 4
             rows_spanned = (rng.max_row - rng.min_row + 1) if rng else 1
             per_row = needed / rows_spanned
             for r in range(cell.row, cell.row + rows_spanned):
-                dim = ws.row_dimensions[r]
-                if dim.height is not None and dim.height < per_row:
-                    dim.height = math.ceil(per_row)
+                need_by_row[r] = max(need_by_row.get(r, 0), per_row)
+    for r, need in need_by_row.items():
+        dim = ws.row_dimensions[r]
+        if dim.height is None:
+            continue
+        if dim.height < need * 1.15:
+            dim.height = math.ceil(need * 1.15)
+        elif dim.height > need * 1.4:
+            dim.height = math.ceil(need * 1.2)
 
 
 def build_excel(rows, output_path, store_name, date_range,
                 tier="mainstream", benchmarks=None, store_bench=None,
-                contact_available=True, extra_notes=None):
-    """Generate a formatted Excel workbook."""
+                contact_available=True, extra_notes=None,
+                report_label="E-Commerce Lead Source Scorecard", channel_mode=False):
+    """Generate a formatted Excel workbook. channel_mode: the export reports prospect
+    channels rather than vendors, so the Type column reads All and the New vs Used
+    section says the multiplier was not applied."""
     wb = Workbook()
     ws = wb.active
     ws.title = "Lead Source Scores"
@@ -1037,7 +1194,7 @@ def build_excel(rows, output_path, store_name, date_range,
     ws["D1"].alignment = Alignment(horizontal="left", vertical="center")
 
     ws.merge_cells("D2:O2")
-    ws["D2"] = f"E-Commerce Lead Source Scorecard  |  {date_range}"
+    ws["D2"] = f"{report_label}  |  {date_range}"
     ws["D2"].font = subtitle_font
     ws["D2"].alignment = Alignment(horizontal="left", vertical="center")
 
@@ -1067,7 +1224,7 @@ def build_excel(rows, output_path, store_name, date_range,
     headers = [
         ("Score", 8),
         ("Tier", 7),
-        ("Lead Source", 68),
+        ("Lead Source", max(26, min(68, max((len(r["source"]) for r in rows), default=20) + 6))),  # fit the longest name
         ("Type", 8),
         ("Leads", 9),
         ("Contact #", 10),
@@ -1135,7 +1292,7 @@ def build_excel(rows, output_path, store_name, date_range,
             score_val,
             tier_val,
             r["source"],
-            r["source_type"],
+            "All" if channel_mode else r["source_type"],
             r["leads"],
             "n/a" if not contact_available else r["contact"],
             "n/a" if (no_leads or not contact_available) else r["contact_pct"] / 100,
@@ -1152,6 +1309,10 @@ def build_excel(rows, output_path, store_name, date_range,
             # Excluded process rows (credit app / unattributed): a 1550% rate cell reads
             # as an error before the note does, so the rate cells show n/a.
             for k in (8, 10, 12):
+                values[k] = "n/a"
+        if r.get("funnel_na"):
+            # The CRM reports no appointments / shows for this channel (Momentum Showroom).
+            for k in (7, 8, 9, 10):
                 values[k] = "n/a"
 
         for col_idx, val in enumerate(values, 1):
@@ -1248,15 +1409,17 @@ def build_excel(rows, output_path, store_name, date_range,
     # tab; these stay here because they explain the shaded rows / n/a columns above.)
     note_row = header_row + len(data_rows) + (3 if totals_row else 2)
     notes = []
-    if any(r.get("is_credit_app", False) and not r.get("is_unattributed", False) for r in data_rows):
-        notes.append(f"\u26A0  {CREDIT_APP_DISCLAIMER}")
+    ca_rows = [r for r in data_rows if r.get("is_credit_app", False) and not r.get("is_unattributed", False)]
+    if ca_rows:
+        ca_names = ", ".join(f"{r['source']} ({r['leads']:,} leads)" for r in ca_rows)
+        notes.append(f"Note: {ca_names}: {CREDIT_APP_DISCLAIMER}")
     ua = unattributed_disclaimer(data_rows)
     if ua:
-        notes.append(f"\u26A0  {ua}")
+        notes.append(f"Note: {ua}")
     if not contact_available:
-        notes.append(f"\u2139  {CONTACT_NA_NOTE}")
+        notes.append(f"Note: {CONTACT_NA_NOTE}")
     for extra in (extra_notes or []):
-        notes.append(f"\u2139  {extra}")
+        notes.append(f"Note: {extra}")
     for text in notes:
         ws.merge_cells(start_row=note_row, start_column=1, end_row=note_row, end_column=15)
         cell = ws.cell(row=note_row, column=1, value=text)
@@ -1283,15 +1446,18 @@ def build_excel(rows, output_path, store_name, date_range,
         build_nada_benchmarks_tab(wb, tier, benchmarks, store_bench)
 
     # --- Methodology Tab ---
-    build_methodology_tab(wb, contact_available=contact_available)
+    build_methodology_tab(wb, contact_available=contact_available, channel_mode=channel_mode)
 
     # --- Summary Tab (created last, inserted FIRST in tab order per §4) ---
     build_summary_tab(wb, rows, store_name, date_range, tier, store_bench,
-                      contact_available=contact_available)
+                      contact_available=contact_available, extra_notes=extra_notes,
+                      report_label=report_label)
     wb.active = 0  # workbook opens on the Summary tab
 
+    from openpyxl.worksheet.page import PageMargins
     for sheet in wb.worksheets:
         _autofit_wrapped_rows(sheet)
+        sheet.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5, header=0.3, footer=0.3)
 
     wb.save(output_path)
     print(f"OK:{output_path}")
@@ -1334,7 +1500,7 @@ def build_nada_benchmarks_tab(wb, tier, benchmarks, store_bench):
     ws.column_dimensions["B"].width = 16
     ws.column_dimensions["C"].width = 16
     ws.column_dimensions["D"].width = 12
-    ws.column_dimensions["E"].width = 58
+    ws.column_dimensions["E"].width = 70
 
     tier_label = {"luxury": "Luxury", "mainstream": "Mainstream",
                   "powersports": "Powersports"}.get(tier, "Mainstream")
@@ -1462,6 +1628,7 @@ def build_nada_benchmarks_tab(wb, tier, benchmarks, store_bench):
     row += 1
 
     # --- NADA cost yardsticks ---
+    ws.row_breaks.append(Break(id=row - 1))  # cost + seasonal share the last page
     section_heading("NADA Cost & Economics Yardsticks (context)")
     table_header(["Metric", "Value", "", "Support", "Source"])
     cy = benchmarks.get("cost_yardsticks", {})
@@ -1518,7 +1685,6 @@ def build_nada_benchmarks_tab(wb, tier, benchmarks, store_bench):
     # --- Seasonal indices ---
     si = benchmarks.get("seasonal_indices_nada", {})
     if si:
-        ws.row_breaks.append(Break(id=row - 1))
         section_heading("NADA Seasonal Demand Indices (1.00 = avg month)")
 
         def season_block(keys):
@@ -1563,7 +1729,7 @@ def build_nada_benchmarks_tab(wb, tier, benchmarks, store_bench):
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True)
 
 
-def build_methodology_tab(wb, contact_available=True):
+def build_methodology_tab(wb, contact_available=True, channel_mode=False):
     """Add a Methodology tab explaining how scores and tiers are calculated."""
     ws = wb.create_sheet("Methodology")
 
@@ -1737,7 +1903,8 @@ def build_methodology_tab(wb, contact_available=True):
     # --- New vs Used Car Adjustment ---
     ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
     ws.row_breaks.append(Break(id=row - 1))
-    ws.cell(row=row, column=1, value="New vs Used Car Adjustment").font = heading_font
+    ws.cell(row=row, column=1, value=("New vs Used Car Adjustment (not applied in this report)"
+                                      if channel_mode else "New vs Used Car Adjustment")).font = heading_font
     ws.row_dimensions[row].height = 24
     row += 1
 
@@ -1753,6 +1920,11 @@ def build_methodology_tab(wb, contact_available=True):
 
     ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
     ws.cell(row=row, column=1, value=(
+        ("This export reports prospect channels (Internet, Inbound, Showroom and so on) rather than "
+         "vendors, and every channel carries new and used traffic alike. The Type column therefore reads "
+         "All and no sale-rate multiplier changed any score in this report. The table below is the "
+         "standing rule for vendor-level reports.")
+        if channel_mode else
         "To level the playing field, new car lead sources receive a 1.5x boost on their sale conversion "
         "rate before scoring. This prevents new car sources (dealer website, TrueCar, Costco, OEM leads) "
         "from being unfairly penalized when compared against used car marketplace sources (AutoTrader, "
@@ -1907,13 +2079,13 @@ def build_methodology_tab(wb, contact_available=True):
     row += 1
 
     tier_data = [
-        ("A", "405FAB", "8 - 10", "Top Performer",
+        ("A", "405FAB", "8-10", "Top Performer",
          "Maximize investment. These sources consistently convert leads to sales and deliver strong ROI."),
-        ("B", "6B9DD4", "5 - 7", "Solid Source",
+        ("B", "6B9DD4", "5-7", "Solid Source",
          "Maintain and optimize. Good conversion with room for improvement: review appointment follow-up."),
-        ("C", "949592", "3 - 4", "Underperforming",
+        ("C", "949592", "3-4", "Underperforming",
          "Evaluate closely. May need better lead handling or tighter follow-up processes before increasing spend."),
-        ("D", "070A15", "1 - 2", "Poor ROI",
+        ("D", "070A15", "1-2", "Poor ROI",
          "Consider reducing or reallocating budget. Low conversion across key metrics: investigate root cause."),
     ]
 
@@ -1993,11 +2165,13 @@ def build_methodology_tab(wb, contact_available=True):
 
     notes = [
         "Scores are relative, not absolute. Each factor is normalized against the best performer in this report, and a 10 requires leading every factor at once. No single source usually does, so the top score in a report can sit well below 10. Compare sources against each other, not an absolute scale.",
-        "New car sources receive a 1.5x boost on sale conversion rate to account for the structural close-rate disadvantage vs used car sources. The Sale % column shows the actual (unadjusted) rate; the boost is applied internally during scoring only.",
+        ("No new vs used multiplier changed any score in this report: the export reports channels, not vendors, so every row is treated alike and the Type column reads All."
+         if channel_mode else
+         "New car sources receive a 1.5x boost on sale conversion rate to account for the structural close-rate disadvantage vs used car sources. The Sale % column shows the actual (unadjusted) rate; the boost is applied internally during scoring only."),
         "Low-volume sources with high rates should be interpreted carefully. One lead that converts is a 100% rate but does not indicate a reliable pattern.",
-        "Appointment or sale rates above 100% occur when the CRM logs an appointment or a DMS-matched sale against a source without a matching lead in the period (re-engagement, portfolio or event records). Those rows show the actual figure; the rate is capped at 100% for scoring.",
+        "Appointment or sale rates above 100% occur when appointments or DMS-matched sales logged in the window belong to prospects created earlier (a Service channel in a Momentum snapshot; re-engagement, portfolio or event records elsewhere). Those rows show the actual figure; the rate is capped at 100% for scoring.",
         "Contact rates above 100% can occur when a lead is contacted multiple times or across multiple channels. These are capped at 100% for scoring purposes.",
-        "This methodology is designed for CRM e-commerce lead reports. Results are most meaningful when comparing sources within the same store and time period.",
+        "This methodology is designed for CRM lead-source reports. Results are most meaningful when comparing sources within the same store and time period.",
     ]
     if not contact_available:
         notes = [n for n in notes if not n.startswith("Contact rates above 100%")]
@@ -2044,6 +2218,9 @@ def print_summary(rows, store_name, tier, store_bench, output_path, ingest_meta=
           + (f"  ({len(credit)} excluded: credit app / unattributed)" if credit else ""))
     if ingest_meta and not ingest_meta.get("contact_available", True):
         print("  contact rate: not in this export (weight redistributed, columns read n/a)")
+    if ingest_meta and ingest_meta.get("funnel_na_sources"):
+        print(f"  appts/shows not measured for: {', '.join(ingest_meta['funnel_na_sources'])} "
+              f"(scored on close rate + volume, cells read n/a)")
     if ingest_meta and ingest_meta.get("totals_check"):
         print(f"  totals check vs report: {ingest_meta['totals_check']}")
     if ingest_meta and ingest_meta.get("report_date_range"):
@@ -2097,6 +2274,9 @@ def _run_pipeline(csv_path, output_path, store_name, date_range, ingest_meta=Non
 
     contact_available = (ingest_meta or {}).get("contact_available", True)
     rows = load_data(csv_path)
+    fna = set((ingest_meta or {}).get("funnel_na_sources") or [])
+    for r in rows:
+        r["funnel_na"] = r["source"] in fna
     rows = score_sources(rows, contact_available=contact_available)
 
     # --- NADA / industry benchmark layer (separate from the 1-10 score) ---
@@ -2108,9 +2288,22 @@ def _run_pipeline(csv_path, output_path, store_name, date_range, ingest_meta=Non
     extra_notes = []
     if ingest_meta and ingest_meta.get("format") == "tekion" and contact_available:
         extra_notes.append(TEKION_CONTACT_NOTE)
+    fn = funnel_na_note(rows, contact_available)
+    if fn:
+        extra_notes.append(fn)
+    o100 = over_100_note(rows)
+    if o100:
+        extra_notes.append(o100)
+    if ingest_meta and ingest_meta.get("format") == "momentum_snap":
+        extra_notes.append(snapshot_sales_note(ingest_meta))
+    report_label = ("All-Channel Lead Scorecard"
+                    if ingest_meta and ingest_meta.get("format") == "momentum_snap"
+                    else "E-Commerce Lead Source Scorecard")
+    channel_mode = bool(ingest_meta and ingest_meta.get("format") == "momentum_snap")
     build_excel(rows, output_path, store_name, date_range,
                 tier=tier, benchmarks=benchmarks, store_bench=store_bench,
-                contact_available=contact_available, extra_notes=extra_notes)
+                contact_available=contact_available, extra_notes=extra_notes,
+                report_label=report_label, channel_mode=channel_mode)
 
     # --- Post-flight validation folded into the run (no separate call needed) ---
     validation = None

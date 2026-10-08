@@ -2,7 +2,7 @@
   "_meta": {
     "title": "NADA & Industry Benchmark Reference - Lead Scoring",
     "maintained_by": "DigitalCLIQ",
-    "version": "2025",
+    "version": "2026",
     "last_updated": "2026-06-22",
     "update_cadence": "Annually, when new NADA Data drops (usually mid-year) and when refreshed close-rate studies publish.",
     "how_to_use": "The score-leads skill loads this file to add an absolute benchmark layer ON TOP of the existing relative 1-10 score. Close rates benchmark each source against its source-type. Cost yardsticks are displayed as context on the NADA Benchmarks tab. Every number is editable; update the value and the citation together.",
@@ -67,7 +67,7 @@
         "url": "https://resources.rework.com/libraries/automotive-sales-growth/third-party-lead-providers"
       },
       "owned_equity": {
-        "label": "Owned Equity - Repeat / Referral / Service Drive",
+        "label": "Owned Equity: Repeat / Referral / Service Drive",
         "range": [0.30, 0.45],
         "luxury": 0.40,
         "mainstream": 0.38,
@@ -83,7 +83,7 @@
         "mainstream": 0.13,
         "powersports": 0.11,
         "support": "estimate",
-        "source": "ESTIMATE (range 10-18%, online deal-builder sub-channel skews 15-20%). Chat behaves like first-party website leads but outperforms generic web forms: Cox Automotive ~2-3x close-rate lift from chat-to-store conversation continuity; live chat +20-30% conversion vs static forms; Gubagoo early-adopter close 15% vs third-party 5-8% (2013, dated vendor data); CarNow 13.55% click-to-lead. Absolute close rates are largely vendor-derived, hence estimate. Too central to automotive to leave unscored.",
+        "source": "ESTIMATE (range 10-18%, online deal-builder sub-channel skews 15-20%). Chat behaves like first-party website leads but outperforms generic web forms: Cox Automotive ~2-3x close-rate lift from chat-to-store conversation continuity; live chat +20-30% conversion vs static forms; CarNow 13.55% click-to-lead. Absolute close rates are largely vendor-derived, hence estimate.",
         "url": "https://www.demandlocal.com/blog/live-chat-and-messaging-statistics/"
       },
       "data_list": {
@@ -93,7 +93,7 @@
         "mainstream": null,
         "powersports": null,
         "support": "strong",
-        "source": "Data lists (OEM financial-services lists such as Stellantis Financial or BMW Financial Services, owner-in-market, event/tour rosters, equity-mining feeds) are names, not inbound buy-leads. Near-zero direct close is expected and correct. NOT benchmarked (vs Bench = N/A) and excluded from the store self-score; still scored 1-10 relative to this report.",
+        "source": "Data lists (OEM financial-services lists such as the captive lender's lease-end and loan lists, owner-in-market, event/tour rosters, equity-mining feeds) are names, not inbound buy-leads. Near-zero direct close is expected and correct. NOT benchmarked (vs Bench = N/A) and excluded from the store self-score; still scored 1-10 relative to this report.",
         "url": ""
       }
     },
@@ -121,7 +121,7 @@
       "low": 0.06,
       "high": 0.07,
       "support": "moderate",
-      "source": "Widely-cited NADA recommended band (not in the PDF directly). Guardrail for the annual ad-budget envelope.",
+      "source": "Widely-cited NADA recommended band. Guardrail for the annual ad-budget envelope.",
       "url": "https://www.nada.org/media/4695/download"
     },
     "ad_channel_mix_2025": {
@@ -157,7 +157,7 @@
       "used_front_plus_back": 4180,
       "f_and_i_per_unit": 2515,
       "support": "moderate",
-      "source": "Haig Partners - New Vehicle Gross Profits Rebound Q2 2025. Buy-sell advisory aggregate, not NADA. Override per store.",
+      "source": "Haig Partners, New Vehicle Gross Profits Rebound Q2 2025. Buy-sell advisory aggregate, not NADA.",
       "url": "https://haigpartners.com/resources/new-vehicle-gross-profits-rebound-in-q2-2025-what-it-means-for-the-future-of-dealership-valuations/"
     }
   },
