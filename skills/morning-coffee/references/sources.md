@@ -57,7 +57,7 @@ Apps Script web-app endpoints return the dashboard's current JSON payload.
 |---|---|---|
 | `ncbmw` | New Century BMW | `https://script.google.com/macros/s/AKfycbwdi91LD8vFv5A3PDCJQ4BIm4TWkzDWei49G_dCf0fnxfMucDHORapSKtLcnoQ9aMpyWA/exec` |
 | `sbmw` | Sterling BMW | `https://script.google.com/macros/s/AKfycbxVJugSl93A9egpeeXymBMEzBv6M5yWMxs-Prn-VEP-MM0ragBhWDP0xdKXDlAl_ijgJQ/exec` |
-| `mcpeek` | McPeek CDJR | `https://script.google.com/macros/s/AKfycbxswEKhEK-Sr98XkVe_mmFs8SqyQlsaGfzNXIAfuH2EatFJixHtUnX3nfhyqFoKPRjl/exec` |
+| `mcpeek` | McPeek CDJR | `https://script.google.com/macros/s/AKfycbwhjQaumgGyXA6Ih5DTtdJQYyimdCchB1uimeau2B8BdNoumKEKxXOJ7M5BD3zLES5hUg/exec` (v2 feed since 2026-10-10, `"schema": "dcq-dashboard/2"`, no `clients` block: headline numbers are `crm.chain.good`, `crm.sold.total`, `ads.mtd`, `web.mtd`; freshness is each `sources[]` entry's `status` and `periodEnd`) |
 
 Backing sheets (for reference only): NCBMW `1JJcHIC1253Dtpp50OGIRhgNCw-g-DqRgkETIJa8okAE`, SBMW `1Ki2RjJUc4AN4A-ZFgqNLQpENDySVjgULR4xG6UTSpCU`, McPeek `12vhp5FyujzOpCVcIspPszmhbLxy3FwnsjJ4UxKbFXpA`.
 

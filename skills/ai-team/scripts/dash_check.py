@@ -25,6 +25,17 @@ Signals, per store (clients.<key> in the payload):
 Not flagged on purpose: the gross "estimate" wording (by design, per the dashboard operating guide)
 and the top-level seoMonth (blank on all three by design).
 
+McPeek reads its v2 feed (schema "dcq-dashboard/2", no clients block) through evaluate_v2 since 2026-10-10.
+The feed grades its own sources[] (ok, stale, missing, error), so the v2 signals are:
+  RED    the Tekion source is missing or errored or carries a check note (missing on the 1st to 3rd is a note)
+  RED    the Tekion source is stale (period end more than the feed's FILE_STALE_DAYS, 7, behind)
+  RED    crm.chain.good is 0, or the CRM period is not this month, after day 3 of the month
+  RED    the CRM period or the Google Ads month is before the last closed month
+  AMBER  CallRevu, Google Ads or GA4 is stale, missing or errored
+  AMBER  SEMrush is missing or stale, or its newest month (history[-1].month, else monthOf) is before the
+         last closed month
+  AMBER  generatedAt is more than 3 days old (the 30-minute rebuildFeed trigger has stopped)
+
 Writes {shift folder}/data/dashboards.json and nothing else: per store a status (RED, AMBER,
 GREEN, or NO DATA), every issue with its fix and first_seen (carried from the newest earlier
 shift folder's dashboards.json), a ready "Missing tonight" line, and the fields for one aging ask.
@@ -74,11 +85,24 @@ DASHBOARDS = {
               "url": "https://script.google.com/macros/s/AKfycbwdi91LD8vFv5A3PDCJQ4BIm4TWkzDWei49G_dCf0fnxfMuc"
                      "DHORapSKtLcnoQ9aMpyWA/exec",
               "crm_fix": "load the current Focus export into the NCBMW dashboard Sheet"},
+    # MCP v2 (2026-10-10): McPeek Dashboard v2 (script 1C_UiQnZ...), the feed behind mcpeekcdjr.netlify.app. Its
+    # ingestDropFolder trigger loads files dropped in CRM Drop/MCP every 15 min and logs each in the Ingest Log tab.
+    # The v1 endpoint (AKfycbxswEKhEK...) is retired once v2 runs clean; never point this back at it.
     "MCP": {"key": "mcpeek", "name": "McPeek CDJR", "sheet": "12vhp5FyujzOpCVcIspPszmhbLxy3FwnsjJ4UxKbFXpA",
-            "url": "https://script.google.com/macros/s/AKfycbxswEKhEK-Sr98XkVe_mmFs8SqyQlsaGfzNXIAfuH2EatF"
-                   "JixHtUnX3nfhyqFoKPRjl/exec",
-            "crm_fix": "load the latest Tekion lead-source export into the McPeek dashboard Sheet"},
+            "schema": "dcq-dashboard/2",
+            "url": "https://script.google.com/macros/s/AKfycbwhjQaumgGyXA6Ih5DTtdJQYyimdCchB1uimeau2B8BdNoumKE"
+                   "KxXOJ7M5BD3zLES5hUg/exec",
+            "crm_fix": "drop the latest Tekion lead-source export (month to date) in CRM Drop/MCP, then check the "
+                       "Ingest Log tab in the McPeek dashboard Sheet",
+            "source_fix": {
+                "callrevu": "drop the latest CallRevu calls export in CRM Drop/MCP, then check the Ingest Log tab "
+                            "in the McPeek dashboard Sheet",
+                "googleAds": "check the McPeek Google Ads dashboard script (346-925-5700) ran, and the AI team's "
+                             "nightly Ads export behind it",
+                "ga4": "open the McPeek Dashboard v2 Apps Script executions for the GA4 error (property 321466006)",
+                "semrush": "run tools/seo_push.py for MCP (digitalcliq-dashboards) after the next Semrush pull"}},
 }
+V2_SCHEMA = "dcq-dashboard/2"
 
 # Card sources that are search data, not CRM or paid data: a stale month there is AMBER, not RED.
 SEO_SOURCES = {"SEMRUSH", "GA4", "GSC", "SEO", "SEARCH CONSOLE"}
@@ -178,6 +202,8 @@ def issue(level, rule, key, text, fix, **extra):
 def evaluate(store, payload, ref):
     """Rules for one store's payload. Returns (issues, notes, snapshot)."""
     cfg = DASHBOARDS[store]
+    if cfg.get("schema") == V2_SCHEMA:
+        return evaluate_v2(store, payload, ref)
     k = cfg["key"]
     issues, notes = [], []
     closed = prev_month(ref)
@@ -282,6 +308,139 @@ def evaluate(store, payload, ref):
                 "seo_last_month": ym_label(seo_ym) if seo_ym else None,
                 "ppc_months": {vk: v.get("month") for vk, v in ppc.items() if isinstance(v, dict)}
                 if isinstance(ppc, dict) else {}}
+    return issues, notes, snapshot
+
+
+def ym_of(text):
+    """'2026-10' or '2026-10-08' (or an ISO timestamp) -> (2026, 10), else None."""
+    m = re.match(r"^\s*(\d{4})-(\d{2})", str(text or ""))
+    return (int(m.group(1)), int(m.group(2))) if m and 1 <= int(m.group(2)) <= 12 else None
+
+
+def date_of(text):
+    try:
+        return dt.date.fromisoformat(str(text or "")[:10])
+    except ValueError:
+        return None
+
+
+def evaluate_v2(store, payload, ref):
+    """Rules for a "dcq-dashboard/2" feed (McPeek v2). Same (issues, notes, snapshot) contract as evaluate()."""
+    cfg = DASHBOARDS[store]
+    if not isinstance(payload, dict) or payload.get("schema") != V2_SCHEMA:
+        raise ValueError("payload schema is %r, expected %s" % ((payload or {}).get("schema")
+                                                                 if isinstance(payload, dict) else None, V2_SCHEMA))
+    issues, notes = [], []
+    closed, cur = prev_month(ref), (ref.year, ref.month)
+    crm_fix, sfix = cfg["crm_fix"], cfg.get("source_fix") or {}
+    srcs = {s.get("id"): s for s in payload.get("sources") or [] if isinstance(s, dict)}
+    crm = payload.get("crm") if isinstance(payload.get("crm"), dict) else None
+    grace = ref.day <= MTD_GRACE_DAYS
+
+    def src_text(s):
+        bits = [clean(s.get("note"))] if s.get("note") else []
+        if s.get("periodEnd"):
+            bits.append("data through %s" % s["periodEnd"])
+        return "; ".join(bits)
+
+    # 1. Tekion (CRM): missing, errored, check note, or stale. A month-start gap is expected for three days.
+    tek = srcs.get("tekion") or {"status": "missing", "note": "no tekion entry in sources"}
+    tst = tek.get("status")
+    if tek.get("check"):
+        issues.append(issue("RED", "CRM_EMPTY", "crm_empty", "Tekion source carries a check note (\"%s\")"
+                            % clean(tek["check"])[:80], crm_fix))
+    elif tst in ("missing", "error") or crm is None:
+        if tst == "missing" and grace:
+            notes.append("Tekion not loaded yet on %s %d (grace through day %d)" % (ref.strftime("%b"), ref.day,
+                                                                                    MTD_GRACE_DAYS))
+        else:
+            issues.append(issue("RED", "CRM_EMPTY", "crm_empty", "Tekion CRM is %s (%s)"
+                                % ("errored" if tst == "error" else "not loaded" if tst == "missing"
+                                   else "not in the feed", src_text(tek) or "no note"), crm_fix))
+    elif tst == "stale":
+        age = (ref - date_of(tek.get("periodEnd"))).days if date_of(tek.get("periodEnd")) else None
+        issues.append(issue("RED", "CRM_STALE", "crm_stale", "Tekion CRM data stops at %s%s"
+                            % (tek.get("periodEnd"), ", %d days ago" % age if age is not None else ""),
+                            crm_fix, age_days=age))
+
+    # 2. CRM month and zero leads. The feed shows the newest Tekion load, so on Oct 5 a September file still shows.
+    good = None
+    if crm:
+        good = (crm.get("chain") or {}).get("good")
+        cym = ym_of(crm.get("periodEnd")) or ym_of(crm.get("periodStart"))
+        if cym and cym < closed:
+            issues.append(issue("RED", "KPI_OLD_MONTH", "kpi:%04d-%02d" % cym, "CRM numbers still show %s (%s to %s)"
+                                % (ym_label(cym), crm.get("periodStart"), crm.get("periodEnd")), crm_fix,
+                                month=ym_label(cym)))
+        elif not grace and cym and cym < cur:
+            issues.append(issue("RED", "MTD_ZERO", "mtd_zero", "no %s Tekion leads loaded on %s %d (CRM shows %s)"
+                                % (ref.strftime("%B"), ref.strftime("%b"), ref.day, ym_label(cym)), crm_fix))
+        elif not grace and good is not None and float(good or 0) == 0:
+            issues.append(issue("RED", "MTD_ZERO", "mtd_zero", "0 leads month to date on %s %d"
+                                % (ref.strftime("%b"), ref.day), crm_fix))
+        if good is None:
+            notes.append("no crm.chain.good in the payload")
+
+    # 3. Google Ads month (the v2 paid block).
+    ads = payload.get("ads") if isinstance(payload.get("ads"), dict) else None
+    ads_ym = ym_of((ads or {}).get("month")) or ym_of((ads or {}).get("lastFullDay"))
+    ads_old = bool(ads_ym and ads_ym < closed)
+    if ads_old:
+        issues.append(issue("RED", "PPC_OLD_MONTH", "ppc:googleAds", "Google Ads still shows %s" % ym_label(ads_ym),
+                            sfix.get("googleAds") or crm_fix, month=ym_label(ads_ym)))
+
+    # 4. The other sources, graded by the feed itself.
+    for sid, label in (("callrevu", "CallRevu calls"), ("googleAds", "Google Ads"), ("ga4", "Google Analytics")):
+        s = srcs.get(sid)
+        if s is None:
+            notes.append("no %s entry in sources" % sid)
+            continue
+        st = s.get("status")
+        if st == "ok" or (sid == "googleAds" and ads_old):
+            continue
+        if st == "missing" and sid == "callrevu" and grace:
+            notes.append("CallRevu not loaded yet on %s %d" % (ref.strftime("%b"), ref.day))
+            continue
+        issues.append(issue("AMBER", "SOURCE_%s" % str(st).upper(), "source:%s" % sid,
+                            "%s is %s (%s)" % (label, st, src_text(s) or "no note"),
+                            sfix.get(sid) or "check the %s source in the McPeek dashboard Sheet" % label))
+
+    # 5. SEMrush months.
+    sem = ((payload.get("seo") or {}).get("semrush")) if isinstance(payload.get("seo"), dict) else None
+    hist = (sem or {}).get("history") or []
+    seo_ym = (ym_of(hist[-1].get("month")) if hist and isinstance(hist[-1], dict) else None) or \
+        ym_of((sem or {}).get("monthOf"))
+    sem_src = srcs.get("semrush") or {}
+    seo_fix = sfix.get("semrush") or "refresh the SEO data in the %s dashboard" % store
+    if not sem or seo_ym is None:
+        issues.append(issue("AMBER", "SEO_EMPTY", "seo_empty", "no SEMrush months on the dashboard (%s)"
+                            % (clean(sem_src.get("note")) or sem_src.get("status") or "no semrush source"), seo_fix))
+    elif seo_ym < closed:
+        age = (ref - month_end(seo_ym)).days
+        issues.append(issue("AMBER", "SEO_OLD_MONTH", "seo_old", "SEO months stop at %s, %d days past that month's end"
+                            % (ym_label(seo_ym), age), seo_fix, month=ym_label(seo_ym), age_days=age))
+
+    # 6. Feed build stamp.
+    upd_raw = payload.get("generatedAt")
+    upd = date_of(upd_raw)
+    upd_age = (ref - upd).days if upd else None
+    if upd is None:
+        notes.append("generatedAt unreadable: %r" % (upd_raw,))
+    elif upd_age > UPDATED_MAX_DAYS:
+        issues.append(issue("AMBER", "UPDATED_OLD", "updated_old", "feed last rebuilt %s, %d days ago"
+                            % (upd_raw, upd_age), "open the McPeek Dashboard v2 Apps Script Triggers page and check "
+                            "rebuildFeed (every 30 min) is still running", age_days=upd_age))
+    for e in payload.get("errors") or []:
+        if isinstance(e, dict):
+            notes.append("feed error %s: %s" % (e.get("source"), clean(e.get("message"))[:120]))
+
+    snapshot = {"schema": V2_SCHEMA, "updated": upd_raw, "updated_age_days": upd_age,
+                "crmSource": ("%s, %s, %s" % (tek.get("status"), tek.get("file"), tek.get("periodEnd")))[:200],
+                "period": "%s to %s" % (crm.get("periodStart"), crm.get("periodEnd")) if crm else None,
+                "leads_mtd": good, "kpi_labels": [],
+                "seo_last_month": ym_label(seo_ym) if seo_ym else None,
+                "ppc_months": {"googleAds": (ads or {}).get("month")} if ads else {},
+                "sources": {sid: s.get("status") for sid, s in srcs.items()}}
     return issues, notes, snapshot
 
 
@@ -455,8 +614,9 @@ def selftest():
                                  updated="Sep 30, 2026", ppc={"v": {"name": "V", "month": "September"}}),
                     dt.date(2026, 10, 1))[0]
     assert oct1 == [], oct1
-    assert lv(evaluate("MCP", pay("MCP", months=["May", "Jun"]), ref)[0]) == [("SEO_OLD_MONTH", "AMBER")]
-    assert lv(evaluate("MCP", pay("MCP", months=[], seoMonth="Mon Jun 01 2026 00:00:00 GMT-0700"), ref)[0]) == [
+    # (MCP ran these on v1 until 2026-10-10; MCP is v2 now, the v1 rules still cover SBMW and NCBMW.)
+    assert lv(evaluate("NCBMW", pay("NCBMW", months=["May", "Jun"]), ref)[0]) == [("SEO_OLD_MONTH", "AMBER")]
+    assert lv(evaluate("NCBMW", pay("NCBMW", months=[], seoMonth="Mon Jun 01 2026 00:00:00 GMT-0700"), ref)[0]) == [
         ("SEO_OLD_MONTH", "AMBER")]
     assert lv(evaluate("NCBMW", pay("NCBMW", crmSource="v2 CHECK: header moved"), ref)[0]) == [("CRM_EMPTY", "RED")]
     # SBMW Pixel Motion grace: August is current through Oct 20 (September's report is due then), RED from Oct 21;
@@ -471,14 +631,91 @@ def selftest():
     assert "load the" not in iss[0]["fix"] and "%(" not in iss[0]["fix"], iss[0]["fix"]
     assert lv(evaluate("SBMW", px("SBMW", "Jul 2026", 6), dt.date(2026, 10, 6))[0]) == [("PPC_OLD_MONTH", "RED")]
     assert evaluate("SBMW", px("SBMW", "Sep 2026", 25), dt.date(2026, 10, 25))[0] == []
-    for store in ("NCBMW", "MCP"):
+    for store in ("NCBMW",):
         iss = evaluate(store, px(store, "Aug 2026", 6), dt.date(2026, 10, 6))[0]
         assert lv(iss) == [("PPC_OLD_MONTH", "RED")] and iss[0]["fix"].startswith("load the September Pixel Motion"), iss
     # SBMW CRM fix points at the loader's Ingest Log, not a paste.
     iss = evaluate("SBMW", pay("SBMW", crmSource="momentum kpi: CHECK: no KPI Summary"), ref)[0]
     assert lv(iss) == [("CRM_EMPTY", "RED")] and "Ingest Log" in iss[0]["fix"] and "paste" not in iss[0]["fix"], iss
+    selftest_v2()
     print("selftest: all checks passed")
     return 0
+
+
+def selftest_v2():
+    """McPeek v2 feed ("dcq-dashboard/2"). Shapes follow the live feed of 2026-10-10 (aggregates only)."""
+    lv = lambda iss: sorted((i["rule"], i["level"]) for i in iss)
+
+    def v2(sources=None, **kw):
+        src = {"tekion": {"id": "tekion", "status": "ok", "periodStart": "2026-10-01", "periodEnd": "2026-10-08",
+                          "file": "_Lead Source Report   For Dashboard.csv", "check": None, "note": None},
+               "callrevu": {"id": "callrevu", "status": "ok", "periodEnd": "2026-10-08", "note": None},
+               "googleAds": {"id": "googleAds", "status": "ok", "periodEnd": "2026-10-08", "note": None},
+               "ga4": {"id": "ga4", "status": "ok", "periodEnd": "2026-10-08", "note": "Oct 9 is preliminary"},
+               "semrush": {"id": "semrush", "status": "ok", "asOf": "2026-10-05", "monthOf": "2026-09-15"},
+               "spend": {"id": "spend", "status": "ok"}, "targets": {"id": "targets", "status": "ok"}}
+        for sid, patch in (sources or {}).items():
+            src[sid] = dict(src[sid], **patch)
+        p = {"schema": V2_SCHEMA, "generatedAt": "2026-10-10T12:25:26-07:00",
+             "month": {"key": "2026-10", "label": "October 2026"}, "sources": list(src.values()),
+             "crm": {"periodStart": "2026-10-01", "periodEnd": "2026-10-08", "chain": {"good": 112, "buyerLeads": 107}},
+             "ads": {"month": "2026-10", "lastFullDay": "2026-10-08", "via": "ai-team-export"},
+             "seo": {"semrush": {"monthOf": "2026-09-15", "history": [{"month": "2026-08"}, {"month": "2026-09"}]}},
+             "errors": []}
+        p.update(kw)
+        return p
+
+    oct = lambda d: dt.date(2026, 10, d)
+    iss, notes, snap = evaluate("MCP", v2(), oct(10))
+    assert iss == [] and snap["leads_mtd"] == 112 and snap["schema"] == V2_SCHEMA, (iss, snap)
+    assert snap["seo_last_month"] == "Sep 2026" and snap["sources"]["tekion"] == "ok", snap
+    # A v1-shaped payload at the v2 endpoint is NO DATA, never a guess.
+    try:
+        evaluate("MCP", {"updated": "Oct 10, 2026", "clients": {"mcpeek": {}}}, oct(10))
+        raise AssertionError("v1 payload must raise")
+    except ValueError as e:
+        assert "dcq-dashboard/2" in str(e)
+    # Tekion: missing on the 2nd is a note, RED from the 4th; errored, check note, stale are RED.
+    miss = v2(sources={"tekion": {"status": "missing", "note": "Not loaded yet.", "periodEnd": None}}, crm=None)
+    iss, notes, _ = evaluate("MCP", miss, oct(2))
+    assert iss == [] and any("grace" in n for n in notes), (iss, notes)
+    iss = evaluate("MCP", miss, oct(4))[0]
+    assert lv(iss) == [("CRM_EMPTY", "RED")] and "CRM Drop/MCP" in iss[0]["fix"], iss
+    assert lv(evaluate("MCP", v2(sources={"tekion": {"status": "error"}}, crm=None), oct(2))[0]) == [("CRM_EMPTY", "RED")]
+    iss = evaluate("MCP", v2(sources={"tekion": {"check": "header moved"}}), oct(10))[0]
+    assert lv(iss) == [("CRM_EMPTY", "RED")] and "header moved" in iss[0]["text"], iss
+    iss = evaluate("MCP", v2(sources={"tekion": {"status": "stale", "periodEnd": "2026-10-01"}}), oct(10))[0]
+    assert lv(iss) == [("CRM_STALE", "RED")] and iss[0]["age_days"] == 9, iss
+    # CRM month: September is current on Oct 1 to 3, RED (MTD_ZERO) from the 4th; August is RED at once.
+    sep = v2(crm={"periodStart": "2026-09-01", "periodEnd": "2026-09-30", "chain": {"good": 480}})
+    assert evaluate("MCP", sep, oct(3))[0] == []
+    iss = evaluate("MCP", sep, oct(4))[0]
+    assert lv(iss) == [("MTD_ZERO", "RED")] and "no October Tekion leads" in iss[0]["text"], iss
+    aug = v2(crm={"periodStart": "2026-08-01", "periodEnd": "2026-08-31", "chain": {"good": 500}})
+    iss = evaluate("MCP", aug, oct(2))[0]
+    assert lv(iss) == [("KPI_OLD_MONTH", "RED")] and iss[0]["key"] == "kpi:2026-08", iss
+    assert lv(evaluate("MCP", v2(crm={"periodStart": "2026-10-01", "periodEnd": "2026-10-08",
+                                      "chain": {"good": 0}}), oct(10))[0]) == [("MTD_ZERO", "RED")]
+    # Google Ads two months back is RED once (no second AMBER for the same source); stale alone is AMBER.
+    iss = evaluate("MCP", v2(sources={"googleAds": {"status": "stale"}},
+                             ads={"month": "2026-08", "lastFullDay": "2026-08-31"}), oct(10))[0]
+    assert lv(iss) == [("PPC_OLD_MONTH", "RED")], iss
+    iss = evaluate("MCP", v2(sources={"ga4": {"status": "stale", "periodEnd": "2026-10-03"}}), oct(10))[0]
+    assert lv(iss) == [("SOURCE_STALE", "AMBER")] and iss[0]["key"] == "source:ga4" and "321466006" in iss[0]["fix"], iss
+    cr = v2(sources={"callrevu": {"status": "missing", "note": "Not loaded yet.", "periodEnd": None}})
+    assert evaluate("MCP", cr, oct(2))[0] == []
+    assert lv(evaluate("MCP", cr, oct(5))[0]) == [("SOURCE_MISSING", "AMBER")]
+    # SEMrush: history ending August is AMBER on Oct 10; no semrush block is SEO_EMPTY.
+    iss = evaluate("MCP", v2(seo={"semrush": {"monthOf": "2026-08-15", "history": [{"month": "2026-08"}]}}), oct(10))[0]
+    assert lv(iss) == [("SEO_OLD_MONTH", "AMBER")] and "seo_push" in iss[0]["fix"], iss
+    assert lv(evaluate("MCP", v2(seo={"semrush": None, "organic": None},
+                                 sources={"semrush": {"status": "stale", "note": "older than 30 days"}}), oct(10))[0]) == [
+        ("SEO_EMPTY", "AMBER")]
+    # A dead rebuildFeed trigger.
+    iss = evaluate("MCP", v2(generatedAt="2026-10-05T08:00:00-07:00"), oct(10))[0]
+    assert lv(iss) == [("UPDATED_OLD", "AMBER")] and iss[0]["age_days"] == 5, iss
+    for i in iss:
+        assert "\u2014" not in i["text"] + i["fix"]
 
 
 def main():

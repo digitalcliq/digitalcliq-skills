@@ -160,7 +160,7 @@ If a runbook still says NEEDS SCOUTING, do not dispatch that store's agent, set 
 > Fetch the current JSON payload from three live DigitalCLIQ client dashboards (plain GETs, no login):
 > - ncbmw (New Century BMW): `https://script.google.com/macros/s/AKfycbwdi91LD8vFv5A3PDCJQ4BIm4TWkzDWei49G_dCf0fnxfMucDHORapSKtLcnoQ9aMpyWA/exec`
 > - sbmw (Sterling BMW): `https://script.google.com/macros/s/AKfycbxVJugSl93A9egpeeXymBMEzBv6M5yWMxs-Prn-VEP-MM0ragBhWDP0xdKXDlAl_ijgJQ/exec`
-> - mcpeek (McPeek CDJR): `https://script.google.com/macros/s/AKfycbxswEKhEK-Sr98XkVe_mmFs8SqyQlsaGfzNXIAfuH2EatFJixHtUnX3nfhyqFoKPRjl/exec`
+> - mcpeek (McPeek CDJR): `https://script.google.com/macros/s/AKfycbwhjQaumgGyXA6Ih5DTtdJQYyimdCchB1uimeau2B8BdNoumKEKxXOJ7M5BD3zLES5hUg/exec` (v2 feed since 2026-10-10, `"schema": "dcq-dashboard/2"`, no `clients` block: headline numbers are `crm.chain.good`, `crm.sold.total`, `ads.mtd`, `web.mtd`; freshness is each `sources[]` entry's `status` and `periodEnd`)
 >
 > Use `Bash: curl -sL "<url>"` (Apps Script redirects: the -L matters). Parse each payload, surface the store's headline numbers as 4-6 kpi cards, note the latest data date. If the latest data is >3 days old set `stale: true` with a `stale_note` naming the stale vendor/tab.
 >
