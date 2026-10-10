@@ -1654,13 +1654,26 @@ def build_nada_benchmarks_tab(wb, tier, benchmarks, store_bench):
         s.font = body_font
         s.alignment = wrap_align
         s.border = thin_border
-        ws.row_dimensions[row].height = 40
+        # long sources (a JUNE YTD note appended) wrap onto more lines
+        ws.row_dimensions[row].height = max(40, 13 * (len(source) // 75 + 1))
         row += 1
+
+    # Full-year NADA value first, the midyear (JUNE YTD) value beside it when the file has one
+    def _with_ytd(full_str, entry, fmt):
+        y = entry.get("june_ytd_2026") or {}
+        if y.get("value") is None:
+            return full_str
+        return f"{full_str} FY{entry.get('year', '')}\n{fmt.format(y['value'])} {y.get('label', 'JUNE YTD 2026')}"
+
+    def _ytd_source(entry):
+        y = entry.get("june_ytd_2026") or {}
+        src = entry.get("source", "")
+        return f"{src} {y.get('label', 'JUNE YTD 2026')}: {y['source']}" if y.get("value") is not None else src
 
     ad = cy.get("ad_cost_per_new_unit_usd", {})
     if ad:
-        cost_row("Advertising cost per new unit", f"${ad.get('value'):,}",
-                 ad.get("support", ""), ad.get("source", ""))
+        cost_row("Advertising cost per new unit", _with_ytd(f"${ad.get('value'):,}", ad, "${:,}"),
+                 ad.get("support", ""), _ytd_source(ad))
     pg = cy.get("ad_pct_of_total_gross", {})
     if pg:
         cost_row("Advertising as % of total gross",
@@ -1678,8 +1691,12 @@ def build_nada_benchmarks_tab(wb, tier, benchmarks, store_bench):
                  gp.get("support", ""), gp.get("source", ""))
     np_ = cy.get("avg_new_vehicle_price_usd", {})
     if np_:
-        cost_row("Avg new-vehicle retail price", f"${np_.get('value'):,}",
-                 np_.get("support", ""), np_.get("source", ""))
+        cost_row("Avg new-vehicle retail price", _with_ytd(f"${np_.get('value'):,}", np_, "${:,}"),
+                 np_.get("support", ""), _ytd_source(np_))
+    up = cy.get("avg_used_vehicle_price_usd", {})
+    if up:
+        cost_row("Avg used-vehicle retail price", _with_ytd(f"${up.get('value'):,}", up, "${:,}"),
+                 up.get("support", ""), _ytd_source(up))
     row += 1
 
     # --- Seasonal indices ---

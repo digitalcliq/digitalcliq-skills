@@ -3,24 +3,37 @@
     "title": "NADA & Industry Benchmark Reference - Lead Scoring",
     "maintained_by": "DigitalCLIQ",
     "version": "2026",
-    "last_updated": "2026-06-22",
-    "update_cadence": "Annually, when new NADA Data drops (usually mid-year) and when refreshed close-rate studies publish.",
+    "last_updated": "2026-10-10",
+    "update_cadence": "NADA publishes NADA Data twice a year: the full-year report in spring and the midyear (June YTD) report in late summer. Full-year values stay the primary yardstick; midyear values sit beside them under 'june_ytd_2026' style keys, labeled JUNE YTD. Close-rate studies refresh separately.",
     "how_to_use": "The score-leads skill loads this file to add an absolute benchmark layer ON TOP of the existing relative 1-10 score. Close rates benchmark each source against its source-type. Cost yardsticks are displayed as context on the NADA Benchmarks tab. Every number is editable; update the value and the citation together.",
     "support_legend": {
       "strong": "Primary source (NADA PDF) or multi-source consensus. Cite confidently.",
       "moderate": "Single credible vendor/advisory source. Cite with caveat.",
       "estimate": "Directional only, no single authoritative study. Label clearly in output."
+    },
+    "nada_reports": {
+      "full_year_2025": {
+        "title": "NADA Data 2025: Annual Financial Profile of America's Franchised New-Car Dealerships (full year 2025)",
+        "url": "https://www.nada.org/media/4695/download"
+      },
+      "june_ytd_2026": {
+        "title": "NADA Data 2026: Midyear Report (June YTD 2026)",
+        "url": "https://www.nada.org/media/4694/download",
+        "checked": "2026-10-10"
+      }
     }
   },
-
   "close_rate_benchmarks": {
     "_about": "Lead-to-sale (30-day) close-rate midpoints by source-type, expressed as a fraction (0.10 = 10%). Tiers: luxury / mainstream / powersports. Mainstream = industry-blended base from the studies; luxury applies a directional uplift on first-party/internet/OEM (luxury brands rank highest in internet-lead effectiveness); powersports has NO published lead-to-sale close rate, so values are proxy-estimates derived from the auto internet-lead floor (~6%, Foureyes) adjusted by Pied Piper ILE response-effectiveness (high-ILE / Harley-type dealers skew to the top of each range; ~half of powersports dealers never phone web leads, dragging the average down). The 'estimate' support flag marks every figure that is directional rather than from a single authoritative study.",
     "categories": {
       "website": {
         "label": "Dealer Website / Internet Leads",
-        "range": [0.06, 0.20],
+        "range": [
+          0.06,
+          0.2
+        ],
         "luxury": 0.12,
-        "mainstream": 0.10,
+        "mainstream": 0.1,
         "powersports": 0.09,
         "support": "moderate",
         "source": "Foureyes 30-Day Close Rate Study 2025 (realized ~6%); Demand Local / Maritz target band 10-15%; high performers 18-20%. Luxury uplift per WardsAuto/Pied Piper internet-effectiveness rankings.",
@@ -28,7 +41,10 @@
       },
       "phone": {
         "label": "Phone / Call-In Leads",
-        "range": [0.12, 0.16],
+        "range": [
+          0.12,
+          0.16
+        ],
         "luxury": 0.15,
         "mainstream": 0.14,
         "powersports": 0.13,
@@ -38,7 +54,10 @@
       },
       "walk_in": {
         "label": "Walk-In / Showroom / Floor Traffic",
-        "range": [0.20, 0.30],
+        "range": [
+          0.2,
+          0.3
+        ],
         "luxury": 0.27,
         "mainstream": 0.25,
         "powersports": 0.22,
@@ -48,7 +67,10 @@
       },
       "third_party": {
         "label": "Third-Party Marketplace (AutoTrader, Cars.com, CarGurus, Edmunds, TrueCar)",
-        "range": [0.04, 0.11],
+        "range": [
+          0.04,
+          0.11
+        ],
         "luxury": 0.07,
         "mainstream": 0.06,
         "powersports": 0.06,
@@ -58,7 +80,10 @@
       },
       "oem": {
         "label": "OEM / Factory-Referred Leads",
-        "range": [0.13, 0.15],
+        "range": [
+          0.13,
+          0.15
+        ],
         "luxury": 0.15,
         "mainstream": 0.14,
         "powersports": 0.13,
@@ -68,8 +93,11 @@
       },
       "owned_equity": {
         "label": "Owned Equity: Repeat / Referral / Service Drive",
-        "range": [0.30, 0.45],
-        "luxury": 0.40,
+        "range": [
+          0.3,
+          0.45
+        ],
+        "luxury": 0.4,
         "mainstream": 0.38,
         "powersports": 0.33,
         "support": "estimate",
@@ -78,7 +106,10 @@
       },
       "chat": {
         "label": "Chat / Digital-Retail Tools (Gubagoo, Podium, Roadster, CarNow, ActivEngage)",
-        "range": [0.10, 0.18],
+        "range": [
+          0.1,
+          0.18
+        ],
         "luxury": 0.15,
         "mainstream": 0.13,
         "powersports": 0.11,
@@ -88,7 +119,10 @@
       },
       "data_list": {
         "label": "OEM / FS Data Lists, Conquest & Equity-Mining (not buy-leads)",
-        "range": [0.0, 0.03],
+        "range": [
+          0.0,
+          0.03
+        ],
         "luxury": null,
         "mainstream": null,
         "powersports": null,
@@ -107,7 +141,6 @@
       "url": "https://www.foureyes.io/blog/30-day-dealer-close-rate"
     }
   },
-
   "cost_yardsticks": {
     "_about": "NADA cost/economics context shown on the NADA Benchmarks tab. Displayed as reference; the close-rate layer drives the benchmark flags.",
     "ad_cost_per_new_unit_usd": {
@@ -115,7 +148,15 @@
       "year": 2025,
       "support": "strong",
       "source": "NADA Data 2025, p.15. Up 4.8% YoY (from $705 in 2024). Blended cost-per-sale target should sit near or below this.",
-      "url": "https://www.nada.org/media/4695/download"
+      "url": "https://www.nada.org/media/4695/download",
+      "june_ytd_2026": {
+        "label": "JUNE YTD 2026",
+        "value": 791,
+        "prior_june_ytd_2025": 722,
+        "support": "strong",
+        "source": "NADA Data 2026 Midyear Report, p.13. Up 9.6% from $722 in June YTD 2025. Advertising and sales promotion minus advertising rebates. Total franchised dealership ad spend $5.04B June YTD 2026. A half-year figure; not directly comparable with the full-year value.",
+        "url": "https://www.nada.org/media/4694/download"
+      }
     },
     "ad_pct_of_total_gross": {
       "low": 0.06,
@@ -126,7 +167,7 @@
     },
     "ad_channel_mix_2025": {
       "sem": 0.211,
-      "third_party_listing": 0.20,
+      "third_party_listing": 0.2,
       "seo": 0.195,
       "social": 0.142,
       "tv": 0.105,
@@ -135,21 +176,43 @@
       "newspaper": 0.021,
       "support": "strong",
       "source": "NADA Data 2025, p.16. Digital is ~75% of total ad spend. Third-party listing sites = 20% (the marketplace line to scrutinize).",
-      "url": "https://www.nada.org/media/4695/download"
+      "url": "https://www.nada.org/media/4695/download",
+      "june_ytd_2026": {
+        "label": "JUNE YTD 2026",
+        "value": null,
+        "support": "strong",
+        "source": "Not published in the NADA Data 2026 Midyear Report; channel mix comes only with the full-year report.",
+        "url": "https://www.nada.org/media/4694/download"
+      }
     },
     "avg_new_vehicle_price_usd": {
       "value": 48205,
       "year": 2025,
       "support": "strong",
       "source": "NADA Data 2025, p.7.",
-      "url": "https://www.nada.org/media/4695/download"
+      "url": "https://www.nada.org/media/4695/download",
+      "june_ytd_2026": {
+        "label": "JUNE YTD 2026",
+        "value": 48990,
+        "prior_june_ytd_2025": 47971,
+        "support": "strong",
+        "source": "NADA Data 2026 Midyear Report, p.7. Average retail selling price of new vehicles sold by new-vehicle dealerships.",
+        "url": "https://www.nada.org/media/4694/download"
+      }
     },
     "avg_used_vehicle_price_usd": {
       "value": 28680,
       "year": 2025,
       "support": "strong",
       "source": "NADA Data 2025, p.10.",
-      "url": "https://www.nada.org/media/4695/download"
+      "url": "https://www.nada.org/media/4695/download",
+      "june_ytd_2026": {
+        "label": "JUNE YTD 2026",
+        "value": 29281,
+        "support": "strong",
+        "source": "NADA Data 2026 Midyear Report, p.9. Average retail selling price of used vehicles sold by new-vehicle dealerships.",
+        "url": "https://www.nada.org/media/4694/download"
+      }
     },
     "gross_per_unit_usd": {
       "_about": "Front+back gross per unit. NADA Data 2025 does NOT publish per-unit gross; these are Haig Partners Q2 2025 figures, store-specific and editable. The NCB model used $2,387 from that store's own June deals.",
@@ -158,23 +221,92 @@
       "f_and_i_per_unit": 2515,
       "support": "moderate",
       "source": "Haig Partners, New Vehicle Gross Profits Rebound Q2 2025. Buy-sell advisory aggregate, not NADA.",
-      "url": "https://haigpartners.com/resources/new-vehicle-gross-profits-rebound-in-q2-2025-what-it-means-for-the-future-of-dealership-valuations/"
+      "url": "https://haigpartners.com/resources/new-vehicle-gross-profits-rebound-in-q2-2025-what-it-means-for-the-future-of-dealership-valuations/",
+      "june_ytd_2026": {
+        "label": "JUNE YTD 2026",
+        "value": null,
+        "support": "moderate",
+        "source": "NADA does not publish per-unit gross in either report; the Haig Partners figures above remain the reference.",
+        "url": "https://www.nada.org/media/4694/download"
+      }
     }
   },
-
   "seasonal_indices_nada": {
     "_about": "NADA luxury/import monthly seasonal demand pattern, for annualizing a short window to a 12-month run rate. Index 1.00 = annual average month.",
-    "jan": 0.88, "feb": 0.94, "mar": 1.08, "apr": 1.04, "may": 1.02, "jun": 1.00,
-    "jul": 0.96, "aug": 1.03, "sep": 1.02, "oct": 1.05, "nov": 0.98, "dec": 1.00,
+    "jan": 0.88,
+    "feb": 0.94,
+    "mar": 1.08,
+    "apr": 1.04,
+    "may": 1.02,
+    "jun": 1.0,
+    "jul": 0.96,
+    "aug": 1.03,
+    "sep": 1.02,
+    "oct": 1.05,
+    "nov": 0.98,
+    "dec": 1.0,
     "support": "moderate",
     "source": "NADA seasonal indices (DigitalCLIQ forecast model).",
     "url": "https://www.nada.org/media/4695/download"
   },
-
   "brand_tier_map": {
     "_about": "Maps a franchise keyword (matched case-insensitively in the store name) to a benchmark tier. Default tier when no keyword matches = mainstream.",
-    "luxury": ["bmw", "lexus", "mercedes", "benz", "audi", "acura", "infiniti", "cadillac", "volvo", "porsche", "jaguar", "land rover", "genesis", "lincoln", "maserati", "alfa romeo", "tesla"],
-    "powersports": ["harley", "davidson", "motorcycle", "powersports", "power sports", "indian", "ducati", "triumph", "ktm", "polaris", "can-am", "yamaha", "kawasaki", "honda powersports"],
-    "mainstream": ["nissan", "chrysler", "dodge", "jeep", "ram", "cdjr", "chevrolet", "chevy", "ford", "toyota", "honda", "kia", "hyundai", "subaru", "mazda", "volkswagen", "vw", "buick", "gmc", "mitsubishi"]
+    "luxury": [
+      "bmw",
+      "lexus",
+      "mercedes",
+      "benz",
+      "audi",
+      "acura",
+      "infiniti",
+      "cadillac",
+      "volvo",
+      "porsche",
+      "jaguar",
+      "land rover",
+      "genesis",
+      "lincoln",
+      "maserati",
+      "alfa romeo",
+      "tesla"
+    ],
+    "powersports": [
+      "harley",
+      "davidson",
+      "motorcycle",
+      "powersports",
+      "power sports",
+      "indian",
+      "ducati",
+      "triumph",
+      "ktm",
+      "polaris",
+      "can-am",
+      "yamaha",
+      "kawasaki",
+      "honda powersports"
+    ],
+    "mainstream": [
+      "nissan",
+      "chrysler",
+      "dodge",
+      "jeep",
+      "ram",
+      "cdjr",
+      "chevrolet",
+      "chevy",
+      "ford",
+      "toyota",
+      "honda",
+      "kia",
+      "hyundai",
+      "subaru",
+      "mazda",
+      "volkswagen",
+      "vw",
+      "buick",
+      "gmc",
+      "mitsubishi"
+    ]
   }
 }
