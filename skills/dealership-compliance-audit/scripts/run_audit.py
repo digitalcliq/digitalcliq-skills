@@ -55,6 +55,10 @@ def _strip_markdown(text):
     )
     # Remove any remaining bold/italic Markdown markers.
     text = text.replace("**", "").replace("__", "")
+    # 2026-10-14 QA: the judgment agent joins quote fragments with " || " and
+    # captures widget button text; neither belongs in a GM-facing cell.
+    text = re.sub(r"\s*\|\|\s*", "\n", text)
+    text = re.sub(r"\s*Open Details Modal\s*", " ", text).strip()
     return text
 
 

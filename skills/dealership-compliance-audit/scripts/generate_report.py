@@ -18,6 +18,7 @@ knockout logo, white Dosis 14 sheet title, and report date (§4 Excel spec).
 """
 
 import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -407,6 +408,9 @@ def _build_severity_table(ws, start_row, counts, section_type="legal"):
     return start_row + 3
 
 
+BRAND_FILE = {"cdjr": "cdjr", "stellantis": "cdjr", "chevy": "chevrolet", "harley": "harley_davidson", "hd": "harley_davidson", "harley-davidson": "harley_davidson"}
+
+
 def _build_executive_summary(wb, findings, delta_results, client_name, brand, url, audit_date):
     """Tab 1: Executive Summary with logo, separate legal/brand scorecards, alert banner."""
     ws = wb.active
@@ -473,7 +477,7 @@ def _build_executive_summary(wb, findings, delta_results, client_name, brand, ur
     # Section header — red banner
     ws.merge_cells(f"B{row}:E{row}")
     legal_header = ws[f"B{row}"]
-    legal_header.value = "LEGAL COMPLIANCE — California Advertising Law"
+    legal_header.value = "LEGAL COMPLIANCE: California Advertising and Accessibility Law"
     legal_header.font = BRAND_SECTION_FONT
     legal_header.fill = BRAND_SECTION_FILL
     legal_header.alignment = Alignment(horizontal="left", vertical="center")
@@ -602,13 +606,25 @@ def _build_executive_summary(wb, findings, delta_results, client_name, brand, ur
     ws[f"B{row}"] = "Prepared by DigitalCLIQ"
     ws[f"B{row}"].font = Font(name="Dosis", size=10, bold=True, italic=True, color=CLIQ_BLUE)
     row += 1
-    ws[f"B{row}"] = ("Legal rules: California Vehicle Code, B&P Code §17500 et seq., CARS Act (SB 766), "
-                      "CCPA/CPRA, CNCDA Compliance Guide v1.2, FTC Pricing Transparency FAQs, Regulations M and Z")
+    ws[f"B{row}"] = ("Legal rules: California Vehicle Code, Business & Professions Code §17500 et seq., CARS Act (SB 766), "
+                      "CCPA/CPRA, CNCDA Compliance Guide v1.2, FTC Pricing Transparency FAQs, Regulations M and Z, "
+                      "ADA Title III and the Unruh Civil Rights Act (Civ. Code §51)")
     ws[f"B{row}"].font = Font(name="Roboto Slab", size=8, italic=True, color=CLIQ_GREY)
     ws.merge_cells(f"B{row}:F{row}")
     ws[f"B{row}"].alignment = Alignment(wrap_text=True, vertical="top")
-    ws.row_dimensions[row].height = 24
+    ws.row_dimensions[row].height = 36
     row += 1
+    # 2026-10-14 QA: name the OEM guideline source the brand findings score against.
+    try:
+        _bp = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                          "brands", f"{BRAND_FILE.get(brand, brand)}_guidelines.json"))).get("program")
+    except Exception:
+        _bp = None
+    if _bp:
+        ws[f"B{row}"] = f"Brand rules: {_bp}"
+        ws[f"B{row}"].font = Font(name="Roboto Slab", size=8, italic=True, color=CLIQ_GREY)
+        ws.merge_cells(f"B{row}:F{row}")
+        row += 1
     ws[f"B{row}"] = "This audit is informational only and does not constitute legal advice."
     ws[f"B{row}"].font = Font(name="Roboto Slab", size=8, italic=True, color=CLIQ_GREY)
     _finalize_print(ws, title_row=None, landscape=False)
@@ -1048,7 +1064,7 @@ def build_report(findings, delta_results, client_name, brand, url, output_path,
         tab_name="Legal Violations",
         tab_color=LEGAL_ACCENT,
         source_filter="legal_check",
-        section_label="LEGAL FINDINGS: California Advertising Law",
+        section_label="LEGAL FINDINGS: California Advertising and Accessibility Law",
         audit_date=audit_date,
     )
 

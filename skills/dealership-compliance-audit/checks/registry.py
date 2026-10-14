@@ -1903,9 +1903,8 @@ def registry_summary():
 
 
 HUMAN_REVIEW_PREFIX = (
-    "**NEEDS HUMAN REVIEW AND VERIFICATION** — The automated audit could not fully "
-    "verify this finding (e.g., due to popups, collapsed content, or visual layout). "
-    "Please visually double-check this item. ")
+    "NEEDS HUMAN REVIEW AND VERIFICATION: an automated read could not fully confirm "
+    "this item, so have someone check it on the live page. ")
 
 
 def _plain_title(r):
@@ -1928,7 +1927,8 @@ def results_to_findings(results):
         if r.status != "fail":
             continue
         rec = r.recommendation or ""
-        if r.needs_human_review and not rec.startswith("**NEEDS HUMAN REVIEW"):
+        # 2026-10-14 QA: never stack the generic prefix on a rec that carries its own.
+        if r.needs_human_review and "NEEDS HUMAN REVIEW" not in rec.upper():
             rec = HUMAN_REVIEW_PREFIX + rec
         findings.append({
             "page_url": r.page_url or (r.needs_data["url"] if r.needs_data else ""),
