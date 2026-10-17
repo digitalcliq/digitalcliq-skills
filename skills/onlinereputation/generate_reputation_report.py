@@ -375,10 +375,23 @@ def page_snapshot(data, delta_data, sections):
         else:
             movement = (f"{', '.join(flat)} read FLAT" if flat else
                         "No rated platform moved")
-            movement += "; review counts grew on every platform"
+            # Count growth stated per platform, never assumed (fixed 2026-10-16:
+            # the old line claimed growth everywhere when DealerRater held at 0).
+            grew = [PLATFORM_NAMES.get(k, k) for k in PLATFORM_ORDER
+                    if k in dplat and _num(dplat[k].get("count_change"))
+                    and dplat[k]["count_change"] > 0]
+            held = [PLATFORM_NAMES.get(k, k) for k in PLATFORM_ORDER
+                    if k in dplat and _num(dplat[k].get("count_change"))
+                    and dplat[k]["count_change"] == 0]
+            if grew and not held and len(grew) == len(dplat):
+                movement += "; review counts grew on every platform"
+            elif grew:
+                movement += f"; review counts grew on {', '.join(grew)}"
+                if held:
+                    movement += f" and held on {', '.join(held)}"
         if not_comparable:
-            movement += (f". {', '.join(not_comparable)} shows N/A because it no longer "
-                         f"displays a score")
+            movement += (f". {', '.join(not_comparable)} shows N/A because it does not "
+                         f"currently display a score")
         delta_note = callout(
             "MONTH-OVER-MONTH:",
             f"Compared against the prior snapshot from "
@@ -413,6 +426,34 @@ def page_platform(data, platform_key, section_num):
                    f'<span class="platcount">{esc(count_str)} reviews</span></div>')
 
     parts = [head, rating_line]
+    # Review text blocked on this pull (e.g. CarFax CAPTCHA): say so plainly
+    # instead of "No reviews found", and show the prior read only when it is
+    # labeled with its date (added 2026-10-16, Sterling run).
+    unavailable = pdata.get("unavailable_note")
+    if unavailable:
+        parts.append(callout("REVIEW TEXT NOT AVAILABLE THIS PULL:", unavailable))
+        # Ratings and counts were still read live, so show this platform across
+        # the competitive set instead of leaving the page half empty.
+        cards = []
+        for nm, plats in ([(data.get("subject_dealer", {}).get("name", "Subject"),
+                            dealer.get("platforms", {}))]
+                          + [(c.get("name", "Competitor"), c.get("platforms", {}))
+                             for c in data.get("competitors", [])]):
+            pd_ = plats.get(platform_key, {})
+            r, c = pd_.get("rating", "N/L"), pd_.get("review_count", 0)
+            sub = f"{c:,} reviews" if isinstance(c, (int, float)) else str(c)
+            cards.append({"label": nm, "rating": r, "subtitle": sub})
+        if len(cards) > 1:
+            parts.append(subhead(f"{pname} across the competitive set (live this pull)"))
+            parts.append(kpi_stat_grid(cards))
+        prior = pdata.get("prior_read") or {}
+        if prior.get("themes_positive") or prior.get("themes_negative"):
+            parts.append(subhead(prior.get("label", "Themes from the prior report")))
+            parts.append(themes_split(prior.get("themes_positive", []),
+                                      prior.get("themes_negative", [])))
+        if prior.get("trending"):
+            parts.append(callout("PRIOR READ:", prior["trending"]))
+        return "".join(parts)
     positive = pdata.get("recent_positive", [])
     parts.append(subhead("Most Recent Positive Reviews (4-5 stars)"))
     parts.append(review_table(positive, "positive"))

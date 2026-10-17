@@ -84,7 +84,7 @@
     "severity": "advisory",
     "source": "legal_check",
     "statute": "FTC Act \u00a75; FTC Automobile Industry Pricing Transparency FAQs (Sept. 2026) Q10; FTC staff remarks 2026-09-30",
-    "recommendation": "NEEDS HUMAN REVIEW AND VERIFICATION: confirm the unit has actually shipped, add the arrival information the store can support, and confirm it is not allocated to another customer's paid order (FTC FAQ Q10; FTC staff 2026-09-30). The arrival date may sit in a widget the crawl missed.",
+    "recommendation": "NEEDS HUMAN REVIEW AND VERIFICATION: confirm the unit has actually shipped, add the arrival information the store can support, and confirm it is not allocated to another customer's paid order (FTC FAQ Q10; FTC staff 2026-09-30). The arrival date may sit in a part of the page our site scan could not read.",
     "confidence": "low",
     "needs_human_review": true,
     "reverified": false
@@ -143,7 +143,7 @@
     "severity": "warning",
     "source": "legal_check",
     "statute": "CA Vehicle Code \u00a711713(a), \u00a711713.1(e); CA Civil Code \u00a71784.40(d) (CARS Act, operative 2026-10-01)",
-    "recommendation": "NEEDS HUMAN REVIEW AND VERIFICATION: The crawl captured the offer-details window text and the offer card text for the same VIN with different payment, due at signing, price and mileage figures. Confirm which offer is live. If the details-window offers (the tiles at the top of the page) are stale, remove them today. A shopper who sees $47,940 and 10,000 miles a year can hold the store to the better terms, so one VIN should carry one price and one set of lease terms everywhere on the site.",
+    "recommendation": "NEEDS HUMAN REVIEW AND VERIFICATION: Our site scan captured the offer-details window text and the offer card text for the same VIN with different payment, due at signing, price and mileage figures. Confirm which offer is live. If the details-window offers (the tiles at the top of the page) are stale, remove them today. A shopper who sees $47,940 and 10,000 miles a year can hold the store to the better terms, so one VIN should carry one price and one set of lease terms everywhere on the site.",
     "confidence": "medium",
     "needs_human_review": true
   },
@@ -299,7 +299,7 @@
     "severity": "warning",
     "source": "legal_check",
     "statute": "FTC Pricing Transparency FAQs Q5, Q9; CA Vehicle Code \u00a711713.1(e)",
-    "recommendation": "NEEDS HUMAN REVIEW AND VERIFICATION: The specials page lists the $2,000 on this same X5 (VIN 5UX13EU03T9300505) as a 'BMWFS Lease Credit', which only lease customers get, yet the inventory card subtracts $2,000 from the cash price for everyone. Confirm what each 'Incentive' line actually is. Any incentive tied to BMW FS financing or leasing must come out of the 'after incentives' figure on the cash price, and the boilerplate 'pricing includes all offers and incentives' should be rewritten to name the rebate and who qualifies.",
+    "recommendation": "NEEDS HUMAN REVIEW AND VERIFICATION: Both the specials page and this inventory card label the $2,000 on this X5 (VIN 5UX13EU03T9300505) a 'BMWFS Lease Credit', which only lease customers get, yet the inventory card subtracts $2,000 from the cash price for everyone. Confirm what each 'Incentive' line actually is. Any incentive tied to BMW FS financing or leasing must come out of the 'after incentives' figure on the cash price, and the boilerplate 'pricing includes all offers and incentives' should be rewritten to name the rebate and who qualifies.",
     "confidence": "medium",
     "needs_human_review": true
   },
