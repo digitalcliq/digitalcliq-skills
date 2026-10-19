@@ -27,6 +27,16 @@ if [ "$MODE" = "test" ]; then
   exit 0
 fi
 
+# Login preflight. 2026-10-19 the CLI login had expired: the session printed "Login expired" at 01:00:09 and sat
+# idle until the 150-minute cap with no shift log and no Slack post. Fail fast and tell Drew instead.
+if ! claude auth status 2>/dev/null | grep -q '"loggedIn": true'; then
+  MSG="Shift didn't start tonight: the Claude Code login on the Mac expired. Run claude auth login in Terminal, then I can rerun."
+  echo "$(date '+%F %T') [tipoff] not logged in, shift aborted" >> "$HOME/Library/Logs/digitalcliq-ai-team.log"
+  python3 "$VAULT/.claude/skills/ai-team/scripts/slack.py" post --as magic --tag-drew --text "$MSG" >/dev/null 2>&1
+  osascript -e "display notification \"$MSG\" with title \"AI team\"" 2>/dev/null
+  exit 1
+fi
+
 case "$MODE" in
   shift) PERM="auto" ;;      # unattended: the classifier approves what the allowlist misses; Magic runs usage.py --hung as the watchdog
   *)     PERM="auto" ;;      # attended: the classifier approves, Drew can answer anything it will not
