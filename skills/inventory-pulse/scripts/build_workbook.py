@@ -314,7 +314,7 @@ def build_lease(ws, a):
                "Term", "Down", "Miles/Yr", "DAS", "MSRP", "Type", "Flags", "Offer (as published)",
                "Prior $/mo", "Prior Offer"]
     # G/L/P were 46/34/26 and ran the table twice as wide as its content (QA 2026-10-20)
-    widths = [22, 12, 18, 6, 11, 9, 24, 9, 7, 6, 9, 18, 9, 10, 11, 16, 46, 9, 40]
+    widths = [22, 12, 18, 6, 11, 9, 24, 9, 7, 6, 9, 18, 9, 10, 11, 24, 46, 9, 40]
     add_masthead(ws, "Lease Offers: this period vs prior", a["meta"]["run_date"], len(headers))
     legend_cell(ws, 3, (
         "Effective $/mo is shaded by rank within each model/trim (Sky Blue = market low, Warm Grey = highest). "
@@ -365,7 +365,7 @@ def build_lease(ws, a):
         # row height keyed to the widest wrapped text: offer col wraps ~40 chars/line
         prev_len = len(prev.get("offer_text") or "") if prev else 0
         lines = 1 + max(len(offer_sentence(row)), prev_len) // 40
-        lines = max(lines, 1 + len(flags_text(row.get("flags", ""))) // 16, 1 + len(row.get("trim", "")) // 16)
+        lines = max(lines, 1 + len(flags_text(row.get("flags", ""))) // 18, 1 + len(row.get("trim", "")) // 16)
         # Miles/Yr carries a caveat ("carried from prior run...") that clipped in a
         # 34-wide unwrapped cell (QA 2026-10-20): wrap it and size the row for it.
         _mc = ws.cell(row=r, column=12)
@@ -471,7 +471,7 @@ def build_finance(ws, a):
         body_cell(ws, r, 13, prev["term_mo"] if prev and prev.get("term_mo") else "-", center)
         # Conditions run to 300+ chars in a wrapped column. With no explicit height
         # every non-Excel renderer clips the material terms away (QA gate 2026-09-20).
-        ws.row_dimensions[r].height = max(28, 14 * (1 + len(_cond) // 44) + 4)
+        ws.row_dimensions[r].height = max(28, 14 * (1 + len(_cond) // 38) + 8)
         r += 1
     if not rows:
         ws.cell(row=5, column=1, value="No published finance/APR specials captured this run.").font = note_font
@@ -729,7 +729,8 @@ def build_vins(ws, a):
         "destination), so compare these figures with care. "
         + _net_price_note(a) + _unconfirmed_msrp_note(a) + _markup_outlier_note(a) +
         "DOM prefixed >= means the unit was already on the lot when DigitalCLIQ tracking began; "
-        "? = not yet derivable (first capture). CFP = Call for Price."), len(headers))
+        "? = not yet derivable (first capture)."
+        + (" CFP = Call for Price." if any(r.get("call_for_price") and not r.get("price") for r in a["vin_rows"]) else "")), len(headers))
     header_row(ws, 4, headers, widths)
     r = 5
     for row in a["vin_rows"]:
@@ -741,9 +742,9 @@ def build_vins(ws, a):
             body_cell(ws, r, _c, row["version"]); _c += 1
         # ~13 chars per wrapped line in an 18-wide column, and Roboto Slab 10pt
         # needs ~14pt per line. Pass 1 undershot and clipped the last line.
-        if len(_trim) > 13:
+        if len(_trim) > 16:   # 18-wide column holds ~16 chars of Roboto Slab 10 per line
             ws.row_dimensions[r].height = max(ws.row_dimensions[r].height or 15,
-                                              14 * (1 + len(_trim) // 13) + 6)
+                                              14 * (1 + len(_trim) // 16) + 6)
         # Version wraps at ~26 chars in its 30-wide column; set every row's height
         # from it so no row depends on the viewer autofitting (QA 2026-10-20: only
         # 7 of 27 Sterling rows carried a height and two of those clipped line 3).
@@ -838,8 +839,15 @@ def flags_text(raw):
         f = _re.sub(r"(?i)^stale offer date", "Expired offer", f)
         # strip trailing internal program codes (e.g. "... Bonus Cash WELTM")
         return _re.sub(r"\s+[A-Z0-9]{4,}$", "", f).strip()
-    parts = [f for f in str(raw or "").split("|") if f.strip()]
-    return ", ".join(label(f) for f in parts)
+    parts = [f.strip(" ;,") for f in str(raw or "").split("|") if f.strip(" ;,")]
+    _out = []
+    for f in parts:
+        _l = label(f)
+        if _l.lower() in ("expired offer", "expired at capture"):
+            _l = "Offer end date has passed"
+        if _l and _l not in _out:
+            _out.append(_l)
+    return ", ".join(_out)
 
 def sample_depth_text(a):
     """State the ACTUAL sample depth. A flat '3-4 per model per dealer' was false for
@@ -989,6 +997,7 @@ def client_text(t):
         out = _re.sub(_p, _r, out, flags=_re.I)
     out = _re.sub(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+){1,}\b",
                   lambda m: m.group(0).replace("_", " "), out)
+    out = _re.sub(r"\s+([;,.])", r"\1", out)
     return _re.sub(r"\s{2,}", " ", out).strip()
 
 
@@ -1073,7 +1082,7 @@ def dealer_status_note(a, dl):
         if _re.search(r"/mo|per month|payment", _blob, _re.I):
             _f.append("the monthly payment")
         _field = " and ".join(_f) if _f else "the advertised figure"
-        _who = "; ".join(f"{r.get('model','')} {r.get('trim','')}".strip() for r in _mm[:3])
+        _who = "; ".join(f"{r.get('model','')} {r.get('trim','')}".strip() for r in _mm[:8])
         _recorded_headline = bool(_re.search(r"recorded\s+(headline|banner)", _blob, _re.I))
         _carry = ("this report carries the HEADLINE figure; the fine print on that unit reads lower, "
                   "so treat the advertised payment as unconfirmed"

@@ -542,6 +542,11 @@ def main():
         # rendering the client's own 0% APR as "unknown" deletes their strongest
         # finance fact (QA 2026-09-06).
         _zero = apr_published_zero(o)
+        # An explicit apr 0.0 WITH a term is a read rate, not a missing one: the
+        # Nissan of Irvine 0%/60 rows were being labelled "rate borrowed from the
+        # prior run" while showing 0.0% (QA 2026-10-20).
+        if not _zero and o.get("apr") is not None and float(o.get("apr") or 0) == 0 and o.get("term_mo"):
+            _zero = True
         _zero_src = ""
         if prev and _zero and not prev.get("apr") and not apr_published_zero(prev):
             dlabel = "0% APR first confirmed this run"
@@ -698,8 +703,8 @@ def main():
         if _n_rc >= 5 and _n_gone_dl >= 0.6 * _n_rc:
             ex.setdefault("errors", []).append(
                 f"DATA-QUALITY WARNING: {_dl} shows {_n_gone_dl} of {_n_rc} re-checked units "
-                f"delisted in one cycle. Verify the crawl emitted rows for units still in "
-                f"stock before treating this as real movement.")
+                f"delisted in one cycle. Confirm those units really left the site before treating "
+                f"this as real movement; a read that skipped still-live units looks the same.")
     not_checked = [dl["name"] for dl in ex["dealers"] if not by_dealer.get(dl["name"])]
     if rechecked_urls:
         who = "; ".join(f"{k} {v}" for k, v in sorted(by_dealer.items(), key=lambda x: -x[1]))
@@ -829,8 +834,12 @@ def main():
         _cg = _grp([r for r in client_lease if r.get("dealers_in_group", 0) > 1])
         _wg = _grp([r for r in wins if r.get("dealers_in_group", 0) > 1])
         if _cg:
+            _exp = sorted({f"{r.get('model','')} {r.get('trim','')}".strip() for r in wins
+                           if r.get("dealers_in_group", 0) > 1 and "expired" in str(r.get("flags", "")).lower()})
             bullets.append(f"Advertises the lowest effective lease payment on {len(_wg)} of "
-                           f"{len(_cg)} model/trim group(s) where a rival published a comparable offer.")
+                           f"{len(_cg)} model/trim group(s) where a rival published a comparable offer."
+                           + (f" One of those ({'; '.join(_exp)}) is still posted past its published end date, "
+                              f"so that lead is only as good as the next card." if _exp else ""))
         else:
             bullets.append(f"{client_name} published lease offers on {n_all_grp} model/trim(s) this run and "
                            f"no rival published a comparable offer on the same model, trim and year, so no "
@@ -966,8 +975,8 @@ def main():
         # "comparably priced" contradicted the matrix's own NOT LIKE-FOR-LIKE note,
         # where the cheapest sampled unit is often a different trim (QA 2026-09-20).
         bullets.append(f"{client_name} holds the lowest advertised price among sampled in-stock units "
-                       f"on {low_n} of {len(contested_mat)} model group(s) where 2 or more dealers "
-                       f"had priced stock. Groups are by model, so one can span different trims: "
+                       f"on {low_n} of {len(contested_mat)} model group(s) where {client_name} and at "
+                       f"least one rival had priced stock. Groups are by model, so one can span different trims: "
                        f"see the Min Price Matrix note.")
     cfp = {}
     for r in vin_rows:
