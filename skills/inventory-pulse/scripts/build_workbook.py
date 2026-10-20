@@ -56,6 +56,7 @@ white_body = Font(name="Roboto Slab", size=10, color=BRAND_FG)
 thin = Side(style="thin", color=BORDER_COLOR)
 border = Border(left=thin, right=thin, top=thin, bottom=thin)
 center = Alignment(horizontal="center", vertical="center", wrap_text=False)
+center_wrap = Alignment(horizontal="center", vertical="center", wrap_text=True)
 left = Alignment(horizontal="left", vertical="center", wrap_text=True)
 right = Alignment(horizontal="right", vertical="center")
 
@@ -118,6 +119,16 @@ def add_masthead(ws, title, report_date, col_count):
     ws.add_image(img, "A1")
 
 
+def _fmt_generated(iso):
+    """2026-10-20T08:27:15 reads as a machine stamp; show 2026-10-20 8:27 AM."""
+    try:
+        from datetime import datetime as _dt
+        d = _dt.fromisoformat(str(iso))
+        return d.strftime("%Y-%m-%d ") + d.strftime("%I:%M %p").lstrip("0")
+    except Exception:
+        return str(iso)
+
+
 def header_row(ws, r, headers, widths=None):
     for c, h in enumerate(headers, 1):
         cell = ws.cell(row=r, column=c, value=h)
@@ -127,6 +138,16 @@ def header_row(ws, r, headers, widths=None):
         if widths:
             ws.column_dimensions[get_column_letter(c)].width = widths[c - 1]
     ws.row_dimensions[r].height = 30
+    # The legend row (row 3) is sized before column widths exist, with a worst-case
+    # height that left a 1.4in blank band on the Matrix tab (QA 2026-10-20). Now that
+    # the widths are known, shrink it to the wrapped text (never grow: legend_cell owns that).
+    if widths and r == 4:
+        _lg = ws.cell(row=3, column=1).value
+        if isinstance(_lg, str) and len(_lg) > 60:
+            _cpl = max(60, int(sum(widths[:len(headers)]) * 1.0))   # ~1 Roboto Slab 10 char per width unit
+            _need = max(30, 13 * (1 + len(_lg) // _cpl) + 16)
+            if (ws.row_dimensions[3].height or 0) > _need:
+                ws.row_dimensions[3].height = _need
 
 
 def rank_fill(rank, size):
@@ -238,7 +259,7 @@ def build_summary(ws, a):
     sub.font = note_font; sub.alignment = left
     r += 2
     stats = [("Run type", m["run_type"].upper()),
-             ("Compared against", m["compare_label"]),
+             ("Comparison", m["compare_label"]),
              ("Tracking since", m["tracking_since"]),
              ("Dealers in set", str(len(m["dealer_order"])))]
     for i, (lbl, val) in enumerate(stats):
@@ -292,7 +313,8 @@ def build_lease(ws, a):
     headers = ["Dealer", "Model", "Trim", "MY", "First Seen", "$/mo", "Vs Prior", "Eff $/mo", "Rank",
                "Term", "Down", "Miles/Yr", "DAS", "MSRP", "Type", "Flags", "Offer (as published)",
                "Prior $/mo", "Prior Offer"]
-    widths = [22, 12, 18, 6, 11, 9, 46, 9, 7, 6, 9, 34, 9, 10, 11, 26, 46, 9, 40]
+    # G/L/P were 46/34/26 and ran the table twice as wide as its content (QA 2026-10-20)
+    widths = [22, 12, 18, 6, 11, 9, 24, 9, 7, 6, 9, 18, 9, 10, 11, 16, 46, 9, 40]
     add_masthead(ws, "Lease Offers: this period vs prior", a["meta"]["run_date"], len(headers))
     legend_cell(ws, 3, (
         "Effective $/mo is shaded by rank within each model/trim (Sky Blue = market low, Warm Grey = highest). "
@@ -313,11 +335,11 @@ def build_lease(ws, a):
     for row in rows:
         style_dealer_cell(ws.cell(row=r, column=1, value=row["dealer"]), row["is_client"])
         body_cell(ws, r, 2, row.get("model", ""))
-        body_cell(ws, r, 3, row.get("trim", ""))
+        body_cell(ws, r, 3, row.get("trim", "") or "?")
         body_cell(ws, r, 4, row.get("yr") or "?", center)
         body_cell(ws, r, 5, row.get("first_seen", ""), center)
         body_cell(ws, r, 6, money(row.get("pmt", 0)), right, body_bold)
-        body_cell(ws, r, 7, row["delta_label"], center, delta_font(row["delta_type"]))
+        body_cell(ws, r, 7, row["delta_label"], center_wrap, delta_font(row["delta_type"]))
         ec = body_cell(ws, r, 8, money(row.get("eff_mo", 0)), right,
                        rank_font(row["rank"], row["group_size"]))
         ec.fill = rank_fill(row["rank"], row["group_size"])
@@ -344,10 +366,15 @@ def build_lease(ws, a):
         prev_len = len(prev.get("offer_text") or "") if prev else 0
         lines = 1 + max(len(offer_sentence(row)), prev_len) // 40
         lines = max(lines, 1 + len(flags_text(row.get("flags", ""))) // 16, 1 + len(row.get("trim", "")) // 16)
+        # Miles/Yr carries a caveat ("carried from prior run...") that clipped in a
+        # 34-wide unwrapped cell (QA 2026-10-20): wrap it and size the row for it.
+        _mc = ws.cell(row=r, column=12)
+        _mc.alignment = Alignment(horizontal=_mc.alignment.horizontal or "center", vertical="center", wrap_text=True)
+        lines = max(lines, 1 + len(str(_mc.value or "")) // 16, 1 + len(str(row.get("delta_label") or "")) // 22)
         ws.row_dimensions[r].height = max(28, 14 * lines + 4)
         r += 1
     if not rows:
-        ws.cell(row=5, column=1, value="No published lease offers captured this run. See Run Log for crawl status.").font = note_font
+        ws.cell(row=5, column=1, value="No published lease offers captured this run. See Run Log for review status.").font = note_font
         r = 6
     pulled_block(ws, a, "lease", r, len(headers))
 
@@ -423,7 +450,7 @@ def build_finance(ws, a):
     for row in rows:
         style_dealer_cell(ws.cell(row=r, column=1, value=row["dealer"]), row["is_client"])
         body_cell(ws, r, 2, row.get("model", ""))
-        body_cell(ws, r, 3, row.get("trim", ""))
+        body_cell(ws, r, 3, row.get("trim", "") or "?")
         body_cell(ws, r, 4, row.get("yr") or "?", center)
         body_cell(ws, r, 5, row.get("first_seen", ""), center)
         ac = body_cell(ws, r, 6, apr_text(row), right,
@@ -431,7 +458,7 @@ def build_finance(ws, a):
         ac.fill = rank_fill(row["rank"], row["group_size"])
         body_cell(ws, r, 7, row["delta_label"], center, delta_font(row["delta_type"]))
         body_cell(ws, r, 8, f"{row['rank']} of {row['group_size']}" if row["rank"] else "?", center)
-        body_cell(ws, r, 9, f"{row['term_mo']} mos" if row.get("term_mo") else "?", center)
+        body_cell(ws, r, 9, row["term_mo"] if row.get("term_mo") else "?", center)
         body_cell(ws, r, 10, money(row.get("msrp", 0)), right)
         _cond = row.get("conditions", "") or ""
         if row.get("apr_zero_src"):
@@ -441,7 +468,7 @@ def build_finance(ws, a):
         body_cell(ws, r, 11, client_text(_cond))
         prev = row.get("prev")
         body_cell(ws, r, 12, (apr_text(prev) if prev else "-"), right)
-        body_cell(ws, r, 13, f"{prev['term_mo']} mos" if prev and prev.get("term_mo") else "-", center)
+        body_cell(ws, r, 13, prev["term_mo"] if prev and prev.get("term_mo") else "-", center)
         # Conditions run to 300+ chars in a wrapped column. With no explicit height
         # every non-Excel renderer clips the material terms away (QA gate 2026-09-20).
         ws.row_dimensions[r].height = max(28, 14 * (1 + len(_cond) // 44) + 4)
@@ -577,7 +604,7 @@ def build_matrix(ws, a):
     headers = ["Model", "MY"]
     for dl in dealers:
         # Rank is read here, not on the Run Log: mark an incomplete crawl in place.
-        _mark = "" if _st.get(dl, "ok") == "ok" else f" ({_st.get(dl)} crawl)"
+        _mark = "" if _st.get(dl, "ok") == "ok" else f" ({_st.get(dl)} review)"
         headers += [f"{dl}: Min Price{_mark}", "# @ Min", "Age (DOM)"]
     headers += ["Market Low"]
     widths = [15, 6] + [22, 8, 26] * n + [32]
@@ -588,14 +615,17 @@ def build_matrix(ws, a):
         "Sky Blue = market low, Warm Grey = highest. The (n) after each price is that dealer's RANK "
         "among the stores stocking that model; the next column, # @ Min, is how many of its units sit "
         "at that price. The Market Low column names the winning dealer. "
-        "CFP = dealer stocks the model but hides pricing (Call for Price). "
-        "Age (DOM) is the span of days on market across that dealer's SAMPLED stock, not the age of the "
+        + ("CFP = dealer stocks the model but hides pricing (Call for Price). "
+           if any(c.get("cfp_only") for row in a["matrix_rows"] for c in row["cells"].values()) else "")
+        + "Age (DOM) is the span of days on market across that dealer's SAMPLED stock, not the age of the "
         "minimum-priced unit; a trailing + means the unit predates DigitalCLIQ tracking so the true age "
         "is at least that. "
-        "\"MSRP only\" = every sampled unit is listed at sticker because that store puts its actual "
-        "selling price behind a lead form; it is shown for reference and is NOT ranked, since ranking "
-        "it would misread an unpublished price as an expensive one. Client is the first dealer group. "
-        + ("A dealer marked partial crawl was only partly reachable this run, so its minimum and its "
+        + ("\"MSRP only\" = every sampled unit is listed at sticker because that store puts its actual "
+           "selling price behind a lead form; it is shown for reference and is NOT ranked, since ranking "
+           "it would misread an unpublished price as an expensive one. "
+           if any(c.get("msrp_only") for row in a["matrix_rows"] for c in row["cells"].values()) else "")
+        + "Client is the first dealer group. "
+        + ("A dealer marked partial review was only partly reachable this run, so its minimum and its "
            "rank are provisional. " if any(v != "ok" for v in _st.values()) else "")
         + _net_price_note(a) + _mixed_trim_note(a)),
         len(headers))
@@ -633,10 +663,12 @@ def build_matrix(ws, a):
             body_cell(ws, r, c + 2, age_txt, center)
             c += 3
         _n_ranked = len(ranked)
-        body_cell(ws, r, c, (f"{row['market_low_dealer']}  {money(row['market_low_price'])}"
-                             if row["market_low_dealer"] and _n_ranked > 1
-                             else (f"{row['market_low_dealer']}, only store with a sampled unit" if _n_ranked == 1 else "-")),
-                  left, body_bold)
+        _ml = (f"{row['market_low_dealer']}  {money(row['market_low_price'])}"
+               if row["market_low_dealer"] and _n_ranked > 1
+               else (f"{row['market_low_dealer']}, only store with a sampled unit" if _n_ranked == 1 else "-"))
+        body_cell(ws, r, c, _ml, left, body_bold)
+        if len(_ml) > 30:   # 32-wide column, Roboto Slab 10: ~30 chars per line
+            ws.row_dimensions[r].height = max(ws.row_dimensions[r].height or 15, 14 * (1 + len(_ml) // 30) + 6)
         r += 1
 
 
@@ -712,6 +744,12 @@ def build_vins(ws, a):
         if len(_trim) > 13:
             ws.row_dimensions[r].height = max(ws.row_dimensions[r].height or 15,
                                               14 * (1 + len(_trim) // 13) + 6)
+        # Version wraps at ~26 chars in its 30-wide column; set every row's height
+        # from it so no row depends on the viewer autofitting (QA 2026-10-20: only
+        # 7 of 27 Sterling rows carried a height and two of those clipped line 3).
+        if _has_version and row.get("version"):
+            ws.row_dimensions[r].height = max(ws.row_dimensions[r].height or 15,
+                                              14 * (1 + len(str(row["version"])) // 24) + 8)
         body_cell(ws, r, _c, row["yr"] or "?", center); _c += 1
         body_cell(ws, r, _c, row["vin"], center); _c += 1
         body_cell(ws, r, _c, money(row["msrp"]), right); _c += 1
@@ -742,7 +780,14 @@ _REPL = {"verified_zero": "confirmed none published", "needs_human_review": "nee
     "cfp": "call-for-price"}
 # Replace internal vocabulary with client words. Deleting a token mid-sentence leaves a
 # dangling article ("rendering the  --"), which a GM reads as a broken report (QA gate 2026-09-20).
-_PLAIN = {r"\bVDPs\b": "vehicle pages", r"\bVDP\b": "vehicle page", r"\bjson-ld\b": "structured page data",
+_PLAIN = {r"\bin-page fetch of ([^;.]*?) returned 403/empty": r"automated reads of \1 were blocked or came back empty",
+    r"\b(?:claude )?browser(?: tab)?:?\s*'target crashed'(?:\s*/\s*'renderer process is not running')?": "our browser session crashed",
+    r"\btarget crashed\b|\brenderer process is not running\b": "our browser session crashed",
+    r"\binnerText\b": "page text", r"\bDOM reads\b": "page reads", r"\bon / fetch\b": "on the site map",
+    r"\b(?:now )?returned 403 to in-page fetch\b|\b403 to in-page fetch\b|\breturned 403\b|\b403s?\b": "blocked our automated read",
+    r"\bin-page fetch\b": "automated read", r"\bsearch results page DOM\b|\bSRP DOM\b": "search results pages", r"\bDOM\b": "page content",
+    r"\bcrawled\b": "reviewed", r"\bcrawls\b": "reviews", r"\bcrawl\b": "review",
+    r"\bVDPs\b": "vehicle pages", r"\bVDP\b": "vehicle page", r"\bjson-ld\b": "structured page data",
     r"\bprice-regex\b": "price reader", r"\bregex\b": "text matching",
     r"\bparser\b": "reader", r"\bparsed\b": "read", r"\bparse\b": "read",
     r"\bhitOf\(\)\s*(sitemap\s*)?matcher": "the sitemap matcher",
@@ -992,7 +1037,10 @@ def dealer_status_note(a, dl):
     # both as "0 captured" erases the difference a GM needs (QA gate 2026-09-06).
     for label, n in (("lease", lease), ("finance", fin)):
         confirmed_zero = _claims_confirmed_zero(dl.get("notes", "") or "", label)
-        unread = _mentions_unread(dl.get("notes", "") or "", label) or st == "partial"
+        # "partial" describes inventory coverage; it only casts doubt on an offers page
+        # when the note makes no positive per-kind claim (Sterling 2026-10-20: Finance tab
+        # said "confirmed on site" while this line said "not positively confirmed").
+        unread = _mentions_unread(dl.get("notes", "") or "", label) or (st == "partial" and not confirmed_zero)
         if n == 0 and _updating_stub(dl.get("notes", "") or "", label):
             _s = _updating_sentence("This store", label, a).replace("This store: the", "The")
             _both = (label == "finance" and lease == 0
@@ -1077,6 +1125,10 @@ def build_runlog(ws, a):
             _dropped += 1
             continue
         cleaned = e
+        # Name the thing before the file-name stripper below deletes it: "sitemap.xml and
+        # inventory-sitemap.xml returned 403" became "and returned 403" (QA 2026-10-20).
+        cleaned = _re.sub(r"(?i)/?\bsitemap\.xml and inventory-sitemap\.xml\b|/?\binventory-sitemap\.xml\b|/?\bsitemap\.xml\b(?: fetch)?|\bsitemaps?\b",
+                          "the site's inventory index", cleaned)
         # Agents label each error with a snake_case key, often AFTER the dealer name
         # ("Nissan of Irvine: recheck_reconciliation: ..."). Strip the key wherever it
         # sits, plus file names and raw query strings (QA gate 2026-09-20, pass 2).
@@ -1099,6 +1151,7 @@ def build_runlog(ws, a):
                           lambda m: m.group(0).replace("_", " "), cleaned)
         cleaned = _re.sub(r"\ban (?=[bcdfghjklmnpqrstvwxyz])", "a ", cleaned)
         cleaned = _re.sub(r"\ba (?=[aeiou])", "an ", cleaned)
+        cleaned = _re.sub(r"\b(page|read|reads) \1\b", r"\1", cleaned)
         cleaned = _re.sub(r"\s{2,}", " ", cleaned)
         cleaned = _re.sub(r"\s+([.;,])", r"\1", cleaned).strip(" .;|,-")
         # A bullet glyph with no sentence after it reads as a broken report.
@@ -1118,7 +1171,7 @@ def build_runlog(ws, a):
     r += 1
     legend_cell(ws, r, (
         f"Run {m['run_date']} ({m['run_type']}), compared {m['compare_label']}, tracking since "
-        f"{m['tracking_since']}. Generated {m['generated']} by DigitalCLIQ Inventory Pulse."), len(headers))
+        f"{m['tracking_since']}. Generated {_fmt_generated(m['generated'])} by DigitalCLIQ Inventory Pulse."), len(headers))
 
 
 def main():

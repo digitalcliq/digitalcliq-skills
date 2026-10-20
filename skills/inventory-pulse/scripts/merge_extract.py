@@ -74,14 +74,27 @@ def expired_flag(o, run_date):
 
 
 def canon_model(row, models):
-    """Return canonical config model string, or None if untracked."""
-    hay = " ".join(str(row.get(k, "")) for k in ("model", "version", "trim", "vdp_url")).lower()
-    for m in models:
-        if any(pat.lower() in hay for pat in m["match"]):
-            if m.get("make") and row.get("make") and m["make"].lower() not in str(row["make"]).lower() \
-               and m["make"].lower() not in hay:
-                continue
-            return m["model"], m.get("make", "")
+    """Return canonical config model string, or None if untracked.
+
+    Two passes. Pass 1 reads only the human fields (model, version, trim). Pass 2
+    falls back to the VDP url with the VIN cut out of it: a 5UX33EU... X5 M60i
+    matched the "x3" token through its own VIN in the url and was filed under X3
+    (QA gate 2026-10-20), which miscounted Sterling BMW stock on two tabs.
+    """
+    vin = str(row.get("vin", "")).lower()
+    url = str(row.get("vdp_url", "")).lower()
+    if vin and len(vin) >= 11:
+        url = url.replace(vin, " ")
+    hays = [" ".join(str(row.get(k, "")) for k in ("model", "version", "trim")).lower(), url]
+    for hay in hays:
+        if not hay.strip():
+            continue
+        for m in models:
+            if any(pat.lower() in hay for pat in m["match"]):
+                if m.get("make") and row.get("make") and m["make"].lower() not in str(row["make"]).lower() \
+                   and m["make"].lower() not in hay:
+                    continue
+                return m["model"], m.get("make", "")
     return None
 
 
@@ -156,6 +169,10 @@ def main():
                                      "make": make, "model": cm[0],
                                      "trim": clean_trim(r.get("trim", ""), cm[0], make),
                                      "version": re.sub(r"\s+", " ", str(r.get("version", ""))).strip(),
+                # agents sometimes prefix an absolute url with the origin again
+                # ("https://x.comhttps://x.com/..."); a bad url here poisons next run's
+                # re-check list (Nissan of Irvine, 2026-10-20)
+                "vdp_url": re.sub(r"^(https?://[^/]+?)(https?://)", r"\2", str(r.get("vdp_url", "") or "")).strip(),
                                      "msrp": msrp, "price": price,
                                      "call_for_price": 1 if r.get("call_for_price") else 0,
                                      "dom_displayed": num(r.get("dom_displayed")),

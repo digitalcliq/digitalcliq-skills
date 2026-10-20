@@ -27,6 +27,24 @@ MOVEMENT_WINDOW_DAYS = 120
 ANCHOR_DAY_MAX = 12
 
 
+
+def kind_verified_zero(dl, kind):
+    """True when the dealer fragment positively verified an EMPTY offers page for
+    this kind (lease or finance). A bare 'verified_zero' substring is not enough:
+    agents write 'not verified_zero' and 'finance offers not verified' in the same
+    notes field. Negations win."""
+    t = (str(dl.get("notes", "")) + " | " + " | ".join(str(e) for e in (dl.get("errors") or []))).lower()
+    t = re.sub(r"(not|never|no|isn't|is not|was not)\s+(claimed\s+|claiming\s+)?verified[_ ]zero", " UNVERIFIED ", t)
+    if "verified_zero" not in t and "verified zero" not in t:
+        return False
+    words = ["finance", "apr", "fin "] if kind == "finance" else ["lease"]
+    neg = ["not verified", "unverified", "needs_human_review", "needs human review", "not re-read", "not read",
+           "not located", "not positively"]
+    for seg in re.split(r"[.;|]", t):
+        if any(w in seg for w in words) and any(n in seg for n in neg):
+            return False
+    return True
+
 def d(s):
     return datetime.strptime(s, "%Y-%m-%d").date()
 
@@ -426,7 +444,8 @@ def main():
                 _m = re.search(r"\$([\d,]+)\s+(?:cash\s+)?due at (?:lease\s+)?signing",
                                str(prev.get("offer_text", "")) + " " + str(prev.get("disclaimer_text", "")), re.I)
                 _pdas = int(_m.group(1).replace(",", "")) if _m else 0
-            if _pdas and o.get("das") and abs(_pdas - o["das"]) >= 100:
+            # $20 floor: a $22 due-at-signing move read as "no change" (QA 2026-10-20)
+            if _pdas and o.get("das") and abs(_pdas - o["das"]) >= 20:
                 _dd = o["das"] - _pdas
                 _nt.append(f"due at signing {'+' if _dd > 0 else '-'}${abs(_dd):,}")
             _pmi = derive_miles_yr(prev)[0]
@@ -564,10 +583,23 @@ def main():
                    for o in ex.get("finance_offers", [])
                    if any(w in str(o.get("model", "")).lower() for w in ("select", "all ", "all-"))}
     pulled_offers = []
+    _unverified_pulls = {}
+    _has_kind = {(o.get("dealer"), "lease") for o in ex.get("lease_offers", [])} | \
+                {(o.get("dealer"), "finance") for o in ex.get("finance_offers", [])}
     for k, o in cmp_offers.items():
         is_fin = k.startswith("fin|")
         kind = "finance" if is_fin else "lease"
         if k in (seen_fin_keys if is_fin else seen_lease_keys):
+            continue
+        # A store that published NOTHING of this kind this run only loses the offer
+        # if the crawl positively verified the empty page for THIS kind. Crevier BMW's
+        # 0.9% APR banners were not re-read on 2026-10-20 (finance needs_human_review,
+        # lease verified) and the old code listed them as pulled off a bare
+        # "verified_zero" substring that was actually "not verified_zero" (QA gate).
+        _dlr0 = o.get("dealer", "")
+        if (_dlr0, kind) not in _has_kind and not kind_verified_zero(
+                next((dl for dl in (ex.get("dealers") or []) if dl.get("name") == _dlr0), {}), kind):
+            _unverified_pulls.setdefault((_dlr0, kind), []).append(o)
             continue
         # Same figures still on the site under a different trim label: relabelled,
         # not pulled.
@@ -606,6 +638,12 @@ def main():
             "das": o.get("das", 0), "last_seen": cmp_run["date"] if cmp_run else "",
             "offer_text": o.get("offer_text", "")})
     pulled_offers.sort(key=lambda r: (-r["is_client"], r["dealer"], r["model"]))
+    for (_d, _k), _os in sorted(_unverified_pulls.items()):
+        ex.setdefault("errors", []).append(
+            f"{_d}: {len(_os)} {_k} offer(s) seen on {cmp_run['date'] if cmp_run else 'the prior run'} "
+            f"({'; '.join(sorted({((x.get('model') or '') + ' ' + (x.get('trim') or '')).strip() for x in _os}))}) could not be "
+            f"re-verified this run because the {_k} page was not positively read; "
+            f"carried as unverified, not counted as pulled.")
 
     # ---- movement (delisted within window) --------------------------------
     horizon = d(run_date).toordinal() - MOVEMENT_WINDOW_DAYS
@@ -640,8 +678,14 @@ def main():
     # Delist detection only covers VINs actually re-fetched this run (see the
     # recheck gate above). Say so, so nobody reads a small number as "nothing moved".
     by_dealer = {}
+    _rc_blob = " ".join(rechecked_urls)
     for e in reg["vin_registry"].values():
-        if (e.get("vdp_url", "") or "").rstrip("/").lower() in rechecked_urls:
+        _u = (e.get("vdp_url", "") or "").rstrip("/").lower()
+        # VIN-in-url fallback: a live unit re-read through the search results page can
+        # carry a differently spelled url than the stored one (Irvine 2026-10-20), which
+        # under-counted the denominator and fired a false data-quality warning.
+        if _u in rechecked_urls or (str(e.get("vin") or "").lower() and str(e.get("vin") or "").lower() in _rc_blob
+                                    and e.get("last_seen") == run_date):
             by_dealer[e.get("dealer", "")] = by_dealer.get(e.get("dealer", ""), 0) + 1
     n_rechecked = sum(by_dealer.values())
     n_gone = sum(1 for e in reg["vin_registry"].values() if e.get("delisted_on") == run_date)
@@ -949,7 +993,7 @@ def main():
                {(o.get("dealer"), "finance") for o in ex.get("finance_offers", [])}
         _refresh = sorted({x["dealer"] for x in pulled_offers
                            if (x["dealer"], x["kind"]) not in _has and any(("updating" in str(dl.get("notes", "")).lower()
-                                   or "verified_zero" in str(dl.get("notes", "")).lower())
+                                   or kind_verified_zero(dl, x["kind"]))
                                   and dl.get("name") == x["dealer"]
                                   for dl in (ex.get("dealers") or []))})
         _upd = [d for d in _refresh if any(dl.get("name") == d and "updating" in str(dl.get("notes", "")).lower()
