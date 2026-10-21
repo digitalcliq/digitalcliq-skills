@@ -59,6 +59,8 @@ saves tokens; never em dashes (replaced on write); every estimate says "estimate
 data says "no read since {date}" or "not pulled tonight: {reason}", never a carried-forward number.
 """
 import argparse
+import subprocess
+import urllib.request
 import calendar
 import contextlib
 import datetime as dt
@@ -504,6 +506,9 @@ def load_config():
     for s in cfg["sources"]:
         for m in s.get("metrics") or []:
             KEY_TYPE.setdefault(m["key"], m.get("type"))
+        for k, t in table_keys(s):
+            if t.get("how") == "sum":
+                KEY_TYPE.setdefault(k, t.get("type"))
     return cfg
 
 
@@ -517,8 +522,26 @@ def waiting_text(src):
     return "status %s, not read" % src.get("status")
 
 
+def table_keys(src):
+    """Keys a source's `tables` entries derive from the page's tables (a summed column, or a total row's cells).
+    A sum entry carries its own key and type; a row entry names the keys of the cells after its label and only
+    adds the ones no metric box already has."""
+    out = []
+    for t in src.get("tables") or []:
+        if t.get("how") == "sum" and t.get("key"):
+            out.append((t["key"], t))
+        elif t.get("how") == "row":
+            for k in t.get("keys") or []:
+                out.append((k, t))
+    return out
+
+
 def vendor_keys(src):
-    return [m["key"] for m in src.get("metrics") or [] if m.get("scope") == "vendor_ads"]
+    keys = [m["key"] for m in src.get("metrics") or [] if m.get("scope") == "vendor_ads"]
+    for k, t in table_keys(src):   # a summed table is a vendor key; a total row only overrides keys the boxes have
+        if t.get("how") == "sum" and k not in keys and t.get("scope", "vendor_ads") == "vendor_ads":
+            keys.append(k)
+    return keys
 
 
 def site_keys(src):
@@ -527,7 +550,11 @@ def site_keys(src):
 
 def add_keys(src):
     """Additive vendor_ads metrics: the only ones summed, differenced or cross-checked between windows."""
-    return [m["key"] for m in src.get("metrics") or [] if m.get("additive") and m.get("scope") == "vendor_ads"]
+    keys = [m["key"] for m in src.get("metrics") or [] if m.get("additive") and m.get("scope") == "vendor_ads"]
+    for k, t in table_keys(src):
+        if t.get("how") == "sum" and t.get("additive") and k not in keys:
+            keys.append(k)
+    return keys
 
 
 def r_keys(src):
@@ -757,6 +784,54 @@ def parse_page(text, src, window, D, learn=False):
             errored.append((mt["label"], nxt))
         else:
             unrendered.append(mt["label"])
+    # tables (Constellation's report puts the store totals in tables, not boxes): a summed two-column table
+    # ("Device Cost" rows read "computers $765.8" after norm_line folds the tab) or a total row's cells
+    for tb in src.get("tables") or []:
+        how = tb.get("how")
+        if how == "sum":
+            hdr = norm_line(tb.get("header"))
+            pos = next((j for j, l in enumerate(after) if l == hdr), None)
+            if pos is None:
+                values[tb["key"]] = None
+                missing.append(tb.get("header"))
+                continue
+            tot, n = 0.0, 0
+            for l in after[pos + 1:]:
+                parts = l.rsplit(" ", 1)
+                if len(parts) < 2:
+                    break
+                isn, v, ap, half = parse_num_ex(parts[1])
+                if not isn:
+                    break
+                tot += v or 0.0
+                n += 1
+                if ap:
+                    approx.append(tb["key"])
+                    aerr[tb["key"]] = aerr.get(tb["key"], 0.0) + half
+            values[tb["key"]] = typed(round(tot, 2), tb.get("type")) if n else None
+            if not n:
+                unrendered.append(tb.get("header"))
+        elif how == "row":
+            lab = norm_line(tb.get("label"))
+            pos = next((j for j, l in enumerate(after) if l == lab), None)
+            if pos is None:
+                missing.append(tb.get("label"))
+                continue
+            for i, k in enumerate(tb.get("keys") or []):
+                j = pos + 1 + i
+                if j >= len(after):
+                    break
+                isn, v, ap, half = parse_num_ex(after[j])
+                if not isn:
+                    break
+                values[k] = typed(v, KEY_TYPE.get(k))
+                if ap:
+                    if k not in approx:
+                        approx.append(k)
+                    aerr[k] = half
+                elif k in approx:           # the box rounded (1K); the table row is exact
+                    approx.remove(k)
+                    aerr.pop(k, None)
     new = []
     for j in range(len(after) - 1):
         l = after[j]
@@ -764,6 +839,8 @@ def parse_page(text, src, window, D, learn=False):
             continue
         if parse_num(after[j + 1])[0]:
             new.append(l)
+    if src.get("layout_scan") is False:   # a table-heavy page: every row label would read as a new box
+        new = []
     r.update(values=values, approx=approx, approx_err=aerr, new_boxes=new, missing_boxes=missing,
              empty_boxes=empty + [l for l, _ in errored], unrendered_boxes=unrendered)
     vend = [m for m in metrics if m.get("scope") == "vendor_ads"]
@@ -1230,6 +1307,12 @@ def val_errs(w):
     return e
 
 
+def cost_phrase(v):
+    """How a window's media cost was arrived at: the page's own cost table when the source has one, else the
+    clicks x avg CPC implication."""
+    return "exact (the report's cost table)" if (v or {}).get("cost_exact") else "implied (clicks x avg CPC)"
+
+
 def vals(w):
     """Window values plus implied cost (clicks x avg CPC). Its error: the CPC is shown rounded to the cent
     (half a cent per click), plus half a display unit when clicks or the CPC was shown compact."""
@@ -1244,6 +1327,8 @@ def vals(w):
         v["implied_cost_err"] = r2(c * pe + ce * abs(cpc) + ce * pe)
     else:
         v["implied_cost_err"] = r2(c * CPC_ROUNDING) if c is not None else None
+    if v.get("cost") is not None:        # the page showed cost itself (a summed cost table): exact, not implied
+        v["implied_cost"], v["implied_cost_err"], v["cost_exact"] = r2(v["cost"]), r2(e.get("cost", 0.0)), True
     v["ctr_calc"] = round(c / imp * 100, 4) if c is not None and imp else None
     v["calls_per_100_clicks"] = round(calls / c * 100, 2) if calls is not None and c else None
     return v
@@ -2137,8 +2222,8 @@ def nab_section(src, D, hist, ev, sheet, st):
     md += ["### Yesterday, %s (preliminary)" % wd(y), ""]
     if py:
         md.append("- %s." % cap1(values_text(vy, vk, py.get("approx"))))
-        md.append("- Cost: implied (clicks x avg CPC) %s (+/- %s)." % (money(vy["implied_cost"]),
-                                                                     money(vy["implied_cost_err"], True)))
+        md.append("- Cost: %s %s (+/- %s)." % (cost_phrase(vy), money(vy["implied_cost"]),
+                                                 money(vy["implied_cost_err"], True)))
         md.append("- Read %s (%s line %s); %s." % (read_desc(py), reads_rel, py["line"], PRELIM_LABEL))
         if late:
             md.append("- Note: %s." % late)
@@ -2317,16 +2402,20 @@ def nab_section(src, D, hist, ev, sheet, st):
     if M and vm.get("clicks") is not None and vm.get("avg_cpc") is not None:
         em = errs(M, rk)
         pc = pace_calc(vm["clicks"], vm["avg_cpc"], y, fee, cap, err=em["implied_cost"])
+        if vm.get("cost_exact") and fee is None:   # the page showed cost itself: pace on the exact figure
+            pc["implied_cost"], pc["implied_cost_err"] = vm["implied_cost"], 0.0
+            pc["pace_straight_line"] = r2(vm["implied_cost"] * pc["days_in_month"] / float(pc["days_elapsed"] or 1))
+            pc["pace_err"] = 0.0
         apx = approx_keys(M)
         mtd.update(available=True, start=M["start"], end=M["end"], values=perf(vm, src), pace=pc, approx=sorted(apx))
         prelim = "includes the preliminary %s, still filling in" % wd(M["end"])
         ap = "approx, " if "implied_cost" in apx else ""
         md.append("- %s (%d of %d days; %s): %s." % (short_range(M["start"], M["end"]), pc["days_elapsed"],
                                                      pc["days_in_month"], prelim, values_text(vm, vk, M.get("approx"))))
-        md.append("- Media cost: implied (clicks x avg CPC) %s (%s+/- %s)." % (money(pc["implied_cost"]), ap,
-                                                                              money(pc["implied_cost_err"], True)))
-        md.append("- Straight-line pace (estimated): %s media for %s (implied (clicks x avg CPC) cost x %d / %d days, "
-                  "+/- %s)." % (money(pc["pace_straight_line"]), month_name(y), pc["days_in_month"],
+        md.append("- Media cost: %s %s (%s+/- %s)." % (cost_phrase(vm), money(pc["implied_cost"]), ap,
+                                                        money(pc["implied_cost_err"], True)))
+        md.append("- Straight-line pace (estimated): %s media for %s (%s cost x %d / %d days, "
+                  "+/- %s)." % (money(pc["pace_straight_line"]), month_name(y), cost_phrase(vm), pc["days_in_month"],
                                 pc["days_elapsed"], money(pc["pace_err"], True)))
         if fee is None:
             md.append("- Fee rate unknown (no fee rate in %s's sheet and none in the config), so no including-fees "
@@ -2392,19 +2481,22 @@ def nab_section(src, D, hist, ev, sheet, st):
                       "settled_approx": sv if s else None, "settled_err": s["err"] if s else None, "snapshots": snaps})
     data["daily"] = daily
 
-    # whole-website boxes (never NabThat's traffic)
-    md += ["", "### Whole-website boxes on %s's dashboard (not %s's traffic)" % (vendor, vendor), ""]
-    note = (src.get("scope_notes") or {}).get("site_ga4")
-    if note:
-        md += ["> %s" % note, ""]
+    # whole-website boxes (never NabThat's traffic); a dashboard with no such boxes gets no section
     site = {}
-    if py:
+    if not sk:
+        md += ["", "### Whole-website boxes", "", "- None on %s's dashboard: every box is the vendor's own ads." % vendor, ""]
+    else:
+        md += ["", "### Whole-website boxes on %s's dashboard (not %s's traffic)" % (vendor, vendor), ""]
+    note = (src.get("scope_notes") or {}).get("site_ga4")
+    if sk and note:
+        md += ["> %s" % note, ""]
+    if sk and py:
         md.append("- Yesterday %s (preliminary): %s." % (wd(y), values_text(vy, sk, py.get("approx"))))
         site["yesterday"] = {k: vy.get(k) for k in sk}
-    if M:
+    if sk and M:
         md.append("- Month to date %s: %s." % (short_range(M["start"], M["end"]), values_text(vm, sk, M.get("approx"))))
         site["mtd"] = {k: vm.get(k) for k in sk}
-    if not py and not M:
+    if sk and not py and not M:
         md.append("- No valid read tonight.")
     data["site_boxes"] = site
 
@@ -3354,6 +3446,235 @@ class _Stub(object):
         return rows
 
 
+FX_CON_LASTMONTH = """Title: New Century BMW SEM Dashboard
+URL: https://datastudio.google.com/reporting/6211f20a-86fb-48e6-8a82-563a19f4652d/page/gZGSB
+Source element: <body>
+---
+New Century BMW SEM Dashboard
+Reset
+Share
+arrow_drop_down
+Sep 1, 2026 - Sep 30, 2026
+arrow_drop_down
+New Century BMW
+Impressions
+44,330
+00-BMW-
+NA_PCH_InMarket_…
+Branding :: Chinese ::
+P1
+Others
+43.7%
+7.2%
+12.4%
+23%
+Campaign	Cost
+00-BMW-NA_PCH_InMarket_New__PMAXChineseNew	$7,047.21
+00-BMW-NA_PCH_InMarket_New__PMAXSpanishNew	$3,697.7
+Branding :: Chinese :: P1	$1,997.99
+00-BMW-NA_PCH_InMarket_New__PMAXChineseX3	$1,165.74
+00-BMW-NA_PCH_InMarket_New__PMAXKorean	$734.42
+00-BMW-NA_PCH_InMarket_New__PMAXSpanishX3	$667.08
+Branding :: Spanish :: P1	$494.11
+Branding Korean P1	$292.51
+Branding :: Spanish :: English Browser :: P1	$14.24
+Others	$0
+Campaign	Cost
+00-BMW-NA_PCH_InMarket_New__PMAXChineseNew	$7,047.21
+00-BMW-NA_PCH_InMarket_New__PMAXSpanishNew	$3,697.7
+Branding :: Chinese :: P1	$1,997.99
+00-BMW-NA_PCH_InMarket_New__PMAXChineseX3	$1,165.74
+00-BMW-NA_PCH_InMarket_New__PMAXKorean	$734.42
+00-BMW-NA_PCH_InMarket_New__PMAXSpanishX3	$667.08
+Branding :: Spanish :: P1	$494.11
+Branding Korean P1	$292.51
+Branding :: Spanish :: English Browser :: P1	$14.24
+Others	$0
+mobile devices with
+full browsers
+computers
+tablets with full
+browsers
+TV screens
+95.1%
+Device	Cost
+mobile devices with full browsers	$15,316.39
+computers	$765.8
+tablets with full browsers	$28.54
+TV screens	$0.28
+Device	Cost
+mobile devices with full browsers	$15,316.39
+computers	$765.8
+tablets with full browsers	$28.54
+TV screens	$0.28
+Campaigns By Click
+Clicks By Device
+Campaigns By Click
+Campaign
+Clicks
+▼
+CTR
+Avg. CPC
+Phone calls
+Search Impr. share
+1.
+00-BMW-NA_PCH_InMarket_New__PMAXChineseNew
+1,564
+8.17%
+$4.51
+651
+0.33
+2.
+Branding :: Chinese :: P1
+477
+6.34%
+$4.19
+17
+0.1
+3.
+00-BMW-NA_PCH_InMarket_New__PMAXSpanishNew
+378
+7.41%
+$9.78
+124
+0.41
+4.
+00-BMW-NA_PCH_InMarket_New__PMAXKorean
+249
+8.01%
+$2.95
+82
+0.29
+5.
+00-BMW-NA_PCH_InMarket_New__PMAXChineseX3
+197
+15.5%
+$5.92
+116
+0.32
+6.
+00-BMW-NA_PCH_InMarket_New__PMAXSpanishX3
+162
+12.03%
+$4.12
+68
+0.47
+7.
+Branding :: Spanish :: P1
+124
+2.78%
+$3.98
+11
+0.53
+8.
+Branding Korean P1
+74
+3.65%
+$3.95
+6
+0.52
+9.
+Branding :: Spanish :: English Browser :: P1
+4
+1.14%
+$3.56
+0
+0.58
+10.
+New :: BMW :: X7 :: DP :: Spanish :: English Browser :: P4
+0
+0%
+$0
+0
+0
+11.
+Vehicle Ads :: Used Cars
+0
+0%
+$0
+0
+0
+12.
+Branding :: Chinese :: English Browser :: P3
+0
+0%
+$0
+0
+0
+Grand total
+3,229
+7.28%
+$4.99
+1,075
+0.18
+1 - 100 / 625<>
+AdGroups By Click
+Impressions
+Clicks
+Aug 31, 2026
+Sep 7, 2026
+Sep 14, 2026
+Sep 21, 2026
+Sep 28, 2026
+7K
+8K
+9K
+10K
+11K
+12K
+500
+550
+600
+650
+700
+750
+800
+
+Search​
+Search Data​
+Clicks
+3,229
+Avg. CPC
+$4.99
+CTR
+7.28%
+Calls from Ads
+1K
+Ad group
+Clicks
+▼
+Impressions
+CTR
+Avg. CPC
+1.
+00-BMW-NA_PCH_InMarket_New__ConstellationChinese
+477
+7,521
+6.34%
+$4.19
+2.
+00-BMW-NA_PCH_InMarket_New__ConstellationSpanishBrowser
+124
+4,463
+2.78%
+$3.98
+1 - 100 / 1133<>
+Clicks
+3,229
+Lead Forms
+5
+Website CTC
+5
+New VDP Views
+219
+Hours & Directions
+443
+Ad group
+▼
+Data Last Updated: 10/21/2026 10:44:25 AM
+Privacy Policy
+"""
+
 def cmd_selftest(_args):
     global ROOT, _GDATA_STUB
     saved_root = ROOT
@@ -4202,6 +4523,38 @@ def cmd_selftest(_args):
         _GDATA_STUB = None
         shutil.rmtree(tmp, ignore_errors=True)
     check("gdata" not in sys.modules, "gdata was never imported")
+
+    # 40. Constellation's Looker report: tables, exact cost, the rounded Calls box overridden by the total row
+    con_cfg = json.loads(json.dumps(base_cfg))
+    con_src = next(s for s in con_cfg["sources"] if s["id"] == "ncbmw-constellation")
+    for k2, t2 in table_keys(con_src):
+        if t2.get("how") == "sum":
+            KEY_TYPE.setdefault(k2, t2.get("type"))
+    rc_ = parse_page(FX_CON_LASTMONTH, con_src, "last_month", "2026-10-02")
+    vc = rc_.get("values") or {}
+    check(rc_["status"] == "ok" and rc_["start"] == "2026-09-01" and rc_["end"] == "2026-09-30",
+          "40 Constellation last-month fixture parses as Sep 1 to Sep 30 (%s)" % rc_.get("reason"))
+    check(vc.get("cost") == 16111.01 and isinstance(vc.get("cost"), float), "40 cost = Device x Cost table summed, 16111.01")
+    check(vc.get("clicks") == 3229 and vc.get("phone_calls") == 1075 and vc.get("avg_cpc") == 4.99 and vc.get("ctr") == 7.28,
+          "40 Grand total row: 3,229 clicks, 1,075 calls (the 1K box overridden), $4.99, 7.28%%")
+    check("phone_calls" not in rc_["approx"] and vc.get("impressions") == 44330 and vc.get("lead_forms") == 5
+          and vc.get("website_ctc") == 5 and vc.get("vdp_views") == 219 and vc.get("hours_directions") == 443,
+          "40 boxes: impressions 44,330, lead forms 5, CTC 5, VDP 219, hours 443; calls no longer approx")
+    check(rc_["new_boxes"] == [] and rc_["missing_boxes"] == [], "40 layout_scan off: no new boxes, nothing missing")
+    vv = vals(rc_)
+    check(vv.get("cost_exact") is True and vv.get("implied_cost") == 16111.01 and vv.get("implied_cost_err") == 0.0,
+          "40 vals(): exact cost replaces the implied clicks x CPC figure")
+    check("cost" in add_keys(con_src) and "cost" in vendor_keys(con_src) and "search_impr_share" not in vendor_keys(con_src),
+          "40 cost is an additive vendor key; the impression-share cell is not a vendor key")
+    rd = parse_page(FX_CON_LASTMONTH, con_src, DEFAULT_WINDOW, "2026-10-21")
+    check(rd["status"] == "ok" and rd["start"] == "2026-09-01", "40 default view (the Last month preset) parses with its range")
+    rm = parse_page(FX_CON_LASTMONTH, con_src, "mtd", "2026-10-21")
+    check(rm["status"] == "invalid" and "Oct 1, 2026 - Oct 20, 2026" in rm["reason"], "40 the same page is invalid as Oct 21's month to date")
+    live, why = push_payload(con_src, "2026-10-02", {"windows": {"mtd": new_window("missing", "x"), "last_month": rc_}})
+    check(live and live["window"] == "last_month" and live["cost"] == 16111.01 and live["costExact"] is True
+          and live["values"]["phone_calls"] == 1075 and live["from"] == "2026-09-01", "40 push payload uses the last-month read when month to date is missing")
+    live2, why2 = push_payload(con_src, "2026-10-02", {"windows": {}})
+    check(live2 is None and "no month window" in why2, "40 push payload: nothing valid -> a reason, no payload")
     print("selftest: %s (%d failed)" % ("PASS" if not fails else "FAIL", len(fails)))
     return 1 if fails else 0
 
@@ -4214,10 +4567,109 @@ class _Parser(argparse.ArgumentParser):
         die(message, 1)
 
 
+# ---------------------------------------------------------------- push (client dashboard)
+
+def keychain_secret(service, account):
+    """The macOS Keychain item's password, or None. Never printed, never written anywhere but the request body."""
+    try:
+        out = subprocess.run(["security", "find-generic-password", "-s", service, "-a", account, "-w"],
+                             capture_output=True, text=True, timeout=20)
+    except Exception:
+        return None
+    return out.stdout.strip() if out.returncode == 0 and out.stdout.strip() else None
+
+
+def push_payload(src, D, snap):
+    """-> (vendorLive dict, reason). The newest valid month window: month to date first (on the 1st that is last
+    month in full), else the last-month read. Values: the source's vendor_ads keys plus the exact or implied
+    cost, every number as the page showed it (compact ones flagged in `approx`)."""
+    wins = (snap or {}).get("windows") or {}
+    pick = next(((w, r) for w in ("mtd", "last_month") for r in [wins.get(w)]
+                 if isinstance(r, dict) and r.get("status") == "ok" and r.get("start")), None)
+    if not pick:
+        why = "; ".join("%s %s" % (w, (wins.get(w) or {}).get("reason") or (wins.get(w) or {}).get("status") or "not read")
+                        for w in ("mtd", "last_month") if wins.get(w)) or "no month window read for %s" % D
+        return None, why
+    w, r = pick
+    v = vals(r) or {}
+    dp = src.get("dashboard_push") or {}
+    keys = vendor_keys(src)
+    live = {"vendor": dp.get("vendor") or src.get("vendor", "").lower(), "store": src.get("store"), "window": w,
+            "from": r["start"], "to": r["end"], "label": r.get("label"), "readAt": r.get("read_at"),
+            "pushedAt": now_iso(), "source": src.get("url"), "shortLink": src.get("short_link"),
+            "report": src.get("title_contains"),
+            "values": {k: v.get(k) for k in keys},
+            "cost": v.get("implied_cost"), "costExact": bool(v.get("cost_exact")),
+            "approx": [k for k in r.get("approx") or [] if k in keys],
+            "scope": ((src.get("scope_notes") or {}).get("vendor_ads") or "")[:300]}
+    return live, None
+
+
+def cmd_push(args):
+    """Send each pushing source's newest month window to its client dashboard feed (Apps Script doPost,
+    vendorLive). Exit 2 when a source had nothing valid to send or the feed refused it; the dashboard then keeps
+    what it had. A log line per attempt goes to vendor-dash/{D}/push.jsonl (never the token)."""
+    D = iso(args.date) if args.date else pacific_today().isoformat()
+    cfg = load_config()
+    rc = 0
+    for src in active_sources(cfg):
+        dp = src.get("dashboard_push") or {}
+        if not dp.get("enabled"):
+            continue
+        sid = src["id"]
+        live, why = push_payload(src, D, load_json(VD(D, sid + ".json")))
+        if not live:
+            say("%s: nothing pushed, %s" % (sid, why))
+            rc = 2
+            continue
+        feed = dp.get("feed_url")
+        if not feed:
+            say("%s: nothing pushed, dashboard_push.feed_url is missing in the config" % sid)
+            rc = 2
+            continue
+        if args.dry_run:
+            say("%s: would push %s %s to %s (%s)" % (sid, live["window"], live["label"], live["to"], rel(VD(D, sid + ".json"))))
+            say(json.dumps({"vendorLive": live}, indent=1))
+            continue
+        kc = dp.get("keychain") or {}
+        token = keychain_secret(kc.get("service", ""), kc.get("account", ""))
+        if not token:
+            say("%s: nothing pushed, no write token in the Keychain (service %s, account %s)" % (sid, kc.get("service"), kc.get("account")))
+            rc = 2
+            continue
+        body = json.dumps({"token": token, "vendorLive": live}).encode("utf-8")
+        reply, err = None, None
+        try:
+            req = urllib.request.Request(feed, data=body, headers={"Content-Type": "text/plain;charset=utf-8"}, method="POST")
+            with urllib.request.urlopen(req, timeout=90) as resp:   # Apps Script answers with a 302 that urllib follows as a GET
+                reply = resp.read().decode("utf-8", "replace")
+        except Exception as e:
+            err = str(e)
+        ok = False
+        try:
+            j = json.loads(reply) if reply else {}
+            ok = bool(j.get("ok")) and bool(j.get("vendorLive"))
+            detail = j.get("vendorLive") or j.get("error") or reply[:200]
+        except Exception:
+            detail = (reply or "")[:200]
+        line = {"source": sid, "date": D, "at": now_iso(), "window": live["window"], "from": live["from"], "to": live["to"],
+                "ok": ok, "reply": detail if ok else (err or detail)}
+        os.makedirs(VD(D), exist_ok=True)
+        with open(VD(D, "push.jsonl"), "a", encoding="utf-8") as f:
+            f.write(json.dumps(line) + "\n")
+        if ok:
+            say("%s: pushed %s %s (%s)" % (sid, live["window"], live["label"], detail))
+        else:
+            say("%s: push FAILED: %s" % (sid, err or detail))
+            rc = 2
+    return rc
+
+
 def main(argv=None):
     ap = _Parser(description="Vendor dashboards: reads, deltas, pace, GA4 cross-check, sheets and "
                              "the credit split. See the module docstring.")
-    ap.add_argument("cmd", choices=["status", "ingest", "report", "selftest"])
+    ap.add_argument("cmd", choices=["status", "ingest", "report", "selftest", "push"])
+    ap.add_argument("--dry-run", action="store_true", help="push: print the payload (token withheld), send nothing")
     ap.add_argument("--date")
     ap.add_argument("--reads")
     ap.add_argument("--learn", action="store_true")
@@ -4230,7 +4682,10 @@ def main(argv=None):
         die("--learn goes with ingest only")
     if (args.out or args.no_pull) and args.cmd != "report":
         die("--out and --no-pull go with report only")
-    return {"status": cmd_status, "ingest": cmd_ingest, "report": cmd_report, "selftest": cmd_selftest}[args.cmd](args)
+    if args.dry_run and args.cmd != "push":
+        die("--dry-run goes with push only")
+    return {"status": cmd_status, "ingest": cmd_ingest, "report": cmd_report, "selftest": cmd_selftest,
+            "push": cmd_push}[args.cmd](args)
 
 
 if __name__ == "__main__":

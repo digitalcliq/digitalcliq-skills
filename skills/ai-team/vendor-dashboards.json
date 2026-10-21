@@ -1,5 +1,5 @@
 {
-  "_about": "Vendor paid-media dashboards the AI team watches read-only (Drew, 2026-09-28: the vendors will not give us Google Ads access, so the team reads what they share). The desktop task vendor-dash-read (daily about 12:45 AM) reads every source with status active in the Claude Browser and writes outputs/ai-team/vendor-dash/{date}/reads.jsonl; vendor_dash.py ingest validates each read, and vendor_dash.py report writes the night's deltas for Shaq. To turn on a new dashboard: paste its view link into url and set status to active. Nothing else changes. Never add a link that needs a sign-in.",
+  "_about": "Vendor paid-media dashboards the AI team watches read-only (Drew, 2026-09-28: the vendors will not give us Google Ads access, so the team reads what they share). The desktop task vendor-dash-read (daily about 12:45 AM) reads every source with status active in the Claude Browser and writes outputs/ai-team/vendor-dash/{date}/reads.jsonl; vendor_dash.py ingest validates each read, and vendor_dash.py report writes the night's deltas for Shaq. To turn on a new dashboard: paste its view link into url and set status to active. Nothing else changes. A source with dashboard_push.enabled also feeds the client dashboard (vendor_dash.py push, run by the same task after ingest). Never add a link that needs a sign-in.",
   "sources": [
     {
       "id": "ncbmw-nabthat",
@@ -108,12 +108,12 @@
       "vendor": "Constellation",
       "channel": "Google Ads multicultural (Spanish, Chinese, Korean Performance Max and branding) plus the BMW Western Region vehicle listing ads",
       "kind": "looker",
-      "status": "awaiting_link",
+      "status": "active",
       "added": "2026-09-28",
       "owner": "shaq",
-      "url": null,
-      "title_contains": null,
-      "note": "No dashboard yet. Drew said on 2026-09-25 he would call Delaney Love about a dashboard or a weekly report. When a view link arrives: paste it into url, set status active, fill title_contains and the metrics list from the page's box labels (vendor_dash.py ingest --date D --learn prints them), and the nightly task reads it from that night on.",
+      "url": "https://datastudio.google.com/reporting/6211f20a-86fb-48e6-8a82-563a19f4652d/page/gZGSB",
+      "title_contains": "New Century BMW SEM Dashboard",
+      "note": "Single page, date control at the top right reads the current range (default preset Last month). The panel's preset dropdown lists Yesterday, This month (sub-menu: This month to date), Last 7 days (sub-menu: Last month), Advanced. Scorecards: Impressions, Clicks, Avg. CPC, CTR, Calls from Ads (shown compact, e.g. 1K), Lead Forms, Website CTC, New VDP Views, Hours & Directions. Exact clicks and calls come from the Campaigns By Click table's Grand total row; spend is the sum of the Device x Cost table (every device, so the whole account), which this Looker shows and the monthly sheet does not. Scope: the Tier III language campaigns (Chinese, Spanish, Korean Performance Max and branding) only; the BMW Western Region vehicle listing ads are not in it, so its spend runs below the monthly sheet's New Century BMW (SEM) block (September 2026: $16,111 here vs $20,113 on the sheet).",
       "interim": [
         "GA4: campaigns named constellation_* (today only constellation_2026_BMWWR_VLA, the vehicle listing ads, google / cpc and google / vehiclelisting). Constellation's Performance Max and branding campaigns are not tagged, so GA4 lumps them with NabThat's under (organic) and (not set).",
         "Monthly sheet: one tab per closed month, named '{Month} {YYYY} (By Language)'; the BMW block is 'New Century BMW (SEM)' with campaign rows and a total row. August 2026 was the newest tab on 2026-09-28. The 'Jul-Sep' and 'Oct-Dec' tabs are from 2024; never read them as current.",
@@ -133,7 +133,116 @@
         "cadence": "monthly, after the month closes"
       },
       "ga4_campaign_prefix": "constellation_",
-      "contact": "Delaney Love (delaney.love@helloconstellation.com), Coco Arowolo"
+      "contact": "Delaney Love (delaney.love@helloconstellation.com), Coco Arowolo",
+      "activated": "2026-10-21",
+      "short_link": "https://datastudio.google.com/s/g86ooyKqP30",
+      "access": "Delaney Love shared it 2026-09-30 (Tier III campaigns, 'New Century BMW Live Dashboard') and added Drew's Google address. It opens in the Claude Browser pane because the pane is signed in as Drew; if the pane shows a Google sign-in, the read is flagged and Drew signs the pane in again (the task never signs in). NEVER read it through the short link /s/g86ooyKqP30: that link carries a saved chart selection (the Chinese New campaign) and its scorecards show one campaign, not the store. The plain report URL above shows every campaign.",
+      "metrics": [
+        {
+          "label": "Impressions",
+          "key": "impressions",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Clicks",
+          "key": "clicks",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Avg. CPC",
+          "key": "avg_cpc",
+          "type": "money",
+          "scope": "vendor_ads",
+          "additive": false
+        },
+        {
+          "label": "CTR",
+          "key": "ctr",
+          "type": "pct",
+          "scope": "vendor_ads",
+          "additive": false
+        },
+        {
+          "label": "Calls from Ads",
+          "key": "phone_calls",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Lead Forms",
+          "key": "lead_forms",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Website CTC",
+          "key": "website_ctc",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "New VDP Views",
+          "key": "vdp_views",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        },
+        {
+          "label": "Hours & Directions",
+          "key": "hours_directions",
+          "type": "count",
+          "scope": "vendor_ads",
+          "additive": true
+        }
+      ],
+      "tables": [
+        {
+          "key": "cost",
+          "type": "money",
+          "additive": true,
+          "how": "sum",
+          "header": "Device\tCost",
+          "what": "ad spend for the window: the Device x Cost table summed (all devices = the whole account)"
+        },
+        {
+          "how": "row",
+          "label": "Grand total",
+          "keys": [
+            "clicks",
+            "ctr",
+            "avg_cpc",
+            "phone_calls",
+            "search_impr_share"
+          ],
+          "what": "the Campaigns By Click table's total row: exact clicks and phone calls (the Calls from Ads box rounds to 1K); overrides the boxes of the same key"
+        }
+      ],
+      "layout_scan": false,
+      "scope_notes": {
+        "vendor_ads": "Constellation's own Google Ads account, Tier III language campaigns. Cost is exact (Device x Cost table), not implied. 'Calls from Ads' and the table's 'Phone calls' are Google call-ad calls of any length; Constellation's monthly reporting counts calls of 2 minutes or longer, so the live count runs higher (September 2026: 1,075 here vs 799 on the monthly sheet)."
+      },
+      "windows": {
+        "yesterday": "Yesterday preset. Expected page label: yesterday to yesterday.",
+        "mtd": "This month to date preset (Include today unchecked), or Last month when today is the 1st. Expected label: the 1st of yesterday's month to yesterday.",
+        "last_month": "Last month preset, on the 2nd and 3rd of a month only."
+      },
+      "dashboard_push": {
+        "enabled": true,
+        "vendor": "constellation",
+        "what": "vendor_dash.py push sends the newest valid month-to-date (or last-month) window to the New Century BMW dashboard feed (Apps Script doPost, vendorLive), which writes the Vendor Live tab of the NCBMW Dashboard Data sheet; the dashboard's Constellation card then reads live numbers instead of the monthly sheet (Drew, 2026-10-21).",
+        "keychain": {
+          "service": "digitalcliq-semrush-write",
+          "account": "ncbmw"
+        },
+        "feed_url": "https://script.google.com/macros/s/AKfycbwdi91LD8vFv5A3PDCJQ4BIm4TWkzDWei49G_dCf0fnxfMucDHORapSKtLcnoQ9aMpyWA/exec"
+      }
     }
   ]
 }
