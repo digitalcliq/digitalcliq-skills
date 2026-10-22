@@ -222,7 +222,7 @@ def sheet_summary(wb, R, summary_text, logo, prepared_for):
 
     r = 4
     ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=N)
-    c = ws.cell(row=r, column=1, value="DIGITALCLIQ WEBSITE WATCH  ·  MCPEEKS.COM  ·  TWICE-WEEKLY COMPLIANCE, ACCURACY AND HEALTH MONITORING")
+    c = ws.cell(row=r, column=1, value="DIGITALCLIQ WEBSITE WATCH  ·  MCPEEKS.COM  ·  COMPLIANCE, ACCURACY AND HEALTH MONITORING")
     c.font = font(DOSIS, 9, True, DIGITAL_BLUE); c.alignment = LEFT_MID; ws.row_dimensions[r].height = 16
     r = 5
     ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=N)
@@ -240,16 +240,16 @@ def sheet_summary(wb, R, summary_text, logo, prepared_for):
     ac = R["area_counts"]
     tiles = [("LEGAL & PRICING ITEMS", ac.get(AREA_LEGAL, 0), "open across vehicle and site pages"),
              ("INVENTORY ACCURACY ITEMS", ac.get(AREA_ACCURACY, 0), "photos, payments, pricing data"),
-             ("SITE HEALTH & PRIVACY ITEMS", ac.get(AREA_HEALTH, 0), "scripts, consent, SSL, domains"),
+             ("SITE HEALTH & PRIVACY ITEMS", ac.get(AREA_HEALTH, 0), "scripts, cookies, SSL, domains"),
              ("NEW SINCE LAST RUN", m["new"], "first run: everything is new" if m["baseline"] else "items not flagged last run"),
-             ("RESOLVED SINCE LAST RUN", m["resolved"], "no longer detected")]
+             ("RESOLVED SINCE LAST RUN", m["resolved"], "fixed or sold since last run")]
     r = 8
     for i, (label, val, note) in enumerate(tiles):
         col = 2 + i
         a = ws.cell(row=r, column=col, value=label); a.font = font(DOSIS, 9, True, WHITE); a.fill = F_BRAND; a.alignment = CENTER; a.border = TILE_BOX
         b = ws.cell(row=r + 1, column=col, value=val); b.font = font(DOSIS, 30, True, WHITE); b.fill = F_TILE; b.alignment = CENTER; b.border = TILE_BOX
         d = ws.cell(row=r + 2, column=col, value=note); d.font = font(SLAB, 8, False, WARM_GREY); d.fill = F_CALLOUT; d.alignment = CENTER; d.border = TILE_BOX
-    ws.row_dimensions[r].height = 24; ws.row_dimensions[r + 1].height = 46; ws.row_dimensions[r + 2].height = 18
+    ws.row_dimensions[r].height = 24; ws.row_dimensions[r + 1].height = 46; ws.row_dimensions[r + 2].height = 28
 
     # ---- where the store stands ----
     r = 12; eyebrow(ws, r, "Where the store stands", N)
@@ -304,8 +304,8 @@ def sheet_summary(wb, R, summary_text, logo, prepared_for):
         ("Fix List", "The action plan. One row per problem type, ranked. Says what we found, why it matters, who fixes it, and the fix. Start here."),
         ("Scorecard", f"All {len(CHECK_IDS)} checks with this run's count against last run's, so you can see what is trending the right way."),
         ("Legal & Pricing", "Every vehicle behind the legal items, with VIN, the dollar figures, and a link to the page."),
-        ("Inventory Accuracy", "Every vehicle with a photo, payment, or pricing-data problem. Hand this tab to the inventory manager."),
-        ("Site Health", "Scripts, cookies, consent, SSL and domain redirects, plus page-speed scores when captured."),
+        ("Inventory Accuracy", "Every vehicle with a photo, payment, or pricing-data problem. Hand this tab to the inventory manager and Pixel Motion; the Fix List says who owns each item."),
+        ("Site Health", "Scripts, cookies, SSL and domain redirects, plus page-speed scores when captured."),
         ("Phone Checklist", "The numbers on the site that a person must test-call. Columns are left blank for whoever makes the calls."),
         ("What Changed", "Everything new since the previous run and everything that cleared, with the reason it cleared (fixed vs sold)."),
         ("Status labels", "ACTION NEEDED = legal exposure or a large accuracy gap. WATCH = worth a look, not urgent. CLEAR = nothing flagged. NOT RUN = not measured this run. "
@@ -373,7 +373,8 @@ def sheet_scorecard(wb, R, logo):
     masthead(ws, f"Scorecard  ·  all {len(CHECK_IDS)} checks, this run vs last", pretty_date(R["meta"]["date"]), N, logo)
     para(ws, 3, "Every check we run, including the ones that passed. ACTION = legal item with findings. "
                 "WATCH = accuracy or health item with findings. CLEAR = nothing flagged. NOT RUN = not measured this run. "
-                "MANUAL = needs a person (test calls). Change is this run minus last run; negative is good.",
+                "MANUAL = needs a person (test calls). Change is this run minus last run; negative is good. "
+                "On the Summary, a whole area shows ACTION NEEDED when it has a legal item or a large accuracy gap.",
          N, sum(widths), font(SLAB, 9.5, False, TILE_BLUE), F_CALLOUT)
     hdr = 4
     header(ws, hdr, ["Check", "Area", "What it is called", "What we check", "This run", "Last run", "Change", "Status", "Who fixes it"])
@@ -382,16 +383,20 @@ def sheet_scorecard(wb, R, logo):
     for i, cid in enumerate(CHECK_IDS):
         cat = CATALOG[cid]; r += 1; z = zebra(i)
         n, p = counts.get(cid, 0), prev.get(cid, 0)
+        # Show the area this run's findings landed in (a C25 no-arrival item is
+        # accuracy, not legal), so the Scorecard agrees with the Fix List and tabs.
+        f_areas = {f["area"] for f in R["findings"] if f["check"] == cid}
+        area = f_areas.pop() if len(f_areas) == 1 else cat["area"]
         if cid == "C20":
             status, n_disp, p_disp, chg = "MANUAL", "see tab", "", ""
         elif cid == "C14" and not R.get("lighthouse"):
             status, n_disp, p_disp, chg = "NOT RUN", "", "", ""
         else:
-            status = "CLEAR" if n == 0 else ("ACTION" if cat["area"] == AREA_LEGAL else "WATCH")
+            status = "CLEAR" if n == 0 else ("ACTION" if area == AREA_LEGAL else "WATCH")
             n_disp, p_disp = n, (p if not R["meta"]["baseline"] else "")
             chg = "" if R["meta"]["baseline"] else (n - p)
         cell(ws, r, 1, cid, font(DOSIS, 11, True, DIGITAL_BLUE), z, CENTER)
-        cell(ws, r, 2, cat["area"], font(DOSIS, 10, True, TILE_BLUE), z, LEFT_MID)
+        cell(ws, r, 2, area, font(DOSIS, 10, True, TILE_BLUE), z, LEFT_MID)
         cell(ws, r, 3, cat["name"], font(SLAB, 10, True), z, LEFT_MID)
         cell(ws, r, 4, cat["what"], font(SLAB, 9.5), z, LEFT_MID)
         cell(ws, r, 5, n_disp, font(DOSIS, 13, True, NAVY_BASE), z, CENTER)
@@ -445,7 +450,7 @@ def detail_sheet(wb, title, tab_title, intro, rows, R, logo, tab_color=SKY_BLUE)
 
 def sheet_site_health(wb, R, logo):
     rows = [f for f in R["findings"] if f["area"] == AREA_HEALTH]
-    ws, r = detail_sheet(wb, "Site Health  ·  scripts, consent, SSL, domains, speed", "Site Health",
+    ws, r = detail_sheet(wb, "Site Health  ·  scripts, cookies, SSL, domains, speed", "Site Health",
                          "Site-wide items rather than per-vehicle items. Each row names the page or domain it applies to. "
                          "Page-speed scores appear below the findings when they were captured this run.",
                          rows, R, logo)
@@ -455,8 +460,7 @@ def sheet_site_health(wb, R, logo):
     lh = R.get("lighthouse", [])
     if not lh:
         r += 1
-        para(ws, r, "Page-speed scores were not captured this run. Nothing on the site is implied by that; "
-                    "the scores return with the next run.",
+        para(ws, r, "Page speed was not measured this run; this says nothing about how fast the site is.",
              N, 208, font(SLAB, 9.5, False, WARM_GREY))
         return ws
     r += 1
@@ -485,6 +489,8 @@ def likely_department(pages):
     pages = [str(p) for p in pages]
     if len(pages) >= 5:
         return "Main line (site-wide)"
+    if all(p.startswith("/inventory/display/") for p in pages):
+        return "Unknown (vehicle description only)"
     if any(p.startswith("/service") for p in pages):
         return "Service"
     if any(p.startswith("/parts") for p in pages):
@@ -500,12 +506,28 @@ def likely_department(pages):
     return "Check on call"
 
 
+PAGE_NAMES = {"/": "Home", "/inventory/new": "New inventory", "/inventory/used": "Used inventory",
+              "/finance": "Finance", "/contact-us": "Contact", "/privacy-policy": "Privacy policy",
+              "/service": "Service", "/parts": "Parts"}
+
+
+def page_name(path):
+    """Plain page name for the GM instead of a URL path."""
+    if path in PAGE_NAMES:
+        return PAGE_NAMES[path]
+    m = re.match(r"/inventory/display/(?:new|used)/(\d{4})/([^/]+)/([^/]+)/([A-Z0-9]{11,17})", path, re.I)
+    if m:
+        return f"{m.group(1)} {m.group(2)} {m.group(3).replace('-', ' ')} page (VIN {m.group(4)})"
+    return path
+
+
 def sheet_phones(wb, R, logo):
     ws = wb.create_sheet("Phone Checklist"); ws.sheet_properties.tabColor = SKY_BLUE
     widths = [17, 44, 18, 18, 14, 12, 22, 22, 34]; N = len(widths)
     set_widths(ws, widths)
     masthead(ws, "Phone Checklist  ·  numbers that need a test call", pretty_date(R["meta"]["date"]), N, logo)
-    para(ws, 3, "Software cannot verify where a phone number rings. Every number published on mcpeeks.com is listed here; "
+    para(ws, 3, "Software cannot verify where a phone number rings. Every number in the text of mcpeeks.com pages, "
+                "vehicle pages included, is listed here; "
                 "call each one, confirm it reaches the right department with the right greeting, and note the result. "
                 "Numbers that appeared or moved since the last run are marked so they get called first. "
                 "Numbers burned into photos or graphics are not detectable and are not listed.",
@@ -518,16 +540,16 @@ def sheet_phones(wb, R, logo):
     for i, p in enumerate(phones):
         r += 1; z = zebra(i)
         cell(ws, r, 1, p["number"], font(DOSIS, 12, True, NAVY_BASE), z, CENTER)
-        pages = ", ".join(str(x) for x in p["pages"])
+        pages = ", ".join(page_name(str(x)) for x in p["pages"])
         cell(ws, r, 2, pages, font(SLAB, 9.5), z, LEFT_MID)
         cell(ws, r, 3, likely_department(p["pages"]), font(DOSIS, 10, True, TILE_BLUE), z, CENTER)
         chg = p["change"]
-        st = "NEW" if chg.startswith("NEW") or chg.startswith("REMOVED") or chg == "Pages changed" else "PERSISTING"
+        st = ("NEW" if chg.startswith(("NEW", "REMOVED", "First")) or chg == "Pages changed" else "PERSISTING")
         fl, fn = STATUS_STYLE[st]
         cell(ws, r, 4, chg, fn, fl, CENTER)
         for col in range(5, N + 1):
             cell(ws, r, col, "", font(SLAB, 10), F_CARD, LEFT_MID)
-        row_height_for(ws, r, [(pages, widths[1])], 24)
+        row_height_for(ws, r, [(pages, widths[1]), (likely_department(p["pages"]), widths[2])], 24)
     if not phones:
         r += 1
         para(ws, r, "No phone numbers were extracted this run; check the crawl.", N, sum(widths))
@@ -559,21 +581,29 @@ def sheet_changes(wb, R, logo):
              font(SLAB, 10, False, TILE_BLUE), F_CALLOUT)
         print_setup(ws); return ws
     nb, rb = m.get("new_by_reason", {}), m.get("resolved_by_reason", {})
+    # Counts here are items (one per check per vehicle); name the vehicle counts
+    # separately so a GM never reads 95 items as 95 vehicles sold.
+    arr_v = len({f["vin"] for f in R["findings"] if f.get("status_note") == "New arrival on the lot" and f.get("vin")})
+    gone_v = len({x["ref"] for x in R["resolved"] if x["reason"].startswith("Vehicle")})
     REASON_PLURAL = {
         "New issue on a vehicle that was already listed": "new issues on vehicles that were already listed",
-        "New arrival on the lot": "new arrivals on the lot",
+        "New arrival on the lot": f"on the {arr_v} newly arrived {plural(arr_v, 'vehicle')}",
         "New since last run": "new since last run",
+        "First checked this run (check added or tightened)":
+            "first checked this run because the check was added or tightened since last run, not because the page changed",
         "Fixed on the page (vehicle still listed)": "fixed on the page (vehicle still listed)",
-        "Vehicle no longer listed (sold or delisted)": "vehicles no longer listed (sold or delisted)",
+        "Vehicle no longer listed (sold or delisted)":
+            f"cleared because their {gone_v} {plural(gone_v, 'vehicle')} sold or came off the site",
         "No longer detected": "no longer detected",
     }
     def reason(k, v):
         return REASON_PLURAL.get(k, k.lower()) if v != 1 else k.lower()
-    intro = (f"Compared with the {pretty_date(m['prev_date'])} run. {m['new']} new {plural(m['new'], 'item')}: " +
+    intro = (f"Compared with the {pretty_date(m['prev_date'])} run. Each item is one issue on one vehicle or page. "
+             f"{m['new']} new {plural(m['new'], 'item')}: " +
              ("; ".join(f"{v} {reason(k, v)}" for k, v in nb.items()) or "none") +
              f". {m['resolved']} resolved {plural(m['resolved'], 'item')}: " +
              ("; ".join(f"{v} {reason(k, v)}" for k, v in rb.items()) or "none") +
-             ". 'Vehicle no longer listed' means the unit sold or came off the site, so the item cleared by turnover, not by a fix.")
+             ". Items that cleared because the vehicle sold are turnover, not fixes.")
     para(ws, 3, intro, N, sum(widths), font(SLAB, 9.5, False, TILE_BLUE), F_CALLOUT)
 
     r = 5; eyebrow(ws, r, f"New this run ({m['new']})", N)
@@ -584,13 +614,15 @@ def sheet_changes(wb, R, logo):
     for i, f in enumerate(new_rows):
         r += 1; z = zebra(i)
         cell(ws, r, 1, f["check"], font(DOSIS, 11, True, DIGITAL_BLUE), z, CENTER)
-        cell(ws, r, 2, CATALOG.get(f["check"], {}).get("name", f["check"]), font(SLAB, 9.5, True), z, LEFT_MID)
-        cell(ws, r, 3, f["vehicle"]["label"] or (f.get("url") or "").replace("https://", ""), font(SLAB, 9.5), z, LEFT_MID)
+        name = CATALOG.get(f["check"], {}).get("name", f["check"])
+        veh = f["vehicle"]["label"] or (f.get("url") or "").replace("https://", "")
+        cell(ws, r, 2, name, font(SLAB, 9.5, True), z, LEFT_MID)
+        cell(ws, r, 3, veh, font(SLAB, 9.5), z, LEFT_MID)
         cell(ws, r, 4, f.get("vin") or "", font(SLAB, 9), z, CENTER)
         cell(ws, r, 5, f["summary"], font(SLAB, 9.5), z, LEFT_MID)
         cell(ws, r, 6, f.get("status_note", ""), font(SLAB, 9, False, WARM_GREY), z, LEFT_MID)
         link_cell(ws, r, 7, f.get("url"))
-        row_height_for(ws, r, [(f["summary"], widths[4])], 20)
+        row_height_for(ws, r, [(f["summary"], widths[4]), (name, widths[1]), (veh, widths[2])], 20)
     if not new_rows:
         r += 1; para(ws, r, "Nothing new since the previous run.", N, sum(widths), font(SLAB, 10, True, TILE_BLUE))
 
@@ -603,7 +635,7 @@ def sheet_changes(wb, R, logo):
                     "so they are summarized by check instead of listed one by one.", N, sum(widths),
              font(SLAB, 9.5, False, WARM_GREY))
         r += 1
-        header(ws, r, ["Check", "Issue", "Vehicles that turned over", "", "", "", ""])
+        header(ws, r, ["Check", "Issue", "Vehicles that turned over", "", "What it means", "", ""])
         ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=4)
         ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=7)
         by = {}
@@ -616,7 +648,7 @@ def sheet_changes(wb, R, logo):
             ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=4)
             cell(ws, r, 3, n, font(DOSIS, 13, True, NAVY_BASE), z, CENTER)
             ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=7)
-            cell(ws, r, 5, "", None, z, LEFT_MID)
+            cell(ws, r, 5, "Sold or came off the site; cleared by turnover, not a fix", font(SLAB, 9, False, WARM_GREY), z, LEFT_MID)
             for col in (4, 6, 7):
                 ws.cell(row=r, column=col).border = BOX; ws.cell(row=r, column=col).fill = z
             row_height_for(ws, r, [(CATALOG.get(chk, {}).get("name", chk), widths[1])], 20)
@@ -637,10 +669,11 @@ def sheet_changes(wb, R, logo):
         cell(ws, r, 3, x["ref"], font(SLAB, 9), z, LEFT_MID); ws.cell(row=r, column=4).border = BOX; ws.cell(row=r, column=4).fill = z
         ws.merge_cells(start_row=r, start_column=5, end_row=r, end_column=7)
         fixed = x["reason"].startswith("Fixed")
-        cell(ws, r, 5, x["reason"], font(SLAB, 9.5, fixed, TILE_BLUE if fixed else WARM_GREY), z, LEFT_MID)
+        why = x["reason"] + (f" ({x['note']})" if x.get("note") else "")
+        cell(ws, r, 5, why, font(SLAB, 9.5, fixed, TILE_BLUE if fixed else WARM_GREY), z, LEFT_MID)
         for col in (6, 7):
             ws.cell(row=r, column=col).border = BOX; ws.cell(row=r, column=col).fill = z
-        row_height_for(ws, r, [(x["name"], widths[1]), (x["ref"], widths[2] + widths[3])], 20)
+        row_height_for(ws, r, [(x["name"], widths[1]), (x["ref"], widths[2] + widths[3]), (why, sum(widths[4:]))], 20)
     if not res:
         r += 1; para(ws, r, "Nothing was fixed in place since the previous run.", N, sum(widths), font(SLAB, 10, True, TILE_BLUE))
     ws.freeze_panes = ws.cell(row=hdr + 1, column=1)
@@ -721,8 +754,9 @@ def main():
                  "'Page' opens the live vehicle page. Status NEW means it was not flagged on the previous run.",
                  [f for f in R["findings"] if f["area"] == AREA_LEGAL], R, args.logo, DIGITAL_BLUE)
     detail_sheet(wb, "Inventory Accuracy  ·  photos, payments, pricing data", "Inventory Accuracy",
-                 "Per-vehicle items that cost leads rather than create legal exposure: missing or stock photos, missing lease payments, "
-                 "savings math, spin media. Hand this tab to the inventory manager; the Fix List says who owns each item.",
+                 "Per-vehicle accuracy items: in-transit labels, missing or stock photos, missing lease payments, savings math, "
+                 "spin media. Most cost leads rather than create legal exposure, but in-transit labels and stock photos on used "
+                 "units also carry FTC risk. Hand this tab to the inventory manager; the Fix List says who owns each item.",
                  [f for f in R["findings"] if f["area"] == AREA_ACCURACY], R, args.logo)
     sheet_site_health(wb, R, args.logo)
     sheet_phones(wb, R, args.logo)

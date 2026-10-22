@@ -78,6 +78,19 @@ def parse_money(s):
         return None
 
 
+def parse_price_labels(pbox):
+    """Label -> dollar amount from the pricing box text. Keys are title-cased with
+    apostrophes dropped, so "McPeek's Discount" and "McPeeks Discount" match."""
+    labels = {}
+    for lm in re.finditer(
+            r"(MSRP|McPeek['’]?s? Discount|Dealer Discount|Upfit Cost|Total Savings|Selling Price|"
+            r"Sale Price|Net Price|Final Price|Market Value|Your Price|Internet Price)"
+            r"(?:\s*\([^)]{0,60}\))?"  # "MSRP (Including Destination Charges):"
+            r"\s*:?\s*[-+−]?\s*\$\s*([\d,]+)", pbox, re.I):
+        labels.setdefault(re.sub(r"['’]", "", lm.group(1)).title(), parse_money(lm.group(2)))
+    return labels
+
+
 def extract_vdp(url, html):
     rec = {"url": url}
     # --- JSON-LD Vehicle ---
@@ -88,9 +101,16 @@ def extract_vdp(url, html):
             continue
         if d.get("@type") == "Vehicle":
             offers = d.get("offers") or {}
+            # 2026-10 Pixel Motion layout dropped state_of_vehicle; fall back to
+            # schema.org itemCondition, then the /inventory/display/{cond}/ path.
+            cond = (d.get("state_of_vehicle") or "").upper()
+            if not cond:
+                ic = str(d.get("itemCondition") or offers.get("itemCondition") or "")
+                cm = re.search(r"(New|Used)Condition", ic) or re.search(r"/display/(new|used)/", url, re.I)
+                cond = cm.group(1).upper() if cm else ""
             rec.update({
                 "name": d.get("name"), "vin": d.get("vehicleIdentificationNumber"),
-                "condition": (d.get("state_of_vehicle") or "").upper(),
+                "condition": cond,
                 "model_year": d.get("modelDate"), "make": d.get("manufacturer"),
                 "model": d.get("model"),
                 "jsonld_price": offers.get("price"),
@@ -106,19 +126,13 @@ def extract_vdp(url, html):
     # --- pricing box: pick the MSRP/Selling Price window with the most $ signs
     # (avoids latching onto nav/footer mentions on pages with no pricing box) ---
     pbox, best = "", -1
-    for m in re.finditer(r"(MSRP|Selling Price)", text, re.I):
+    for m in re.finditer(r"(MSRP|Selling Price|Sale Price|Net Price)", text, re.I):
         w = text[max(0, m.start() - 600): m.end() + 1800]
         score = w.count("$")
         if score > best:
             pbox, best = w, score
     rec["price_text"] = pbox[:2200]
-    labels = {}
-    for lm in re.finditer(
-            r"(MSRP|McPeeks? Discount|Dealer Discount|Total Savings|Selling Price|"
-            r"Sale Price|Net Price|Final Price|Market Value|Your Price|Internet Price)"
-            r"\s*:?\s*[-+−]?\s*\$\s*([\d,]+)", pbox, re.I):
-        labels.setdefault(lm.group(1).title(), parse_money(lm.group(2)))
-    rec["price_labels"] = labels
+    rec["price_labels"] = parse_price_labels(pbox)
 
     # --- rebates itemized in description/page ("$1000 - 2026 National Retail Bonus Cash . Exp. 08/03/2026") ---
     rebate_src = (rec.get("description") or "") + " " + window(text, r"Price includes", after=1200)

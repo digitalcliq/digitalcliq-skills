@@ -121,7 +121,7 @@ def main():
         if k in merged:
             s0, s1 = merged[k].get("summary") or "", f.get("summary") or ""
             if s1 and s1 not in s0:
-                merged[k]["summary"] = (s0 + " " + s1).strip()
+                merged[k]["summary"] = (s0.rstrip(". ") + ". " + s1).strip() if s0 else s1
         else:
             merged[k] = f; order.append(k)
     F = [merged[k] for k in order]
@@ -149,7 +149,12 @@ def main():
             if vin and first_seen.get(vin) == today:
                 f["status_note"] = "New arrival on the lot"
             elif vin:
-                f["status_note"] = "New issue on a vehicle that was already listed"
+                # a check added or tightened after the last run finds old issues, not page changes
+                since = CATALOG.get(f["check"], {}).get("since")
+                if since and prev.get("date", "") < since:
+                    f["status_note"] = "First checked this run (check added or tightened)"
+                else:
+                    f["status_note"] = "New issue on a vehicle that was already listed"
             else:
                 f["status_note"] = "New since last run"
         else:
@@ -158,15 +163,19 @@ def main():
     resolved = []
     for k in sorted(resolved_keys):
         chk, ref = k.split("|", 1)
+        note = ""
         if re.fullmatch(r"[A-Z0-9]{11,17}", ref) and ref in first_seen:
             if ref in current_vins:
                 reason = "Fixed on the page (vehicle still listed)"
+                if chk == "C01" and f"C24|{ref}" in cur_keys:
+                    # an MSRP-only box has no rebate math to flag; the MSRP check owns it now
+                    reason, note = "No longer detected", "page now shows only an MSRP; see the MSRP fix"
             else:
                 reason = "Vehicle no longer listed (sold or delisted)"
         else:
             reason = "No longer detected"
         resolved.append({"check": chk, "name": CATALOG.get(chk, {}).get("name", chk),
-                         "ref": ref, "reason": reason})
+                         "ref": ref, "reason": reason, "note": note})
 
     # ---- counts ----
     counts, prev_counts = {}, {}
@@ -203,8 +212,13 @@ def main():
             trend = "Baseline"
         elif prev_n is None:
             trend = "See Scorecard"
+        elif cat.get("since") and prev.get("date", "") < cat["since"]:
+            trend = "First checked this run"
         elif prev_n == 0:
             trend = "New this run"
+        elif n == len(current_vins) and prev_n == prev.get("vehicle_count"):
+            # every vehicle page flagged both runs: the change is inventory, not the issue
+            trend = f"All {n} pages (was all {prev_n})"
         elif n > prev_n:
             trend = f"Up from {prev_n}"
         elif n < prev_n:
@@ -248,9 +262,9 @@ def main():
                 meaning = "Nothing flagged this run."
             else:
                 names = [CATALOG[c]["name"] for c in checks if c in CATALOG]
-                more = f" and {len(names) - 3} more" if len(names) > 3 else ""
+                more = f" and {len(names) - 5} more" if len(names) > 5 else ""
                 meaning = (f"{n} open {plural(n, 'item')} across {len(checks)} {plural(len(checks), 'check')}: "
-                           + "; ".join(names[:3]) + more + ".")
+                           + "; ".join(names[:5]) + more + ".")
         area_status_rows.append({"area": a, "status": label, "open": n, "meaning": meaning})
 
     # ---- phones (diffed run over run) ----
@@ -258,7 +272,9 @@ def main():
     prev_phones = prev.get("phones", {})
     phone_rows = []
     for num, pages in sorted(phones.items()):
-        if prev_phones and num not in prev_phones:
+        if prev_phones and num not in prev_phones and all(p.startswith("/inventory/display/") for p in pages):
+            chg = "First listed this run"  # vehicle-page numbers were not collected before 2026-10-22
+        elif prev_phones and num not in prev_phones:
             chg = "NEW number"
         elif prev_phones and sorted(prev_phones.get(num, [])) != sorted(pages):
             chg = "Pages changed"

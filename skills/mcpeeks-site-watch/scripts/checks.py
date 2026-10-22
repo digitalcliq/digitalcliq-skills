@@ -85,14 +85,32 @@ def main():
                      f"rendered={v.get('price_displayed')}"))
 
         # C01 — pre-rebate selling price must be displayed (taxable price, CA ad law)
+        # 2026-10 layout: "Selling Price" is pre-rebate, rebates are itemized, and
+        # "Net Price" is post-rebate. A box with no Net Price line subtracts no rebates.
         if cond == "NEW" and rebate_total > 0 and selling:
-            pre_rebate = selling + rebate_total
-            displayed = set(labels.values())
-            shows_pre = any(a and abs(a - pre_rebate) < 1 for a in displayed)
+            net = labels.get("Net Price")
+            if net:
+                pre = labels.get("Selling Price")
+                advertised, pre_rebate = net, (pre or net + rebate_total)
+                shows_pre = bool(pre and pre > net)
+            elif "Total Savings" in labels:  # pre-2026-10 layout: Selling Price was post-rebate
+                advertised, pre_rebate = selling, selling + rebate_total
+                shows_pre = any(a and abs(a - pre_rebate) < 1 for a in labels.values())
+            else:
+                # No Net Price line (e.g. a single "Total Selling Price"): rebates were
+                # taken out only if the price sits below MSRP minus the dealer discount.
+                advertised, pre_rebate = selling, selling + rebate_total
+                msrp_l = labels.get("Msrp")
+                disc_l = (labels.get("Mcpeeks Discount") or labels.get("Mcpeek Discount")
+                          or labels.get("Dealer Discount") or 0)
+                if msrp_l:
+                    shows_pre = selling >= msrp_l + labels.get("Upfit Cost", 0) - disc_l - 1
+                else:
+                    shows_pre = any(a and abs(a - pre_rebate) < 1 for a in labels.values())
             if not shows_pre:
                 F.append(finding("C01", SEV_COMPLIANCE, url,
                     f"Pre-rebate selling price ${pre_rebate:,.0f} NOT displayed "
-                    f"(shows only post-rebate ${selling:,.0f}; rebates ${rebate_total:,.0f})",
+                    f"(shows only post-rebate ${advertised:,.0f}; rebates ${rebate_total:,.0f})",
                     vin, f"labels={labels} rebates={v['rebates']}"))
 
         # C02 — doc fee excluded from advertised price
@@ -138,8 +156,13 @@ def main():
                 "Repealed two-day cancellation option / $40,000 wording still on the page", vin))
 
         # C24 — MSRP shown as the price / 'MSRP is not the selling price' (CARS Act, CNCDA)
-        if v.get("msrp_not_price_language") or (msrp and not selling and cond == "NEW"):
+        # Judge on the page's own labels: the feed price always exists and equals MSRP
+        # on an MSRP-only box, so falling back to it hid every such page.
+        shown_price = labels.get("Selling Price") or labels.get("Net Price") or labels.get("Sale Price")
+        if v.get("msrp_not_price_language") or (msrp and not shown_price and cond == "NEW"):
             F.append(finding("C24", SEV_COMPLIANCE, url,
+                "MSRP is the only price on the page; no McPeek's selling price is shown"
+                if not v.get("msrp_not_price_language") else
                 "MSRP presented as the price or 'MSRP is not the selling price' wording", vin,
                 f"labels={labels}"))
 
@@ -190,7 +213,9 @@ def main():
         # C10 — current-model new vehicle with no lease payment
         if cond == "NEW" and v.get("model_year") and int(v["model_year"]) >= TODAY.year \
                 and not (v.get("has_lease_mention") and v.get("payments")):
+            gated = "request lease payment" in (v.get("price_text") or "").lower()
             F.append(finding("C10", SEV_DATA, url,
+                "No lease payment shown; the page offers a Request Lease Payment button instead" if gated else
                 "Current-model new vehicle shows no lease payment (the payment feed may have dropped this trim)", vin))
 
         # C11 — aged inventory at MSRP / bogus savings
@@ -233,7 +258,8 @@ def main():
                      if approved and not any(a in d for a in approved))
     if unknown:
         F.append(finding("C15", SEV_HYGIENE, "site-wide",
-            f"{len(unknown)} outside script {'domain' if len(unknown) == 1 else 'domains'} not on the approved-vendor list",
+            f"{len(unknown)} outside script {'domain' if len(unknown) == 1 else 'domains'} not on the approved-vendor list: "
+            + ", ".join(unknown[:25]),
             None, ", ".join(unknown[:25])))
     prev_domains = set(load(os.path.join(args.state, "script_domains.json"), []))
     new_domains = sorted(set(all_domains) - prev_domains) if prev_domains else []
@@ -262,6 +288,13 @@ def main():
         if junk in all_site_phones:
             F.append(finding("C21", SEV_DATA, str(all_site_phones[junk]),
                 f"Dummy phone number {junk} visible on page"))
+    # Numbers that only appear on vehicle pages (old store lines in descriptions,
+    # typos) still need a test call, so they join the checklist with their pages.
+    for v in vehicles:
+        for ph in v.get("phones", []):
+            if ph in all_site_phones and not all(p.startswith("/inventory/display/") for p in all_site_phones[ph]):
+                continue
+            all_site_phones.setdefault(ph, []).append(re.sub(r"^https?://[^/]+", "", v["url"]))
 
     # update first_seen state
     for v in vehicles:

@@ -40,7 +40,7 @@ CATALOG = {
         what="New-vehicle pages that show only the price after factory rebates, with no pre-rebate selling price on the page.",
         why="California taxes and regulates the pre-rebate price, and from October 1, 2026 the CARS Act says the advertised total price may not be reduced by any rebate at all (Civ. Code 1784.31(j)(3)). CNCDA's compliant pattern is Total Price, then Factory Rebate as a dollar amount, then a figure labeled Net Cost, never Price. The FTC adds that a rebate not every buyer qualifies for cannot be deducted from the most prominent price. This is the single largest legal exposure on the site and the first thing a DMV investigator or plaintiff attorney looks for.",
         owner=OWNER_SITE,
-        fix="Change the VDP pricing box template so the pre-rebate Total Price is the prominent figure, each rebate itemized underneath as a specific dollar amount with its qualification and expiration, and the after-rebate figure labeled Net Cost. Never use dealer cash back, up-to rebate ranges, or stacked rebates a buyer cannot combine. One template change fixes every vehicle at once.",
+        fix="Change the vehicle-page pricing box template so the pre-rebate Total Price is the prominent figure, each rebate itemized underneath as a specific dollar amount with its qualification and expiration, and the after-rebate figure labeled Net Cost. Never use dealer cash back, up-to rebate ranges, or stacked rebates a buyer cannot combine. One template change fixes every vehicle at once.",
     ),
     "C02": dict(
         name="Doc fee excluded from the advertised price",
@@ -48,7 +48,7 @@ CATALOG = {
         what="Disclaimer language that says the advertised price is 'plus doc fee' or similar.",
         why="The FTC's written Pricing Transparency FAQs (September 2026, Q6 and Q7) say the most prominent advertised price must include the full doc fee, at the highest amount any buyer is charged; the FTC's own example is a $40,000 car with an $85 doc fee advertised as $40,085, and state doc-fee rules do not change that. FTC staff added on September 30, 2026 that the electronic filing and emission testing charges follow the same test: if the state does not require the customer to pay them but the store does, they belong in the price too. California law and the CARS Act keep all three outside the total price, so the two rules pull apart here. CNCDA's answer is to show both: the Total Price, the doc fee on its own line marked not a governmental fee, and a price including the doc fee, never labeled out-the-door. The FTC enforces this now, with no grace period, and sent warning letters to 97 dealer groups in March 2026 on exactly this pattern.",
         owner=OWNER_SITE,
-        fix="Replace the 'plus doc fee' wording with CNCDA's dual presentation on every VDP: Total Price, then Document processing charge (not a governmental fee), then Price including document processing charge, with that last figure the biggest price on the page (the FTC asks for most prominent, not merely equal). Fold the electronic filing and emission testing charges into that inclusive figure as well, or absorb them. If the store folds the doc fee into the advertised price instead, drop the doc fee reference from the fee disclaimer so it is not misleading.",
+        fix="Replace the 'plus doc fee' wording with CNCDA's dual presentation on every vehicle page: Total Price, then Document processing charge (not a governmental fee), then Price including document processing charge, with that last figure the biggest price on the page (the FTC asks for most prominent, not merely equal). Fold the electronic filing and emission testing charges into that inclusive figure as well, or absorb them. If the store folds the doc fee into the advertised price instead, drop the doc fee reference from the fee disclaimer so it is not misleading.",
     ),
     "C03": dict(
         name="All-in price is not the biggest number on the page",
@@ -56,7 +56,7 @@ CATALOG = {
         what="Whether the largest, boldest price on the vehicle page is the all-in selling price, or an MSRP / post-rebate teaser instead.",
         why="Regulators judge prominence by what the shopper sees first. The FTC's September 2026 FAQs (Q4 and Q5) say every page that states any amount, search results included, must show the actual price as the most prominent figure, and that placement counts as much as font size: a smaller MSRP or savings number sitting where the eye lands first defeats a larger price, and labels like 'the price you'll get' next to both numbers are confusing. A big teaser price with the real price in small type is the classic drip-pricing pattern the FTC targets. The CARS Act adds that MSRP may appear only if it is labeled as MSRP and shown no more prominently than the dealer's total price; MSRP-only pricing and an MSRP figure with a not-the-selling-price disclaimer both fail (CNCDA Guide Part 2).",
         owner=OWNER_SITE,
-        fix="Adjust the VDP and search-results price styling so the all-in selling price renders largest, boldest, and first in the price block; MSRP, savings, payments, and conditional prices render smaller and below it, each with a plain label.",
+        fix="Adjust the vehicle-page and search-results price styling so the all-in selling price renders largest, boldest, and first in the price block; MSRP, savings, payments, and conditional prices render smaller and below it, each with a plain label.",
     ),
     "C04": dict(
         name="Required fee disclaimer missing or changed",
@@ -64,7 +64,7 @@ CATALOG = {
         what="Whether each vehicle page carries the statutory fee disclaimer word for word: Plus government fees and taxes, any finance charges, any dealer document processing charge, any electronic filing charge, and any emission testing charge.",
         why="Vehicle Code 11713.1(c)(2) requires this exact sentence, with no abbreviations, on every web page that displays a vehicle price, and CNCDA confirms it survives the CARS Act unchanged. A missing, shortened, or reworded disclaimer removes the store's defense that fees were disclosed.",
         owner=OWNER_SITE,
-        fix="Restore the statutory sentence verbatim in the VDP template. If the store decides to fold the doc fee into the advertised price, remove the doc fee reference from the sentence so it is not misleading. Give DigitalCLIQ the exact approved wording so future runs check it word for word.",
+        fix="Restore the statutory sentence verbatim in the vehicle-page template. If the store decides to fold the doc fee into the advertised price, remove the doc fee reference from the sentence so it is not misleading. Give DigitalCLIQ the exact approved wording so future runs check it word for word.",
     ),
     "C05": dict(
         name="Payment shown without finance terms",
@@ -112,7 +112,7 @@ CATALOG = {
         what="New current-model-year units whose page shows no lease payment at all.",
         why="Shoppers on lease-heavy CDJR models filter by payment. A unit with no payment is invisible to them, so this is lost lead volume, not a legal issue.",
         owner=OWNER_SITE,
-        fix="Confirm the payment feed maps to every current-model trim; where a trim has no program, show the finance payment instead.",
+        fix="Show the current lease payment on the page instead of behind a Request Lease Payment button, and confirm the payment feed maps to every current-model trim; where a trim has no lease program, show the finance payment instead.",
     ),
     "C11": dict(
         name="Aged unit still at MSRP, or savings math wrong",
@@ -208,7 +208,7 @@ CATALOG = {
         what="Disclaimer or pricing wording that keeps dealer-installed items out of the advertised price: excludes dealer-installed accessories, may be purchased for an additional cost or removed at the customer's option, does not apply to vehicles with dealer-added options.",
         why="From October 1, 2026 the CARS Act total price must include every item installed on the vehicle at the time of the ad (Civ. Code 1784.31(j)(2)). CNCDA calls pay-or-remove the practice the law was written to end, and the FTC's March 2026 letters targeted the same pattern; the FTC's September 2026 FAQs (Q9) add that a store may not call an installed item optional unless the customer can really decline it and buy at the advertised price, and may not imply an installed option cannot be removed. This is the highest-dollar exposure on the list because it adds hundreds or thousands per deal.",
         owner=OWNER_SITE,
-        fix="Fold every installed accessory and protection product into the advertised total price in the feed and on the VDP, remove the exclusion wording from the disclaimer template, and list installed items by name as included in the price. Customer-ordered accessories installed after the sale go on a due bill instead and do not touch the advertised price.",
+        fix="Fold every installed accessory and protection product into the advertised total price in the feed and on the vehicle page, remove the exclusion wording from the disclaimer template, and list installed items by name as included in the price. Customer-ordered accessories installed after the sale go on a due bill instead and do not touch the advertised price.",
     ),
     "C23": dict(
         name="Repealed two-day cancellation option wording still on the site",
@@ -220,18 +220,20 @@ CATALOG = {
     ),
     "C24": dict(
         name="MSRP shown as the price, or 'MSRP is not the selling price' wording",
+        since="2026-10-22",  # first run that applied the current logic
         area=AREA_LEGAL, weight=89,
         what="Vehicle pages where MSRP is the only figure or the biggest figure, or where a disclaimer says the price shown is MSRP and not the selling price.",
         why="From October 1, 2026 the dealer's total price must appear in every ad for a specific vehicle, and CNCDA is explicit that MSRP-only advertising and an MSRP figure with a not-the-selling-price disclaimer both fail (Civ. Code 1784.41(a), CNCDA Guide Part 2). MSRP may stay only when it is labeled MSRP and shown no more prominently than the total price.",
         owner=OWNER_SITE,
-        fix="Make the dealer's total price the prominent figure on every VDP, keep MSRP labeled and smaller, and delete any wording that presents MSRP as a stand-in for the selling price.",
+        fix="Make the dealer's total price the prominent figure on every vehicle page, keep MSRP labeled and smaller, and delete any wording that presents MSRP as a stand-in for the selling price.",
     ),
     "C25": dict(
         name="In-transit unit mislabeled or missing an arrival date",
+        since="2026-10-08",  # first run that applied the current logic
         area=AREA_LEGAL, weight=72,
         what="Vehicle pages that say in transit (or arriving soon) while also describing the unit as in production, not yet built, or a factory order, and in-transit pages that give no arrival information at all.",
         why="The FTC's September 2026 FAQs (Q10) allow a unit that is not on the lot to be advertised only if the page plainly says so, and FTC staff added on September 30, 2026 that shoppers read in transit as already on its way: a car that has not been built or shipped has to be described by its real status, any arrival date has to match what the store actually knows, and the unit must be available for purchase when it lands rather than already sold to someone else's paid order. A shopper who drives in for an in-transit unit that does not exist yet is the exact bait complaint the FTC says it will pursue.",
-        owner=OWNER_INVENTORY,
+        owner="Inventory manager",
         fix="Use in transit only for units the carrier has picked up, with the arrival information the store can support; label everything earlier as in production or factory order with an honest timeline; and pull any in-transit unit that is already committed to a sold order from the live feed.",
     ),
 }
